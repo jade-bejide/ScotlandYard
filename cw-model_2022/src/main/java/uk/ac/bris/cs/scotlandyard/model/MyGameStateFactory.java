@@ -82,7 +82,6 @@ public final class MyGameStateFactory implements Factory<GameState> {
 
 			proxy();
 
-
 		}
 		@Nonnull
 		@Override
@@ -142,7 +141,7 @@ public final class MyGameStateFactory implements Factory<GameState> {
 		@Nonnull
 		@Override
 		public ImmutableList<LogEntry> getMrXTravelLog() {
-			return null;
+			return log;
 		}
 
 		@Nonnull
