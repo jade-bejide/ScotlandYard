@@ -89,6 +89,7 @@ public class GameStateCreationTest extends ParameterisedModelTestBase {
 				new Player(GREEN, defaultDetectiveTickets(), 42));
 	}
 
+	////DONE////
 	@Test(expected = IllegalArgumentException.class)
 	public void testDetectiveHaveSecretTicketShouldThrow() {
 		gameStateFactory.build(standard24MoveSetup(),
@@ -96,6 +97,7 @@ public class GameStateCreationTest extends ParameterisedModelTestBase {
 				new Player(BLUE, makeTickets(1, 1, 1, 0, 1), 2));
 	}
 
+	////DONE////
 	@Test(expected = IllegalArgumentException.class)
 	public void testDetectiveHaveDoubleTicketShouldThrow() {
 		gameStateFactory.build(standard24MoveSetup(),

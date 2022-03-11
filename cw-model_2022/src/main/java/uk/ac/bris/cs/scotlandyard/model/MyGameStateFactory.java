@@ -15,7 +15,12 @@ import uk.ac.bris.cs.scotlandyard.model.Piece.*;
 import uk.ac.bris.cs.scotlandyard.model.ScotlandYard.*;
 
 
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
+
+import static uk.ac.bris.cs.scotlandyard.model.ScotlandYard.Ticket.DOUBLE;
+import static uk.ac.bris.cs.scotlandyard.model.ScotlandYard.Ticket.SECRET;
 
 /**
  * cw-model
@@ -40,17 +45,20 @@ public final class MyGameStateFactory implements Factory<GameState> {
 			if (setup.moves.isEmpty()) throw new IllegalArgumentException("Moves is empty!");
 			if (this.mrX == null) throw new NullPointerException("Mr X not present!");
 			if (this.remaining == null) throw new NullPointerException("Remaining players is empty!");
-			if (this.log.isEmpty()) throw new NullPointerException("Log is empty!");
 			if (this.detectives.isEmpty()) throw new NullPointerException("No detectives present!");
 
 			if (this.detectives.contains(null)) throw new NullPointerException("Null detective is not allowed!");
 
-			if (validSetup.distinctDetectiveLocation(this.detectives)) throw new IllegalArgumentException("Overlap between detectives!");
-			if (validSetup.distinctDetectivePieces(this.detectives)) throw new IllegalArgumentException("Duplicate detectives!");
+			if (detectiveLoops.overlap(this.detectives)) throw new IllegalArgumentException("Overlap between detectives!");
+			if (detectiveLoops.samePiece(this.detectives)) throw new IllegalArgumentException("Duplicate detectives!");
+			if (detectiveLoops.secretTicket(this.detectives)) throw new IllegalArgumentException("Detective with secret ticket!");
+			if (detectiveLoops.doubleTicket(this.detectives)) throw new IllegalArgumentException("Detective with double ticket!");
+
+			if (this.log.isEmpty()) throw new NullPointerException("Log is empty!"); //moved since caused some detective loops to fail
 		}
 
-		private final class validSetup{ //(setup validation)
-			private static HashMap<Player, Player> allDetectivePairs(List<Player> detectives){
+		private final class detectiveLoops{ //(setup validation)
+			public static HashMap<Player, Player> allDetectivePairs(List<Player> detectives){
 				HashMap<Player, Player> pairs = new HashMap<Player, Player>();
 				for(int i = 0; i < detectives.size(); i++){
 					for(int j = i + 1; j < detectives.size(); j++){ //checks every pair of detectives
@@ -59,17 +67,29 @@ public final class MyGameStateFactory implements Factory<GameState> {
 				}
 				return pairs;
 			}
-			public static boolean distinctDetectivePieces(List<Player> detectives){
-				for(Map.Entry<Player, Player> d : allDetectivePairs(detectives).entrySet()){
-					if(d.getKey().piece() == d.getValue().piece()){ return false; }
+			public static boolean samePiece(List<Player> detectives){
+				for(Map.Entry<Player, Player> dd : allDetectivePairs(detectives).entrySet()){
+					if(dd.getKey().piece() == dd.getValue().piece()){ return true; }
 				}
-				return true;
+				return false;
 			}
-			public static boolean distinctDetectiveLocation(List<Player> detectives){
-				for(Map.Entry<Player, Player> d : allDetectivePairs(detectives).entrySet()){
-					if(d.getKey().location() == d.getValue().location()) { return false; }
+			public static boolean overlap(List<Player> detectives){
+				for(Map.Entry<Player, Player> dd : allDetectivePairs(detectives).entrySet()){
+					if(dd.getKey().location() == dd.getValue().location()) { return true; }
 				}
-				return true;
+				return false;
+			}
+			public static boolean secretTicket(List<Player> detectives){
+				for(Player d : detectives){
+					if(d.hasAtLeast(SECRET, 1)){ return true; }
+				}
+				return false;
+			}
+			public static boolean doubleTicket(List<Player> detectives){
+				for(Player d : detectives){
+					if(d.hasAtLeast(DOUBLE, 1)){ return true; }
+				}
+				return false;
 			}
 		}
 
