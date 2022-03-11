@@ -57,7 +57,7 @@ public final class MyGameStateFactory implements Factory<GameState> {
 			if (this.log.isEmpty()) throw new NullPointerException("Log is empty!"); //moved since caused some detective loops to fail
 		}
 
-		private final class detectiveLoops{ //(setup validation) ((/stream/lined))
+		private final class detectiveLoops{ //(setup validation) (/stream/lined) (strategy pattern)
 			private static boolean iterate(List<Player> detectives, Predicate<Player> p){
 				return detectives.stream().anyMatch(p);
 			}
@@ -65,6 +65,7 @@ public final class MyGameStateFactory implements Factory<GameState> {
 				HashMap<Player, Player> pairs = new HashMap<Player, Player>();
 				for(int i = 0; i < detectives.size(); i++){
 					for(int j = i + 1; j < detectives.size(); j++){ //checks every pair exactly once
+						if()
 						pairs.put(detectives.get(i), detectives.get(j));
 					}
 				}
