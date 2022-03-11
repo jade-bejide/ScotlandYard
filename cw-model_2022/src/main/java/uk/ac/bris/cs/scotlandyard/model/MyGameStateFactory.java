@@ -8,8 +8,7 @@ import com.google.common.collect.ImmutableSet;
 import uk.ac.bris.cs.scotlandyard.model.Board.GameState;
 import uk.ac.bris.cs.scotlandyard.model.ScotlandYard.Factory;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * cw-model
@@ -28,6 +27,7 @@ public final class MyGameStateFactory implements Factory<GameState> {
 		private MyGameState(final GameSetup gs, final ImmutableSet<Piece> remaining, final ImmutableList<LogEntry> log, final Player mrX, final ImmutableList<Player> detectives) {
 			this.setup = gs;
 			this.mrX = mrX;
+			this.remaining = remaining;
 			this.log = log;
 			this.detectives = detectives;
 		}
@@ -38,7 +38,10 @@ public final class MyGameStateFactory implements Factory<GameState> {
 		@Nonnull
 		@Override
 		public ImmutableSet<Piece> getPlayers() {
-			return new ArrayListist<Piece>(){};
+			Set<Piece> players = new HashSet<Piece>();
+			players.addAll(detectives);
+			players.add(mrX);
+			return new <Piece>(){};
 		}
 
 		@Nonnull
@@ -82,7 +85,7 @@ public final class MyGameStateFactory implements Factory<GameState> {
 			GameSetup setup,
 			Player mrX,
 			ImmutableList<Player> detectives) {
-		// TODO
+		return new GameState(setup, ImmutableSet.of(mrX.MRX), ImmutableList.of(), mrX, detectives);
 
 	}
 
