@@ -1,14 +1,10 @@
 package uk.ac.bris.cs.scotlandyard.model;
 
 import com.google.common.collect.ImmutableList;
-<<<<<<< HEAD
-
 import javax.annotation.Nonnull;
 import javax.swing.text.html.Option;
 
 import com.google.common.collect.ImmutableMap;
-=======
->>>>>>> origin/feature-jade
 import com.google.common.collect.ImmutableSet;
 import java.util.*;
 import javax.annotation.Nonnull;
@@ -84,7 +80,7 @@ public final class MyGameStateFactory implements Factory<GameState> {
 				//sets the correct player in detectives
 				for(int i = 0; i < detectives.size(); i++){
 					if(detectives.get(i).piece() == player.piece()) {
-						detectives.set(i, player); i = detectives.size();
+						detectives.set(i, player); i = detectives.size(); //exit loop
 					}
 				}
 			}else{ mrX = player; } //sets mrX to discard one ticket
