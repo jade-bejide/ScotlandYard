@@ -65,7 +65,6 @@ public final class MyGameStateFactory implements Factory<GameState> {
 				HashMap<Player, Player> pairs = new HashMap<Player, Player>();
 				for(int i = 0; i < detectives.size(); i++){
 					for(int j = i + 1; j < detectives.size(); j++){ //checks every pair exactly once
-						if()
 						pairs.put(detectives.get(i), detectives.get(j));
 					}
 				}
