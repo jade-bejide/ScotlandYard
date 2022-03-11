@@ -1,14 +1,16 @@
 package uk.ac.bris.cs.scotlandyard.model;
 
 import com.google.common.collect.ImmutableList;
-
-import javax.annotation.Nonnull;
-
 import com.google.common.collect.ImmutableSet;
+import java.util.*;
+import javax.annotation.Nonnull;
 import uk.ac.bris.cs.scotlandyard.model.Board.GameState;
 import uk.ac.bris.cs.scotlandyard.model.ScotlandYard.Factory;
+import uk.ac.bris.cs.scotlandyard.model.Move.*;
+import uk.ac.bris.cs.scotlandyard.model.Piece.*;
+import uk.ac.bris.cs.scotlandyard.model.ScotlandYard.*;
 
-import java.util.*;
+
 import java.util.stream.Collectors;
 
 /**
@@ -91,7 +93,7 @@ public final class MyGameStateFactory implements Factory<GameState> {
 			return null;
 		}
 
-		private static Set<SingleMove> makeSingleMoves(GameSetup setup, List<Player> detectives, Player player, int source){
+		private static Set<Move.SingleMove> makeSingleMoves(GameSetup setup, List<Player> detectives, Player player, int source){
 
 			// TODO create an empty collection of some sort, say, HashSet, to store all the SingleMove we generate
 
@@ -109,11 +111,13 @@ public final class MyGameStateFactory implements Factory<GameState> {
 			}
 
 			// TODO return the collection of moves
+
+			return null;
 		}
 
-		private static Set<DoubleMove> makeDoubleMoves(GameSetup setup, List<Player> detectives, Player player, int source1) {
+		private static Set<Move.DoubleMove> makeDoubleMoves(GameSetup setup, List<Player> detectives, Player player, int source1) {
 			//makeSingleMoves(setup, detectives, player, source1);
-
+			return null;
 		}
 
 		@Nonnull
@@ -126,9 +130,9 @@ public final class MyGameStateFactory implements Factory<GameState> {
 	@Nonnull @Override public GameState build(
 			GameSetup setup,
 			Player mrX,
-			ImmutableList<Player> detectives,
-			Piece MrX) {
-		return new GameState(setup, ImmutableSet.of(MrX.MRX), ImmutableList.of(), mrX, detectives);
+			ImmutableList<Player> detectives
+			) {
+		return new MyGameState(setup, ImmutableSet.of(MrX.MRX), ImmutableList.of(), mrX, detectives);
 
 	}
 
