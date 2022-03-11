@@ -71,7 +71,7 @@ public class GameStateCreationTest extends ParameterisedModelTestBase {
 				bluePlayer(),
 				blackPlayer());
 	}
-
+	////DONE////
 	@Test(expected = IllegalArgumentException.class)
 	public void testDuplicateDetectivesShouldThrow() {
 		gameStateFactory.build(standard24MoveSetup(),
@@ -80,7 +80,7 @@ public class GameStateCreationTest extends ParameterisedModelTestBase {
 				new Player(BLUE, defaultDetectiveTickets(), 42));
 
 	}
-
+	////DONE////
 	@Test(expected = IllegalArgumentException.class)
 	public void testLocationOverlapBetweenDetectivesShouldThrow() {
 		gameStateFactory.build(standard24MoveSetup(),
