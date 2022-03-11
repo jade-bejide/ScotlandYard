@@ -35,7 +35,6 @@ public final class MyGameStateFactory implements Factory<GameState> {
 			if (this.mrX == null) throw new IllegalArgumentException("No detective present!");
 			if (this.remaining == null) throw new IllegalArgumentException("Remaining players is empty!");
 			if (this.log.isEmpty()) throw new IllegalArgumentException("Log is empty!");
-
 			if (this.detectives.isEmpty()) throw new IllegalArgumentException("No detectives present!");
 
 		}
@@ -92,7 +91,8 @@ public final class MyGameStateFactory implements Factory<GameState> {
 	@Nonnull @Override public GameState build(
 			GameSetup setup,
 			Player mrX,
-			ImmutableList<Player> detectives) {
+			ImmutableList<Player> detectives,
+			Piece MrX) {
 		return new GameState(setup, ImmutableSet.of(MrX.MRX), ImmutableList.of(), mrX, detectives);
 
 	}
