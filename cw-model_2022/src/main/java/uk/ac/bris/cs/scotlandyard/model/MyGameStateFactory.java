@@ -91,6 +91,31 @@ public final class MyGameStateFactory implements Factory<GameState> {
 			return null;
 		}
 
+		private static Set<SingleMove> makeSingleMoves(GameSetup setup, List<Player> detectives, Player player, int source){
+
+			// TODO create an empty collection of some sort, say, HashSet, to store all the SingleMove we generate
+
+			for(int destination : setup.graph.adjacentNodes(source)) {
+				// TODO find out if destination is occupied by a detective
+				//  if the location is occupied, don't add to the collection of moves to return
+
+				for(Transport t : setup.graph.edgeValueOrDefault(source, destination, ImmutableSet.of()) ) {
+					// TODO find out if the player has the required tickets
+					//  if it does, construct a SingleMove and add it the collection of moves to return
+				}
+
+				// TODO consider the rules of secret moves here
+				//  add moves to the destination via a secret ticket if there are any left with the player
+			}
+
+			// TODO return the collection of moves
+		}
+
+		private static Set<DoubleMove> makeDoubleMoves(GameSetup setup, List<Player> detectives, Player player, int source1) {
+			//makeSingleMoves(setup, detectives, player, source1);
+
+		}
+
 		@Nonnull
 		@Override
 		public ImmutableSet<Move> getAvailableMoves() {
