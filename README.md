@@ -1,2 +1,2 @@
 # ScotlandYard
-Object Oriented Programming Coursework.
+Object Oriented Programming Coursework
