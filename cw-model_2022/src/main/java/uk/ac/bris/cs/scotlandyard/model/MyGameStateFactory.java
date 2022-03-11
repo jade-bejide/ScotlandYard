@@ -47,7 +47,7 @@ public final class MyGameStateFactory implements Factory<GameState> {
 		public GameState advance(Move move) {
 			Piece piece = move.commencedBy();
 			if(piece.equals(mrX.piece())){
-				mrX = new Player(piece, mrX.tickets(), move.destination);
+				mrX = new Player(piece, mrX.tickets(), );
 			}
 			return null;
 		}
