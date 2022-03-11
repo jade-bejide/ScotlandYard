@@ -82,7 +82,6 @@ public final class MyGameStateFactory implements Factory<GameState> {
 
 			proxy();
 
-
 		}
 		@Nonnull
 		@Override
