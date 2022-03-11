@@ -44,7 +44,35 @@ public final class MyGameStateFactory implements Factory<GameState> {
 			if (this.detectives.isEmpty()) throw new NullPointerException("No detectives present!");
 
 			if (this.detectives.contains(null)) throw new NullPointerException("Null detective is not allowed!");
+
+			if (validSetup.distinctDetectiveLocation(this.detectives)) throw new IllegalArgumentException("Overlap between detectives!");
+			if (validSetup.distinctDetectivePieces(this.detectives)) throw new IllegalArgumentException("Duplicate detectives!");
 		}
+
+		private final class validSetup{ //(setup validation)
+			private static HashMap<Player, Player> allDetectivePairs(List<Player> detectives){
+				HashMap<Player, Player> pairs = new HashMap<Player, Player>();
+				for(int i = 0; i < detectives.size(); i++){
+					for(int j = i + 1; j < detectives.size(); j++){ //checks every pair of detectives
+						pairs.put(detectives.get(i), detectives.get(j));
+					}
+				}
+				return pairs;
+			}
+			public static boolean distinctDetectivePieces(List<Player> detectives){
+				for(Map.Entry<Player, Player> d : allDetectivePairs(detectives).entrySet()){
+					if(d.getKey().piece() == d.getValue().piece()){ return false; }
+				}
+				return true;
+			}
+			public static boolean distinctDetectiveLocation(List<Player> detectives){
+				for(Map.Entry<Player, Player> d : allDetectivePairs(detectives).entrySet()){
+					if(d.getKey().location() == d.getValue().location()) { return false; }
+				}
+				return true;
+			}
+		}
+
 		private MyGameState(final GameSetup gs, final ImmutableSet<Piece> remaining, final ImmutableList<LogEntry> log, final Player mrX, final List<Player> detectives) {
 			this.setup = gs;
 			this.mrX = mrX;
@@ -53,6 +81,7 @@ public final class MyGameStateFactory implements Factory<GameState> {
 			this.detectives = detectives;
 
 			proxy();
+
 
 		}
 		@Nonnull
