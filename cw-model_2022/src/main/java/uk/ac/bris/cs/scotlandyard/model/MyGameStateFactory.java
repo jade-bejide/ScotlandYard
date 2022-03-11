@@ -58,14 +58,14 @@ public final class MyGameStateFactory implements Factory<GameState> {
 		@Nonnull
 		@Override
 		public GameState advance(Move move) {
-			List<Player> players = new ArrayList<Player>(detectives); players.add(mrX);
-			List<Player> playerOnEnum = players
-					.stream()
-					.filter(x -> x.piece() == move.commencedBy())
-					.toList();
-			if(playerOnEnum.get(0).equals(mrX)){
-				mrX = new Player(piece, ), );
-			}
+//			List<Player> players = new ArrayList<Player>(detectives); players.add(mrX);
+//			List<Player> playerOnEnum = players
+//					.stream()
+//					.filter(x -> x.piece() == move.commencedBy())
+//					.toList();
+//			if(playerOnEnum.get(0).equals(mrX)){
+//				mrX = new Player(piece, ), );
+//			}
 			return null;
 		}
 
