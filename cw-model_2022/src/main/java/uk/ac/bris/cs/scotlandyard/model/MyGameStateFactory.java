@@ -9,6 +9,7 @@ import uk.ac.bris.cs.scotlandyard.model.Board.GameState;
 import uk.ac.bris.cs.scotlandyard.model.ScotlandYard.Factory;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * cw-model
@@ -52,9 +53,13 @@ public final class MyGameStateFactory implements Factory<GameState> {
 		@Nonnull
 		@Override
 		public GameState advance(Move move) {
-			Piece piece = move.commencedBy();
-			if(piece.equals(mrX.piece())){
-				mrX = new Player(piece, mrX.tickets(), );
+			List<Player> players = new ArrayList<Player>(detectives); players.add(mrX);
+			List<Player> playerOnEnum = players
+					.stream()
+					.filter(x -> x.piece() == move.commencedBy())
+					.toList();
+			if(playerOnEnum.get(0).equals(mrX)){
+				mrX = new Player(piece, ), );
 			}
 			return null;
 		}
