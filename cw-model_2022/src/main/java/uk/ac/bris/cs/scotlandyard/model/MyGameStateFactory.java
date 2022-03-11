@@ -24,12 +24,19 @@ public final class MyGameStateFactory implements Factory<GameState> {
 		private ImmutableSet<Move> moves;
 		private ImmutableSet<Piece> winner;
 
-		private MyGameState(final GameSetup gs, final ImmutableSet<Piece> remaining, final ImmutableList<LogEntry> log, final Player mrX, final ImmutableList<Player> detectives) {
+		private MyGameState(final GameSetup gs, final ImmutableSet<Piece> remaining, final ImmutableList<LogEntry> log, final Player mrX, final List<Player> detectives) {
 			this.setup = gs;
 			this.mrX = mrX;
 			this.remaining = remaining;
 			this.log = log;
 			this.detectives = detectives;
+
+			if (setup.moves.isEmpty()) throw new IllegalArgumentException("Moves is empty!");
+			if (this.mrX == null) throw new IllegalArgumentException("No detective present!");
+			if (this.remaining == null) throw new IllegalArgumentException("Remaining players is empty!");
+			if (this.log.isEmpty()) throw new IllegalArgumentException("Log is empty!");
+			if (this.detectives.isEmpty()) throw new IllegalArgumentException("No detectives present!");
+
 		}
 		@Nonnull
 		@Override
@@ -86,8 +93,9 @@ public final class MyGameStateFactory implements Factory<GameState> {
 	@Nonnull @Override public GameState build(
 			GameSetup setup,
 			Player mrX,
-			ImmutableList<Player> detectives) {
-		return new GameState(setup, ImmutableSet.of(mrX.MRX), ImmutableList.of(), mrX, detectives);
+			ImmutableList<Player> detectives,
+			Piece MrX) {
+		return new GameState(setup, ImmutableSet.of(MrX.MRX), ImmutableList.of(), mrX, detectives);
 
 	}
 
