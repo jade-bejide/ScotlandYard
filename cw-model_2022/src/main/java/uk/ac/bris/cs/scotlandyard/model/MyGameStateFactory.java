@@ -1,16 +1,24 @@
 package uk.ac.bris.cs.scotlandyard.model;
 
 import com.google.common.collect.ImmutableList;
+<<<<<<< HEAD
 
 import javax.annotation.Nonnull;
 import javax.swing.text.html.Option;
 
 import com.google.common.collect.ImmutableMap;
+=======
+>>>>>>> origin/feature-jade
 import com.google.common.collect.ImmutableSet;
+import java.util.*;
+import javax.annotation.Nonnull;
 import uk.ac.bris.cs.scotlandyard.model.Board.GameState;
 import uk.ac.bris.cs.scotlandyard.model.ScotlandYard.Factory;
+import uk.ac.bris.cs.scotlandyard.model.Move.*;
+import uk.ac.bris.cs.scotlandyard.model.Piece.*;
+import uk.ac.bris.cs.scotlandyard.model.ScotlandYard.*;
 
-import java.util.*;
+
 import java.util.stream.Collectors;
 
 /**
@@ -48,8 +56,11 @@ public final class MyGameStateFactory implements Factory<GameState> {
 		@Nonnull
 		@Override
 		public ImmutableSet<Piece> getPlayers() {
-//			Set<Piece> players =
-//			return immutablePlayers;
+			Set<Piece> players = new HashSet<Piece>();
+			for (Player detective : detectives) players.add(detective.piece());
+			players.add(mrX.piece());
+
+			return (ImmutableSet<Piece>) players;
 		}
 
 		@Nonnull
@@ -105,6 +116,33 @@ public final class MyGameStateFactory implements Factory<GameState> {
 			return null;
 		}
 
+		private static Set<Move.SingleMove> makeSingleMoves(GameSetup setup, List<Player> detectives, Player player, int source){
+
+			// TODO create an empty collection of some sort, say, HashSet, to store all the SingleMove we generate
+
+			for(int destination : setup.graph.adjacentNodes(source)) {
+				// TODO find out if destination is occupied by a detective
+				//  if the location is occupied, don't add to the collection of moves to return
+
+				for(Transport t : setup.graph.edgeValueOrDefault(source, destination, ImmutableSet.of()) ) {
+					// TODO find out if the player has the required tickets
+					//  if it does, construct a SingleMove and add it the collection of moves to return
+				}
+
+				// TODO consider the rules of secret moves here
+				//  add moves to the destination via a secret ticket if there are any left with the player
+			}
+
+			// TODO return the collection of moves
+
+			return null;
+		}
+
+		private static Set<Move.DoubleMove> makeDoubleMoves(GameSetup setup, List<Player> detectives, Player player, int source1) {
+			//makeSingleMoves(setup, detectives, player, source1);
+			return null;
+		}
+
 		@Nonnull
 		@Override
 		public ImmutableSet<Move> getAvailableMoves() {
@@ -115,9 +153,9 @@ public final class MyGameStateFactory implements Factory<GameState> {
 	@Nonnull @Override public GameState build(
 			GameSetup setup,
 			Player mrX,
-			ImmutableList<Player> detectives,
-			Piece MrX) {
-		return new GameState(setup, ImmutableSet.of(MrX.MRX), ImmutableList.of(), mrX, detectives);
+			ImmutableList<Player> detectives
+			) {
+		return new MyGameState(setup, ImmutableSet.of(MrX.MRX), ImmutableList.of(), mrX, detectives);
 
 	}
 
