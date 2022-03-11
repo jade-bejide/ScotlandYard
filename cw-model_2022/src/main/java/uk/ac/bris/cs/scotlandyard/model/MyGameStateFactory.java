@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
  * cw-model
  * Stage 1: Complete this class
  */
+
 public final class MyGameStateFactory implements Factory<GameState> {
 	private final class MyGameState implements GameState {
 		private GameSetup setup;
@@ -30,6 +31,23 @@ public final class MyGameStateFactory implements Factory<GameState> {
 		private List<Player> detectives;
 		private ImmutableSet<Move> moves;
 		private ImmutableSet<Piece> winner;
+
+		private void proxy() {
+			if (!mrX.isMrX()) throw new IllegalArgumentException("Mr X is empty");
+			if (mrX.isDetective()) throw new IllegalArgumentException("Mr X has been swapped!");
+
+			if (setup.graph == null) throw new IllegalArgumentException("Graph is empty!");
+			if (setup.moves.isEmpty()) throw new IllegalArgumentException("Moves is empty!");
+			if (this.mrX == null) throw new NullPointerException("Mr X not present!");
+			if (this.remaining == null) throw new NullPointerException("Remaining players is empty!");
+			if (this.log.isEmpty()) throw new NullPointerException("Log is empty!");
+			if (this.detectives.isEmpty()) throw new NullPointerException("No detectives present!");
+
+			if (this.detectives.contains(null)) throw new NullPointerException("Null detective is not allowed!");
+
+			if (validSetup.distinctDetectiveLocation(this.detectives)) throw new IllegalArgumentException("Overlap between detectives!");
+			if (validSetup.distinctDetectivePieces(this.detectives)) throw new IllegalArgumentException("Duplicate detectives!");
+		}
 
 		private final class validSetup{ //(setup validation)
 			private static HashMap<Player, Player> allDetectivePairs(List<Player> detectives){
@@ -62,13 +80,8 @@ public final class MyGameStateFactory implements Factory<GameState> {
 			this.log = log;
 			this.detectives = detectives;
 
-			if (setup.moves.isEmpty()) throw new IllegalArgumentException("Moves is empty!");
-			if (this.mrX == null) throw new NullPointerException("No detective present!");
-			if (this.remaining == null) throw new NullPointerException("Remaining players is empty!");
-			if (this.log.isEmpty()) throw new IllegalArgumentException("Log is empty!");
-			if (this.detectives.isEmpty()) throw new IllegalArgumentException("No detectives present!");
-			if (validSetup.distinctDetectiveLocation(this.detectives)) throw new IllegalArgumentException("Overlap between detectives!");
-			if (validSetup.distinctDetectivePieces(this.detectives)) throw new IllegalArgumentException("Duplicate detectives!");
+			proxy();
+
 
 		}
 		@Nonnull
