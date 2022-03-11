@@ -45,8 +45,11 @@ public final class MyGameStateFactory implements Factory<GameState> {
 		@Nonnull
 		@Override
 		public ImmutableSet<Piece> getPlayers() {
-//			Set<Piece> players =
-//			return immutablePlayers;
+			Set<Piece> players = new HashSet<Piece>();
+			for (Player detective : detectives) players.add(detective.piece());
+			players.add(mrX.piece());
+
+			return (ImmutableSet<Piece>) players;
 		}
 
 		@Nonnull
