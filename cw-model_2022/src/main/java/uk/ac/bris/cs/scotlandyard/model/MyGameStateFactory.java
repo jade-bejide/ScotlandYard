@@ -38,15 +38,17 @@ public final class MyGameStateFactory implements Factory<GameState> {
 		@Nonnull
 		@Override
 		public ImmutableSet<Piece> getPlayers() {
-			Set<Piece> players = new HashSet<Piece>();
-			players.addAll(detectives);
-			players.add(mrX);
-			return new <Piece>(){};
+//			Set<Piece> players =
+//			return immutablePlayers;
 		}
 
 		@Nonnull
 		@Override
 		public GameState advance(Move move) {
+			Piece piece = move.commencedBy();
+			if(piece.equals(mrX.piece())){
+				mrX = new Player(piece, mrX.tickets(), move.destination);
+			}
 			return null;
 		}
 
