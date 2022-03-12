@@ -57,8 +57,8 @@ public final class MyGameStateFactory implements Factory<GameState> {
 
 			//testNoOfPlayers();
 
-			if (validSetup.distinctDetectiveLocation(this.detectives)) throw new IllegalArgumentException("Overlap between detectives!");
-			if (validSetup.distinctDetectivePieces(this.detectives)) throw new IllegalArgumentException("Duplicate detectives!");
+			if (!validSetup.distinctDetectiveLocation(this.detectives)) throw new IllegalArgumentException("Overlap between detectives!");
+			if (!validSetup.distinctDetectivePieces(this.detectives)) throw new IllegalArgumentException("Duplicate detectives!");
 		}
 
 		private final class validSetup{ //(setup validation)
@@ -107,7 +107,9 @@ public final class MyGameStateFactory implements Factory<GameState> {
 			for (Player detective : detectives) players.add(detective.piece());
 			players.add(mrX.piece());
 
-			return (ImmutableSet<Piece>) players;
+			ImmutableSet<Piece> gPlayers = ImmutableSet.copyOf(players);
+
+			return gPlayers;
 		}
 
 		@Nonnull
@@ -160,7 +162,7 @@ public final class MyGameStateFactory implements Factory<GameState> {
 		@Nonnull
 		@Override
 		public ImmutableSet<Piece> getWinner() {
-			return null;
+			return this.winner;
 		}
 
 		private static Set<Move.SingleMove> makeSingleMoves(GameSetup setup, List<Player> detectives, Player player, int source){
