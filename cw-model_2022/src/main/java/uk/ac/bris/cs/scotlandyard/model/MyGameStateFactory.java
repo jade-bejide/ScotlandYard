@@ -30,8 +30,16 @@ public final class MyGameStateFactory implements Factory<GameState> {
 		private Player mrX;
 		private List<Player> detectives;
 		private ImmutableSet<Move> moves;
-		private ImmutableSet<Piece> winner;
+		//may need to change after checking detectives
+		private ImmutableSet<Piece> winner = ImmutableSet.of();
 
+
+		private void testNoOfPlayers() {
+			int players = 0;
+			if (this.mrX != null) players++;
+
+			players += (int)this.detectives.stream().count();
+		}
 		private void proxy() {
 			if (!mrX.isMrX()) throw new IllegalArgumentException("Mr X is empty");
 			if (mrX.isDetective()) throw new IllegalArgumentException("Mr X has been swapped!");
@@ -40,10 +48,14 @@ public final class MyGameStateFactory implements Factory<GameState> {
 			if (setup.moves.isEmpty()) throw new IllegalArgumentException("Moves is empty!");
 			if (this.mrX == null) throw new NullPointerException("Mr X not present!");
 			if (this.remaining == null) throw new NullPointerException("Remaining players is empty!");
-			if (this.log.isEmpty()) throw new NullPointerException("Log is empty!");
+			//if (this.log.isEmpty()) throw new NullPointerException("Log is empty!");
 			if (this.detectives.isEmpty()) throw new NullPointerException("No detectives present!");
 
 			if (this.detectives.contains(null)) throw new NullPointerException("Null detective is not allowed!");
+			Player[] oneMrX = detectives.stream().filter(Player::isMrX).toArray(Player[]::new);
+			if (oneMrX.length > 0) throw new IllegalArgumentException("Only one Mr X allowed!");
+
+			//testNoOfPlayers();
 
 			if (validSetup.distinctDetectiveLocation(this.detectives)) throw new IllegalArgumentException("Overlap between detectives!");
 			if (validSetup.distinctDetectivePieces(this.detectives)) throw new IllegalArgumentException("Duplicate detectives!");
@@ -79,6 +91,7 @@ public final class MyGameStateFactory implements Factory<GameState> {
 			this.remaining = remaining;
 			this.log = log;
 			this.detectives = detectives;
+
 
 			proxy();
 
