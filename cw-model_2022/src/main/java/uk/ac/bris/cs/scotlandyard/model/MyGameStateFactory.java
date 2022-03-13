@@ -8,6 +8,8 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.util.*;
 import javax.annotation.Nonnull;
+
+import com.google.common.collect.ImmutableSortedMap;
 import uk.ac.bris.cs.scotlandyard.model.Board.GameState;
 import uk.ac.bris.cs.scotlandyard.model.ScotlandYard.Factory;
 import uk.ac.bris.cs.scotlandyard.model.Move.*;
@@ -44,7 +46,7 @@ public final class MyGameStateFactory implements Factory<GameState> {
 			if (!mrX.isMrX()) throw new IllegalArgumentException("Mr X is empty");
 			if (mrX.isDetective()) throw new IllegalArgumentException("Mr X has been swapped!");
 
-			if (setup.graph == null) throw new IllegalArgumentException("Graph is empty!");
+			if (setup.graph.nodes().size() == 0) throw new IllegalArgumentException("Graph is empty!");
 			if (setup.moves.isEmpty()) throw new IllegalArgumentException("Moves is empty!");
 			if (this.mrX == null) throw new NullPointerException("Mr X not present!");
 			if (this.remaining == null) throw new NullPointerException("Remaining players is empty!");
@@ -143,8 +145,9 @@ public final class MyGameStateFactory implements Factory<GameState> {
 
 		@Nonnull
 		@Override
-		public Optional<Integer> getDetectiveLocation(Piece.Detective detective) {
+		public Optional<Integer> getDetectiveLocation(Detective detective) {
 			return Optional.empty();
+
 		}
 
 		@Nonnull
@@ -155,9 +158,7 @@ public final class MyGameStateFactory implements Factory<GameState> {
 
 		@Nonnull
 		@Override
-		public ImmutableList<LogEntry> getMrXTravelLog() {
-			return log;
-		}
+		public ImmutableList<LogEntry> getMrXTravelLog() { return log; }
 
 		@Nonnull
 		@Override
