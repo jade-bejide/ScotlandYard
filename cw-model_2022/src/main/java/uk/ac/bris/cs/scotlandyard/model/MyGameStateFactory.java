@@ -38,15 +38,6 @@ public final class MyGameStateFactory implements Factory<GameState> {
 		//may need to change after checking detectives
 		private final ImmutableSet<Piece> winner = ImmutableSet.of();
 
-
-
-//		private void testNoOfPlayers() {
-//			int players = 0;
-//			if (this.mrX != null) players++;
-//
-//			players += (int)this.detectives.stream().count();
-//		}
-
 		private void proxy() {
 			if (!mrX.isMrX()) throw new IllegalArgumentException("Mr X is empty");
 			if (mrX.isDetective()) throw new IllegalArgumentException("Mr X has been swapped!");
@@ -60,8 +51,6 @@ public final class MyGameStateFactory implements Factory<GameState> {
 			if (this.detectives.contains(null)) throw new NullPointerException("Null detective is not allowed!");
 			Player[] oneMrX = detectives.stream().filter(Player::isMrX).toArray(Player[]::new);
 			if (oneMrX.length > 0) throw new IllegalArgumentException("Only one Mr X allowed!");
-
-			//testNoOfPlayers();
 
 			if (detectiveLoops.overlap(this.detectives)) throw new IllegalArgumentException("Overlap between detectives!");
 			if (detectiveLoops.samePiece(this.detectives)) throw new IllegalArgumentException("Duplicate detectives!");
@@ -98,6 +87,22 @@ public final class MyGameStateFactory implements Factory<GameState> {
 			}
 		}
 
+
+		private ImmutableSet<Player> determineWinner() {
+			Set<Player> winners = new HashSet<>();
+			boolean anyDetectives = remaining.stream().anyMatch (x -> x.isDetective());
+			boolean caught = detectives.stream().anyMatch(x -> x.location() == mrX.location());
+			boolean stuck = getAvailableMoves().stream().anyMatch(x -> x.commencedBy().isMrX());
+
+			if (log.size() == 24) winners.add(mrX);
+			if (!anyDetectives) winners.add(mrX);
+
+			if (caught) winners.addAll(detectives);
+			if (stuck) winners.addAll(detectives);
+
+			return ImmutableSet.copyOf(winners);
+		}
+
 		private MyGameState(final GameSetup gs, final ImmutableSet<Piece> remaining, final ImmutableList<LogEntry> log, final Player mrX, final List<Player> detectives) {
 			this.setup = gs;
 			this.mrX = mrX;
@@ -108,7 +113,7 @@ public final class MyGameStateFactory implements Factory<GameState> {
 			proxy();
 
 			//getAvailableMoves
-
+			determineWinner();
 		}
 		@Nonnull
 		@Override
@@ -170,11 +175,17 @@ public final class MyGameStateFactory implements Factory<GameState> {
 
 						//for elliot
 					}
+
+					//TODO
+					return null;
 				}
 				public GameState visit(DoubleMove move){
 					/* doublemove code */
 					GameState gs;
 					//for jade
+
+					//TODO
+					return null;
 				}
 			});
 
