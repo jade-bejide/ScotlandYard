@@ -38,17 +38,6 @@ public final class MyGameStateFactory implements Factory<GameState> {
 		//may need to change after checking detectives
 		private final ImmutableSet<Piece> winner = ImmutableSet.of();
 
-
-
-
-
-//		private void testNoOfPlayers() {
-//			int players = 0;
-//			if (this.mrX != null) players++;
-//
-//			players += (int)this.detectives.stream().count();
-//		}
-
 		private void proxy() {
 			if (!mrX.isMrX()) throw new IllegalArgumentException("Mr X is empty");
 			if (mrX.isDetective()) throw new IllegalArgumentException("Mr X has been swapped!");
@@ -62,8 +51,6 @@ public final class MyGameStateFactory implements Factory<GameState> {
 			if (this.detectives.contains(null)) throw new NullPointerException("Null detective is not allowed!");
 			Player[] oneMrX = detectives.stream().filter(Player::isMrX).toArray(Player[]::new);
 			if (oneMrX.length > 0) throw new IllegalArgumentException("Only one Mr X allowed!");
-
-			//testNoOfPlayers();
 
 			if (detectiveLoops.overlap(this.detectives)) throw new IllegalArgumentException("Overlap between detectives!");
 			if (detectiveLoops.samePiece(this.detectives)) throw new IllegalArgumentException("Duplicate detectives!");
@@ -161,7 +148,7 @@ public final class MyGameStateFactory implements Factory<GameState> {
 			return move.accept(new Visitor<GameState>(){ //our gamestate-making visitor
 				public GameState visit(SingleMove singleMove){
 					/* singlemove code */
-
+					ImmutableMap.of()
 				}
 				public GameState visit(DoubleMove doubleMove){
 					/* doublemove code */
