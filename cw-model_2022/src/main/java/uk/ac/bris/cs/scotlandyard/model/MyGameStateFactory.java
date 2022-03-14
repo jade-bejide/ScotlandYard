@@ -68,7 +68,7 @@ public final class MyGameStateFactory implements Factory<GameState> {
 			if (detectiveLoops.secretTicket(this.detectives)) throw new IllegalArgumentException("Detective with secret ticket!");
 			if (detectiveLoops.doubleTicket(this.detectives)) throw new IllegalArgumentException("Detective with double ticket!");
 
-			if (this.log.isEmpty()) throw new NullPointerException("Log is empty!"); //moved since caused some detective loops to fail
+			//if (this.log.isEmpty()) throw new NullPointerException("Log is empty!"); //moved since caused some detective loops to fail
 		}
 
 		private final class detectiveLoops{ //(setup validation) (/stream/lined) (strategy pattern)
@@ -107,8 +107,9 @@ public final class MyGameStateFactory implements Factory<GameState> {
 			this.log = log;
 			this.detectives = detectives;
 
-
 			proxy();
+
+			//getAvailableMoves
 
 		}
 		@Nonnull
