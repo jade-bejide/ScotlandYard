@@ -198,25 +198,28 @@ public final class MyGameStateFactory implements Factory<GameState> {
 		}
 
 		private static Set<Move.SingleMove> makeSingleMoves(GameSetup setup, List<Player> detectives, Player player, int source){
-
-			// TODO create an empty collection of some sort, say, HashSet, to store all the SingleMove we generate
-
+			Set<Move.SingleMove> possibleMoves = new HashSet<>();
 			for(int destination : setup.graph.adjacentNodes(source)) {
 				// TODO find out if destination is occupied by a detective
 				//  if the location is occupied, don't add to the collection of moves to return
+				boolean occupied = detectives.stream().anyMatch(x -> x.location() == destination);
 
-				for(Transport t : setup.graph.edgeValueOrDefault(source, destination, ImmutableSet.of()) ) {
-					// TODO find out if the player has the required tickets
-					//  if it does, construct a SingleMove and add it the collection of moves to return
+				if (!occupied) {
+					for(Transport t : setup.graph.edgeValueOrDefault(source, destination, ImmutableSet.of()) ) {
+						// TODO find out if the player has the required tickets
+						//  if it does, construct a SingleMove and add it the collection of moves to return
+					}
+
+					if (player.tickets().containsKey(SECRET)) possibleMoves.add(new SingleMove(player.piece(), source, SECRET, destination));
 				}
+
 
 				// TODO consider the rules of secret moves here
 				//  add moves to the destination via a secret ticket if there are any left with the player
+
 			}
 
-			// TODO return the collection of moves
-
-			return null;
+			return possibleMoves;
 		}
 
 		private static Set<Move.DoubleMove> makeDoubleMoves(GameSetup setup, List<Player> detectives, Player player, int source1) {
