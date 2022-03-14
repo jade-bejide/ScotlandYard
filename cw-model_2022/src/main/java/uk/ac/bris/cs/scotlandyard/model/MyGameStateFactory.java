@@ -67,8 +67,6 @@ public final class MyGameStateFactory implements Factory<GameState> {
 			if (detectiveLoops.samePiece(this.detectives)) throw new IllegalArgumentException("Duplicate detectives!");
 			if (detectiveLoops.secretTicket(this.detectives)) throw new IllegalArgumentException("Detective with secret ticket!");
 			if (detectiveLoops.doubleTicket(this.detectives)) throw new IllegalArgumentException("Detective with double ticket!");
-
-			//if (this.log.isEmpty()) throw new NullPointerException("Log is empty!"); //moved since caused some detective loops to fail
 		}
 
 		private final class detectiveLoops{ //(setup validation) (/stream/lined) (strategy pattern)
@@ -160,13 +158,32 @@ public final class MyGameStateFactory implements Factory<GameState> {
 		@Nonnull
 		@Override
 		public Optional<Integer> getDetectiveLocation(Detective detective) {
-			return Optional.empty();
+			Player[] detectives = this.detectives.stream().filter(x -> x.piece() == detective).limit(1).toArray(Player[]::new);
+			if (detectives.length == 0) return Optional.empty();
+			else return Optional.of(detectives[0].location());
 
 		}
 
 		@Nonnull
 		@Override
 		public Optional<TicketBoard> getPlayerTickets(Piece piece) {
+			Player player = null;
+			if (piece == MrX.MRX) player = mrX;
+			else {
+				//grabs relevant detective player
+				Player[] detectives = this.detectives.stream().filter(x -> x.piece().equals(piece)).limit(1).toArray(Player[]::new);
+				if (detectives.length != 0) player = detectives[0];
+			}
+			if (player != null) {
+				final Player fPlayer = player;
+				return Optional.of(new TicketBoard() {
+					final ImmutableMap<Ticket, Integer> playerTickets = fPlayer.tickets();
+					@Override
+					public int getCount(@Nonnull Ticket ticket) {
+						return playerTickets.get(ticket);
+					}
+				});
+			}
 			return Optional.empty();
 		}
 
