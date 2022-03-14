@@ -39,12 +39,14 @@ public final class MyGameStateFactory implements Factory<GameState> {
 		private final ImmutableSet<Piece> winner = ImmutableSet.of();
 
 
+
 //		private void testNoOfPlayers() {
 //			int players = 0;
 //			if (this.mrX != null) players++;
 //
 //			players += (int)this.detectives.stream().count();
 //		}
+
 		private void proxy() {
 			if (!mrX.isMrX()) throw new IllegalArgumentException("Mr X is empty");
 			if (mrX.isDetective()) throw new IllegalArgumentException("Mr X has been swapped!");
@@ -122,31 +124,47 @@ public final class MyGameStateFactory implements Factory<GameState> {
 			return ImmutableSet.copyOf(players);
 		}
 
+//		private int findDestinationFromMoves(Move move, Player player){
+//
+//			ImmutableSet<Move> availableMoves = getAvailableMoves();
+//			for(Move m : availableMoves){
+//				if(m.)
+//			}
+//
+//			return 0; //there is no zero node so this is an error code
+//		}
+
 		@Nonnull
 		@Override
 		public GameState advance(Move move) {
-			List<Player> players = new ArrayList<Player>(detectives); players.add(mrX);
-			List<Player> filter = players
-					.stream()
-					.filter(x -> x.piece() == move.commencedBy())
-					.toList(); //gets player (singleton list)
-			Player player = filter.get(0);
-			Map<ScotlandYard.Ticket, Integer> mutableTickets = player.tickets();
-			mutableTickets.remove(move.tickets()); //warning can be ignored because this method only deals with valid moves
-			player = new Player(player.piece(), mutableTickets, /*destination*/);
-			if(!player.equals(mrX)){
-				Map<ScotlandYard.Ticket, Integer> mrXTickets = mrX.tickets();
-				for(ScotlandYard.Ticket t : move.tickets()){
-					mrXTickets.put(t, mrXTickets.get(move.tickets()) + 1); //adds one to each ticket type
-				}
-				mrX = new Player(mrX.piece(), (ImmutableMap<ScotlandYard.Ticket, Integer>) mrXTickets, mrX.location()); //mrx receives ticket but stays still
-				//sets the correct player in detectives
-				for(int i = 0; i < detectives.size(); i++){
-					if(detectives.get(i).piece() == player.piece()) {
-						detectives.set(i, player); i = detectives.size(); //exit loop
-					}
-				}
-			}else{ mrX = player; } //sets mrX to discard one ticket
+
+			if(!getAvailableMoves().contains(move)) throw new IllegalArgumentException("Illegal move! " + move);
+
+
+
+//			List<Player> players = new ArrayList<Player>(detectives); players.add(mrX);
+//			List<Player> filter = players
+//					.stream()
+//					.filter(x -> x.piece() == move.commencedBy())
+//					.toList(); //gets player (singleton list)
+//			Player player = filter.get(0);
+//			Map<ScotlandYard.Ticket, Integer> mutableTickets = player.tickets();
+//			mutableTickets.remove(move.tickets()); //warning can be ignored because this method only deals with valid moves
+//			player = new Player(player.piece(), mutableTickets, );
+//			//gets player and its tickets
+//			if(!player.equals(mrX)){
+//				Map<ScotlandYard.Ticket, Integer> mrXTickets = mrX.tickets();
+//				for(ScotlandYard.Ticket t : move.tickets()){
+//					mrXTickets.put(t, mrXTickets.get(move.tickets()) + 1); //adds one to each ticket type
+//				}
+//				mrX = new Player(mrX.piece(), (ImmutableMap<ScotlandYard.Ticket, Integer>) mrXTickets, mrX.location()); //mrx receives ticket but stays still
+//				//sets the correct player in detectives
+//				for(int i = 0; i < detectives.size(); i++){
+//					if(detectives.get(i).piece() == player.piece()) {
+//						detectives.set(i, player); i = detectives.size(); //exit loop
+//					}
+//				}
+//			}else{ mrX = player; } //sets mrX to discard one ticket
 
 			return null;
 		}
@@ -207,10 +225,6 @@ public final class MyGameStateFactory implements Factory<GameState> {
 								.filter(x -> x.getKey().equals(t.requiredTicket()))
 								.limit(1)
 								.anyMatch(x -> x.getValue() > 0);
-					/*
-							public SingleMove(@Nonnull Piece piece, int source,
-		                  @Nonnull Ticket ticket, int destination) {
-					 */
 						if (canTravel) {
 							possibleMoves.add(new SingleMove(player.piece(), source, t.requiredTicket(), destination));
 						}
@@ -218,11 +232,7 @@ public final class MyGameStateFactory implements Factory<GameState> {
 
 					if (player.tickets().containsKey(SECRET) && player.tickets().get(SECRET) > 0)
 						possibleMoves.add(new SingleMove(player.piece(), source, SECRET, destination));
-
 				}
-
-
-
 			}
 			return possibleMoves;
 		}
