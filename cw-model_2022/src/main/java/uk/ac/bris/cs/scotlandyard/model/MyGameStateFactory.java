@@ -1,15 +1,13 @@
 package uk.ac.bris.cs.scotlandyard.model;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.*;
+
 import javax.annotation.Nonnull;
 import javax.swing.text.html.Option;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 import java.util.*;
 import javax.annotation.Nonnull;
 
-import com.google.common.collect.ImmutableSortedMap;
 import uk.ac.bris.cs.scotlandyard.model.Board.GameState;
 import uk.ac.bris.cs.scotlandyard.model.ScotlandYard.Factory;
 import uk.ac.bris.cs.scotlandyard.model.Move.*;
@@ -31,22 +29,22 @@ import static uk.ac.bris.cs.scotlandyard.model.ScotlandYard.Ticket.SECRET;
 
 public final class MyGameStateFactory implements Factory<GameState> {
 	private final class MyGameState implements GameState {
-		private GameSetup setup;
-		private ImmutableSet<Piece> remaining;
+		private final GameSetup setup;
+		private final ImmutableSet<Piece> remaining;
 		private final ImmutableList<LogEntry> log;
-		private final Player mrX;
+		private Player mrX;
 		private final List<Player> detectives;
 		private ImmutableSet<Move> moves;
 		//may need to change after checking detectives
 		private final ImmutableSet<Piece> winner = ImmutableSet.of();
 
 
-		private void testNoOfPlayers() {
-			int players = 0;
-			if (this.mrX != null) players++;
-
-			players += (int)this.detectives.stream().count();
-		}
+//		private void testNoOfPlayers() {
+//			int players = 0;
+//			if (this.mrX != null) players++;
+//
+//			players += (int)this.detectives.stream().count();
+//		}
 		private void proxy() {
 			if (!mrX.isMrX()) throw new IllegalArgumentException("Mr X is empty");
 			if (mrX.isDetective()) throw new IllegalArgumentException("Mr X has been swapped!");
@@ -121,36 +119,34 @@ public final class MyGameStateFactory implements Factory<GameState> {
 			for (Player detective : detectives) players.add(detective.piece());
 			players.add(mrX.piece());
 
-			ImmutableSet<Piece> gPlayers = ImmutableSet.copyOf(players);
-
-			return gPlayers;
+			return ImmutableSet.copyOf(players);
 		}
 
 		@Nonnull
 		@Override
 		public GameState advance(Move move) {
-//			List<Player> players = new ArrayList<Player>(detectives); players.add(mrX);
-//			List<Player> filter = players
-//					.stream()
-//					.filter(x -> x.piece() == move.commencedBy())
-//					.toList(); //gets player (singleton list)
-//			Player player = filter.get(0);
-//			Map<ScotlandYard.Ticket, Integer> mutableTickets = player.tickets();
-//			mutableTickets.remove(move.tickets()); //warning can be ignored because this method only deals with valid moves
-//			player = new Player(player.piece(), mutableTickets, /*destination*/);
-//			if(!player.equals(mrX)){
-//				Map<ScotlandYard.Ticket, Integer> mrXTickets = mrX.tickets();
-//				for(ScotlandYard.Ticket t : move.tickets()){
-//					mrXTickets.put(t, mrXTickets.get(move.tickets()) + 1); //adds one to each ticket type
-//				}
-//				mrX = new Player(mrX.piece(), (ImmutableMap<ScotlandYard.Ticket, Integer>) mrXTickets, mrX.location()); //mrx receives ticket but stays still
-//				//sets the correct player in detectives
-//				for(int i = 0; i < detectives.size(); i++){
-//					if(detectives.get(i).piece() == player.piece()) {
-//						detectives.set(i, player); i = detectives.size(); //exit loop
-//					}
-//				}
-//			}else{ mrX = player; } //sets mrX to discard one ticket
+			List<Player> players = new ArrayList<Player>(detectives); players.add(mrX);
+			List<Player> filter = players
+					.stream()
+					.filter(x -> x.piece() == move.commencedBy())
+					.toList(); //gets player (singleton list)
+			Player player = filter.get(0);
+			Map<ScotlandYard.Ticket, Integer> mutableTickets = player.tickets();
+			mutableTickets.remove(move.tickets()); //warning can be ignored because this method only deals with valid moves
+			player = new Player(player.piece(), mutableTickets, /*destination*/);
+			if(!player.equals(mrX)){
+				Map<ScotlandYard.Ticket, Integer> mrXTickets = mrX.tickets();
+				for(ScotlandYard.Ticket t : move.tickets()){
+					mrXTickets.put(t, mrXTickets.get(move.tickets()) + 1); //adds one to each ticket type
+				}
+				mrX = new Player(mrX.piece(), (ImmutableMap<ScotlandYard.Ticket, Integer>) mrXTickets, mrX.location()); //mrx receives ticket but stays still
+				//sets the correct player in detectives
+				for(int i = 0; i < detectives.size(); i++){
+					if(detectives.get(i).piece() == player.piece()) {
+						detectives.set(i, player); i = detectives.size(); //exit loop
+					}
+				}
+			}else{ mrX = player; } //sets mrX to discard one ticket
 
 			return null;
 		}
@@ -208,7 +204,7 @@ public final class MyGameStateFactory implements Factory<GameState> {
 					for (Transport t : setup.graph.edgeValueOrDefault(source, destination, ImmutableSet.of())) {
 						boolean canTravel = player.tickets().entrySet()
 								.stream()
-								.filter(x -> x.equals(t.requiredTicket()))
+								.filter(x -> x.getKey().equals(t.requiredTicket()))
 								.limit(1)
 								.anyMatch(x -> x.getValue() > 0);
 					/*
@@ -232,14 +228,22 @@ public final class MyGameStateFactory implements Factory<GameState> {
 		}
 
 		private static Set<Move.DoubleMove> makeDoubleMoves(GameSetup setup, List<Player> detectives, Player player, int source1) {
-			//makeSingleMoves(setup, detectives, player, source1);
+			if (player.isDetective()) throw new IllegalArgumentException("Detectives can't make double moves");
+
 			return null;
 		}
 
 		@Nonnull
 		@Override
 		public ImmutableSet<Move> getAvailableMoves() {
-			return null;
+			Set<Move> allMoves = new HashSet<Move>();
+			for (Player player : detectives) {
+				allMoves.addAll(makeSingleMoves(this.setup, detectives, player, player.location()));
+				allMoves.addAll(makeDoubleMoves(this.setup, detectives, player, player.location()));
+			}
+
+			moves.copyOf(allMoves);
+			return moves;
 		}
 	}
 
