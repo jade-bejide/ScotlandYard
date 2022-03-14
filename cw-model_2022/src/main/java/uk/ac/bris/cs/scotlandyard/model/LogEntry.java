@@ -22,7 +22,7 @@ public final class LogEntry implements Serializable {
 	private final int location;
 	/**
 	 * @param ticket the ticket used in this entry
-	 * @return a log entry of a hidden round for Mrx
+	 * 	 * @return a log entry of a hidden round for Mrx
 	 */
 	public static LogEntry hidden(
 			@Nonnull Ticket ticket) { return new LogEntry(ticket, HIDDEN); }

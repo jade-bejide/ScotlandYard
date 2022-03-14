@@ -134,20 +134,47 @@ public final class MyGameStateFactory implements Factory<GameState> {
 //			return 0; //there is no zero node so this is an error code
 //		}
 
+		private Player getPlayerOnPiece(Piece p){
+			List<Player> players = new ArrayList<Player>(detectives); players.add(mrX);
+			List<Player> filter = players
+					.stream()
+					.filter(x -> x.piece() == p)
+					.toList(); //gets player (singleton list)
+			return filter.get(0);
+		}
 
 		@Nonnull
 		@Override
 		public GameState advance(Move move) {
-			Player player = move.commencedBy();
+			Player player = getPlayerOnPiece(move.commencedBy());
 			if(!getAvailableMoves().contains(move)) throw new IllegalArgumentException("Illegal move! " + move);
 			return move.accept(new Visitor<GameState>(){ //our gamestate-making visitor
-				public GameState visit(SingleMove singleMove){
+				public GameState visit(SingleMove move){
 					/* singlemove code */
+					GameState gs; // build the gamestate here
+					if(player.piece() == MrX.MRX){
+						boolean hidden = setup.moves.get(log.size()); //is this move hidden
 
+						List<LogEntry> mutableLog = log;
+						List<Ticket> moveTickets = (List<Ticket>) move.tickets(); Ticket ticket = moveTickets.get(0);
+						mutableLog.add(LogEntry.hidden(ticket));
+
+						gs = new MyGameState(setup, remaining, ImmutableList.copyOf(mutableLog), mrX, detectives);
+
+						HashMap<Ticket, Integer> mutableTickets = new HashMap<Ticket, Integer>();
+						for(HashMap.Entry<Ticket, Integer> e : mrX.tickets().entrySet()){
+							if(e.getKey() != ticket) mutableTickets.put(e.getKey(), e.getValue());
+						} //adds all but the ticket used in the move
+						Player mrMutable = new Player(MrX.MRX, ImmutableMap.copyOf(mutableTickets), move.destination); //moves mr x and changes his tickets
+						gs = new MyGameState(setup, remaining, gs.getMrXTravelLog(), mrMutable, detectives);
+
+						//for elliot
+					}
 				}
-				public GameState visit(DoubleMove doubleMove){
+				public GameState visit(DoubleMove move){
 					/* doublemove code */
-					HashSet<DoubleMove> doubleMoves = makeDoubleMoves()
+					GameState gs;
+					//for jade
 				}
 			});
 
