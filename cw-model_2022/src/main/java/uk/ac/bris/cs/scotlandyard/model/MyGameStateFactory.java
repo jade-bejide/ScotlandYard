@@ -34,12 +34,11 @@ public final class MyGameStateFactory implements Factory<GameState> {
 		private GameSetup setup;
 		private ImmutableSet<Piece> remaining;
 		private final ImmutableList<LogEntry> log;
-		private final Player mrX;
+		private Player mrX;
 		private final List<Player> detectives;
 		private ImmutableSet<Move> moves;
 		//may need to change after checking detectives
 		private final ImmutableSet<Piece> winner = ImmutableSet.of();
-
 
 		private void testNoOfPlayers() {
 			int players = 0;
@@ -126,9 +125,23 @@ public final class MyGameStateFactory implements Factory<GameState> {
 			return gPlayers;
 		}
 
+//		private int findDestinationFromMoves(Move move, Player player){
+//
+//			ImmutableSet<Move> availableMoves = getAvailableMoves();
+//			for(Move m : availableMoves){
+//				if(m.)
+//			}
+//
+//			return 0; //there is no zero node so this is an error code
+//		}
+
 		@Nonnull
 		@Override
 		public GameState advance(Move move) {
+			if(!getAvailableMoves().contains(move)) throw new IllegalArgumentException("Illegal move! " + move);
+
+
+
 //			List<Player> players = new ArrayList<Player>(detectives); players.add(mrX);
 //			List<Player> filter = players
 //					.stream()
@@ -137,7 +150,8 @@ public final class MyGameStateFactory implements Factory<GameState> {
 //			Player player = filter.get(0);
 //			Map<ScotlandYard.Ticket, Integer> mutableTickets = player.tickets();
 //			mutableTickets.remove(move.tickets()); //warning can be ignored because this method only deals with valid moves
-//			player = new Player(player.piece(), mutableTickets, /*destination*/);
+//			player = new Player(player.piece(), mutableTickets, );
+//			//gets player and its tickets
 //			if(!player.equals(mrX)){
 //				Map<ScotlandYard.Ticket, Integer> mrXTickets = mrX.tickets();
 //				for(ScotlandYard.Ticket t : move.tickets()){
@@ -208,13 +222,9 @@ public final class MyGameStateFactory implements Factory<GameState> {
 					for (Transport t : setup.graph.edgeValueOrDefault(source, destination, ImmutableSet.of())) {
 						boolean canTravel = player.tickets().entrySet()
 								.stream()
-								.filter(x -> x.equals(t.requiredTicket()))
+								.filter(x -> x.getKey().equals(t.requiredTicket()))
 								.limit(1)
 								.anyMatch(x -> x.getValue() > 0);
-					/*
-							public SingleMove(@Nonnull Piece piece, int source,
-		                  @Nonnull Ticket ticket, int destination) {
-					 */
 						if (canTravel) {
 							possibleMoves.add(new SingleMove(player.piece(), source, t.requiredTicket(), destination));
 						}
@@ -222,11 +232,7 @@ public final class MyGameStateFactory implements Factory<GameState> {
 
 					if (player.tickets().containsKey(SECRET) && player.tickets().get(SECRET) > 0)
 						possibleMoves.add(new SingleMove(player.piece(), source, SECRET, destination));
-
 				}
-
-
-
 			}
 			return possibleMoves;
 		}
