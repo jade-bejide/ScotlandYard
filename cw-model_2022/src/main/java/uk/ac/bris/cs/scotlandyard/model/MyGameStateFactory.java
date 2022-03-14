@@ -197,21 +197,32 @@ public final class MyGameStateFactory implements Factory<GameState> {
 			return this.winner;
 		}
 
+		private boolean canTravelWith(Player player, ){
+
+		}
+
 		private static Set<Move.SingleMove> makeSingleMoves(GameSetup setup, List<Player> detectives, Player player, int source){
-
-			// TODO create an empty collection of some sort, say, HashSet, to store all the SingleMove we generate
-
+			Set<SingleMove> possibleMoves = new HashSet<SingleMove>();
 			for(int destination : setup.graph.adjacentNodes(source)) {
 				// TODO find out if destination is occupied by a detective
 				//  if the location is occupied, don't add to the collection of moves to return
 
 				for(Transport t : setup.graph.edgeValueOrDefault(source, destination, ImmutableSet.of()) ) {
-					// TODO find out if the player has the required tickets
-					//  if it does, construct a SingleMove and add it the collection of moves to return
+					boolean canTravel = player.tickets().entrySet()
+							.stream()
+							.filter(x -> x.equals(t.requiredTicket()))
+							.limit(1)
+							.anyMatch(x -> x.getValue() > 0);
+					/*
+							public SingleMove(@Nonnull Piece piece, int source,
+		                  @Nonnull Ticket ticket, int destination) {
+					 */
+					if(canTravel) possibleMoves.add(new SingleMove(player.piece(), source, t.requiredTicket(), destination));
 				}
 
 				// TODO consider the rules of secret moves here
 				//  add moves to the destination via a secret ticket if there are any left with the player
+
 			}
 
 			// TODO return the collection of moves
