@@ -142,6 +142,7 @@ public final class MyGameStateFactory implements Factory<GameState> {
 
 
 
+
 //			List<Player> players = new ArrayList<Player>(detectives); players.add(mrX);
 //			List<Player> filter = players
 //					.stream()
@@ -239,9 +240,34 @@ public final class MyGameStateFactory implements Factory<GameState> {
 
 		private static Set<Move.DoubleMove> makeDoubleMoves(GameSetup setup, List<Player> detectives, Player player, int source1) {
 			if (player.isDetective()) throw new IllegalArgumentException("Detectives can't make double moves");
+			Set<DoubleMove> possibleDoubleMoves = new HashSet<>();
+			Set<SingleMove> possibleSingleMoves = makeSingleMoves(setup, detectives, player, source1);
 
-			return null;
-		}
+			for (SingleMove single : possibleSingleMoves) {
+				for (int destination : setup.graph.adjacentNodes(source1)) {
+					boolean occupied = detectives.stream().anyMatch(x -> x.location() == destination);
+					if (!occupied) {
+						for (Transport t : setup.graph.edgeValueOrDefault(source1, destination, ImmutableSet.of())) {
+							boolean canTravel = player.tickets().entrySet()
+									.stream()
+									.filter(x -> x.getKey().equals(t.requiredTicket()))
+									.limit(1)
+									.anyMatch(x -> x.getValue() > 0);
+							if (canTravel) {
+								possibleDoubleMoves.add(new DoubleMove(player.piece(), single.source(), single.ticket, single.destination, t.requiredTicket(), destination));
+							}
+						}
+
+						if (player.tickets().containsKey(SECRET) && player.tickets().get(SECRET) > 0)
+							possibleDoubleMoves.add(new DoubleMove(player.piece(), single.source(), single.ticket, single.destination, SECRET, destination));
+					}
+				}
+				}
+				return possibleDoubleMoves;
+			}
+
+
+
 
 		@Nonnull
 		@Override
