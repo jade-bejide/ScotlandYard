@@ -40,6 +40,8 @@ public final class MyGameStateFactory implements Factory<GameState> {
 
 
 
+
+
 //		private void testNoOfPlayers() {
 //			int players = 0;
 //			if (this.mrX != null) players++;
@@ -98,6 +100,22 @@ public final class MyGameStateFactory implements Factory<GameState> {
 			}
 		}
 
+
+		private ImmutableSet<Player> determineWinner() {
+			Set<Player> winners = new HashSet<>();
+			boolean anyDetectives = remaining.stream().anyMatch (x -> x.isDetective());
+			boolean caught = detectives.stream().anyMatch(x -> x.location() == mrX.location());
+			boolean stuck = getAvailableMoves().stream().anyMatch(x -> x.commencedBy().isMrX());
+
+			if (log.size() == 24) winners.add(mrX);
+			if (!anyDetectives) winners.add(mrX);
+
+			if (caught) winners.addAll(detectives);
+			if (stuck) winners.addAll(detectives);
+
+			return ImmutableSet.copyOf(winners);
+		}
+
 		private MyGameState(final GameSetup gs, final ImmutableSet<Piece> remaining, final ImmutableList<LogEntry> log, final Player mrX, final List<Player> detectives) {
 			this.setup = gs;
 			this.mrX = mrX;
@@ -108,7 +126,7 @@ public final class MyGameStateFactory implements Factory<GameState> {
 			proxy();
 
 			//getAvailableMoves
-
+			determineWinner();
 		}
 		@Nonnull
 		@Override
