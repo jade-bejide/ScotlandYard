@@ -33,12 +33,12 @@ public final class MyGameStateFactory implements Factory<GameState> {
 	private final class MyGameState implements GameState {
 		private GameSetup setup;
 		private ImmutableSet<Piece> remaining;
-		private ImmutableList<LogEntry> log;
-		private Player mrX;
-		private List<Player> detectives;
+		private final ImmutableList<LogEntry> log;
+		private final Player mrX;
+		private final List<Player> detectives;
 		private ImmutableSet<Move> moves;
 		//may need to change after checking detectives
-		private ImmutableSet<Piece> winner = ImmutableSet.of();
+		private final ImmutableSet<Piece> winner = ImmutableSet.of();
 
 
 		private void testNoOfPlayers() {
@@ -67,7 +67,6 @@ public final class MyGameStateFactory implements Factory<GameState> {
 			if (detectiveLoops.samePiece(this.detectives)) throw new IllegalArgumentException("Duplicate detectives!");
 			if (detectiveLoops.secretTicket(this.detectives)) throw new IllegalArgumentException("Detective with secret ticket!");
 			if (detectiveLoops.doubleTicket(this.detectives)) throw new IllegalArgumentException("Detective with double ticket!");
-			
 		}
 
 		private final class detectiveLoops{ //(setup validation) (/stream/lined) (strategy pattern)
@@ -77,7 +76,7 @@ public final class MyGameStateFactory implements Factory<GameState> {
 			private static boolean iteratePairs(List<Player> detectives, Predicate<HashMap.Entry<Player, Player>> p){
 				HashMap<Player, Player> pairs = new HashMap<Player, Player>();
 				for(int i = 0; i < detectives.size(); i++){
-					for(int j = i + 1; j < detectives.size(); j++){ //checks every pair exactly once
+					for(int j = i + 1; j < detectives.size(); j++){ //checks every pair exactly once3
 						pairs.put(detectives.get(i), detectives.get(j));
 					}
 				}
@@ -106,8 +105,9 @@ public final class MyGameStateFactory implements Factory<GameState> {
 			this.log = log;
 			this.detectives = detectives;
 
-
 			proxy();
+
+			//getAvailableMoves
 
 		}
 		@Nonnull
@@ -197,28 +197,37 @@ public final class MyGameStateFactory implements Factory<GameState> {
 			return this.winner;
 		}
 
-		private static Set<Move.SingleMove> makeSingleMoves(GameSetup setup, List<Player> detectives, Player player, int source){
-			Set<Move.SingleMove> possibleMoves = new HashSet<>();
-			for(int destination : setup.graph.adjacentNodes(source)) {
+		private static Set<Move.SingleMove> makeSingleMoves(GameSetup setup, List<Player> detectives, Player player, int source) {
+			Set<SingleMove> possibleMoves = new HashSet<SingleMove>();
+			for (int destination : setup.graph.adjacentNodes(source)) {
 				// TODO find out if destination is occupied by a detective
 				//  if the location is occupied, don't add to the collection of moves to return
 				boolean occupied = detectives.stream().anyMatch(x -> x.location() == destination);
 
 				if (!occupied) {
-					for(Transport t : setup.graph.edgeValueOrDefault(source, destination, ImmutableSet.of()) ) {
-						// TODO find out if the player has the required tickets
-						//  if it does, construct a SingleMove and add it the collection of moves to return
+					for (Transport t : setup.graph.edgeValueOrDefault(source, destination, ImmutableSet.of())) {
+						boolean canTravel = player.tickets().entrySet()
+								.stream()
+								.filter(x -> x.equals(t.requiredTicket()))
+								.limit(1)
+								.anyMatch(x -> x.getValue() > 0);
+					/*
+							public SingleMove(@Nonnull Piece piece, int source,
+		                  @Nonnull Ticket ticket, int destination) {
+					 */
+						if (canTravel) {
+							possibleMoves.add(new SingleMove(player.piece(), source, t.requiredTicket(), destination));
+						}
 					}
 
-					if (player.tickets().containsKey(SECRET)) possibleMoves.add(new SingleMove(player.piece(), source, SECRET, destination));
+					if (player.tickets().containsKey(SECRET) && player.tickets().get(SECRET) > 0)
+						possibleMoves.add(new SingleMove(player.piece(), source, SECRET, destination));
+
 				}
 
 
-				// TODO consider the rules of secret moves here
-				//  add moves to the destination via a secret ticket if there are any left with the player
 
 			}
-
 			return possibleMoves;
 		}
 
