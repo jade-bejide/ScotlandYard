@@ -64,7 +64,7 @@ public final class MyGameStateFactory implements Factory<GameState> {
 			private static boolean iteratePairs(List<Player> detectives, Predicate<HashMap.Entry<Player, Player>> p){
 				HashMap<Player, Player> pairs = new HashMap<Player, Player>();
 				for(int i = 0; i < detectives.size(); i++){
-					for(int j = i + 1; j < detectives.size(); j++){ //checks every pair exactly once
+					for(int j = i + 1; j < detectives.size(); j++){ //checks every pair exactly once3
 						pairs.put(detectives.get(i), detectives.get(j));
 					}
 				}
