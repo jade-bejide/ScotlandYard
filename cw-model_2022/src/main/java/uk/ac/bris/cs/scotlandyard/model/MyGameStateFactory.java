@@ -92,7 +92,7 @@ public final class MyGameStateFactory implements Factory<GameState> {
 		private ImmutableSet<Player> determineWinner() {
 			//Set<Player> winners = new HashSet<>();
 			boolean caught = detectives.stream().anyMatch(x -> x.location() == mrX.location());
-			boolean stuck = getAvailableMoves().stream().anyMatch(x -> x.commencedBy().isMrX());
+			boolean stuck = getAvailableMoves().stream().allMatch(x -> !(x.commencedBy().isMrX()));
 			//if there all detectives have no tickets left, mr x will win
 			boolean noTickets = detectives.stream().anyMatch(x -> x.tickets().entrySet().stream().allMatch(y -> y.getValue() == 0));
 
@@ -372,7 +372,7 @@ public final class MyGameStateFactory implements Factory<GameState> {
 							for (Transport t : setup.graph.edgeValueOrDefault(source1, destination, ImmutableSet.of())) {
 								boolean canTravel = player.tickets().entrySet()
 										.stream()
-										.filter(x -> x.getKey().equals(t.requiredTicket()))
+										.filter(x -> x.getKey().equals(t.requiredTicket()) && t.requiredTicket() != DOUBLE)
 										.limit(1)
 										.anyMatch(x -> x.getValue() > 0);
 								if (canTravel) {
@@ -395,12 +395,12 @@ public final class MyGameStateFactory implements Factory<GameState> {
 		@Override
 		public ImmutableSet<Move> getAvailableMoves() {
 			Set<Move> allMoves = new HashSet<Move>();
-			if(winner == null){
+//			if(winner == null || winner.equals(ImmutableSet.of())){
 				for (Player player : remaining.stream().map(this::getPlayerOnPiece).toList()) {
 					allMoves.addAll(makeSingleMoves(setup, detectives, player, player.location()));
 					if(player.isMrX()) allMoves.addAll(makeDoubleMoves(setup, detectives, player, player.location()));
 				}
-			}
+//			}
 
 
 			//System.out.println(allMoves);
