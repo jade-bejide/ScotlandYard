@@ -94,7 +94,7 @@ public final class MyGameStateFactory implements Factory<GameState> {
 			boolean caught = detectives.stream().anyMatch(x -> x.location() == mrX.location());
 			boolean stuck = getAvailableMoves().stream().anyMatch(x -> x.commencedBy().isMrX());
 			//if there all detectives have no tickets left, mr x will win
-			boolean noTickets = detectives.stream().anyMatch(x -> x.tickets().entrySet().stream().anyMatch(y -> y.getValue() == 0));
+			boolean noTickets = detectives.stream().allMatch(x -> x.tickets().entrySet().stream().allMatch(y -> y.getValue() == 0));
 
 			if (log.size() == 24) {
 				//winners.add(mrX);
@@ -390,7 +390,7 @@ public final class MyGameStateFactory implements Factory<GameState> {
 		@Override
 		public ImmutableSet<Move> getAvailableMoves() {
 			Set<Move> allMoves = new HashSet<Move>();
-			if(winner.isEmpty()){
+			if(winner == null){
 				for (Player player : remaining.stream().map(this::getPlayerOnPiece).toList()) {
 					allMoves.addAll(makeSingleMoves(setup, detectives, player, player.location()));
 					if(player.isMrX()) allMoves.addAll(makeDoubleMoves(setup, detectives, player, player.location()));
