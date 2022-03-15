@@ -151,10 +151,13 @@ public final class MyGameStateFactory implements Factory<GameState> {
 
 		private ImmutableSet<Piece> nextRemaining(ImmutableSet<Piece> remaining){
 			List<Piece> copyOfRemaining = new ArrayList<Piece>(remaining);
-			copyOfRemaining.remove(0);
-			if(copyOfRemaining.equals(List.of(MrX.MRX))) copyOfRemaining = detectives.stream().map(Player::piece).toList();
+
+			if(copyOfRemaining.equals(List.of(MrX.MRX))) {
+				copyOfRemaining.remove(0);
+				copyOfRemaining = detectives.stream().map(Player::piece).toList();
+			}
+
 			if(copyOfRemaining.isEmpty()) copyOfRemaining.add(mrX.piece());
-			System.out.println(copyOfRemaining);
 			return ImmutableSet.copyOf(copyOfRemaining);
 		}
 
@@ -347,6 +350,8 @@ public final class MyGameStateFactory implements Factory<GameState> {
 						possibleMoves.add(new SingleMove(player.piece(), source, SECRET, destination));
 				}
 			}
+
+
 			return possibleMoves;
 		}
 
@@ -354,27 +359,31 @@ public final class MyGameStateFactory implements Factory<GameState> {
 			//if (player.isDetective()) throw new IllegalArgumentException("Detectives can't make double moves");
 			Set<DoubleMove> possibleDoubleMoves = new HashSet<>();
 			Set<SingleMove> possibleSingleMoves = makeSingleMoves(setup, detectives, player, source1);
-
-			for (SingleMove single : possibleSingleMoves) {
-				for (int destination : setup.graph.adjacentNodes(source1)) {
-					boolean occupied = detectives.stream().anyMatch(x -> x.location() == destination);
-					if (!occupied) {
-						for (Transport t : setup.graph.edgeValueOrDefault(source1, destination, ImmutableSet.of())) {
-							boolean canTravel = player.tickets().entrySet()
-									.stream()
-									.filter(x -> x.getKey().equals(t.requiredTicket()))
-									.limit(1)
-									.anyMatch(x -> x.getValue() > 0);
-							if (canTravel) {
-								possibleDoubleMoves.add(new DoubleMove(player.piece(), single.source(), single.ticket, single.destination, t.requiredTicket(), destination));
+			//if (player.isDetective()) System.out.println("Uh oh!");
+			if (player.isMrX()) {
+				for (SingleMove single : possibleSingleMoves) {
+					for (int destination : setup.graph.adjacentNodes(source1)) {
+						boolean occupied = detectives.stream().anyMatch(x -> x.location() == destination);
+						if (!occupied) {
+							for (Transport t : setup.graph.edgeValueOrDefault(source1, destination, ImmutableSet.of())) {
+								boolean canTravel = player.tickets().entrySet()
+										.stream()
+										.filter(x -> x.getKey().equals(t.requiredTicket()))
+										.limit(1)
+										.anyMatch(x -> x.getValue() > 0);
+								if (canTravel) {
+									possibleDoubleMoves.add(new DoubleMove(player.piece(), single.source(), single.ticket, single.destination, t.requiredTicket(), destination));
+								}
 							}
-						}
 
-						if (player.tickets().containsKey(SECRET) && player.tickets().get(SECRET) > 0)
-							possibleDoubleMoves.add(new DoubleMove(player.piece(), single.source(), single.ticket, single.destination, SECRET, destination));
+							if (player.tickets().containsKey(SECRET) && player.tickets().get(SECRET) > 0)
+								possibleDoubleMoves.add(new DoubleMove(player.piece(), single.source(), single.ticket, single.destination, SECRET, destination));
+						}
 					}
 				}
-				}
+			}
+
+
 				return possibleDoubleMoves;
 			}
 
