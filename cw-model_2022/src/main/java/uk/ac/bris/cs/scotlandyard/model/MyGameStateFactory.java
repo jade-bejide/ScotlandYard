@@ -195,7 +195,7 @@ public final class MyGameStateFactory implements Factory<GameState> {
 					gs = new MyGameState();
 					return gs;
 
-					})
+
 				}
 			});
 
