@@ -37,7 +37,7 @@ public final class MyGameStateFactory implements Factory<GameState> {
 		private final List<Player> detectives;
 		private ImmutableSet<Move> moves;
 		//may need to change after checking detectives
-		private final ImmutableSet<Piece> winner = ImmutableSet.of();
+		private final ImmutableSet<Piece> winner;
 
 		private void proxy() {
 			if (!mrX.isMrX()) throw new IllegalArgumentException("Mr X is empty");
@@ -130,11 +130,11 @@ public final class MyGameStateFactory implements Factory<GameState> {
 			this.remaining = remaining;
 			this.log = log;
 			this.detectives = detectives;
-
+			this.winner = ImmutableSet.copyOf(determineWinner().stream().map(Player::piece).collect(Collectors.toSet()));
 			proxy();
 
 			//getAvailableMoves
-			determineWinner();
+
 		}
 		@Nonnull
 		@Override
@@ -349,7 +349,7 @@ public final class MyGameStateFactory implements Factory<GameState> {
 		@Nonnull
 		@Override
 		public ImmutableSet<Piece> getWinner() {
-			return ImmutableSet.copyOf(determineWinner().stream().map(Player::piece).collect(Collectors.toSet()));
+			return winner;
 		}
 
 		private static Set<Move.SingleMove> makeSingleMoves(GameSetup setup, List<Player> detectives, Player player, int source) {
@@ -416,7 +416,7 @@ public final class MyGameStateFactory implements Factory<GameState> {
 		@Override
 		public ImmutableSet<Move> getAvailableMoves() {
 			Set<Move> allMoves = new HashSet<Move>();
-			if(log.size() < 24){
+			if(winner.isEmpty()){
 				for (Player player : remaining.stream().map(this::getPlayerOnPiece).toList()) {
 					allMoves.addAll(makeSingleMoves(setup, detectives, player, player.location()));
 					if(player.isMrX()) allMoves.addAll(makeDoubleMoves(setup, detectives, player, player.location()));
