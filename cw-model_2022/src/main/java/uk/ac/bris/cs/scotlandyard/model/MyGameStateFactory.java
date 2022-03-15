@@ -91,9 +91,10 @@ public final class MyGameStateFactory implements Factory<GameState> {
 
 		private ImmutableSet<Player> determineWinner() {
 			Set<Player> winners = new HashSet<>();
-			boolean anyDetectives = remaining.stream().anyMatch (x -> x.isDetective());
+			//boolean anyDetectives = remaining.stream().anyMatch (x -> x.isDetective());
 			boolean caught = detectives.stream().anyMatch(x -> x.location() == mrX.location());
 			boolean stuck = getAvailableMoves().stream().anyMatch(x -> x.commencedBy().isMrX());
+
 
 			if (log.size() == 24) winners.add(mrX);
 			if (!anyDetectives) winners.add(mrX);
