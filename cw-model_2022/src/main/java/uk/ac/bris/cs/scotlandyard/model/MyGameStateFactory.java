@@ -150,9 +150,9 @@ public final class MyGameStateFactory implements Factory<GameState> {
 		}
 
 		private ImmutableSet<Piece> nextRemaining(ImmutableSet<Piece> remaining, Piece piece){
-			Set<Piece> copyOfRemaining = new HashSet<>(remaining);
+			Set<Piece> copyOfRemaining = new HashSet<Piece>(remaining);
 
-			if(copyOfRemaining.equals(List.of(MrX.MRX))) {
+			if(copyOfRemaining.equals(Set.of(MrX.MRX))) {
 				copyOfRemaining.remove(piece);
 				copyOfRemaining = detectives.stream().map(Player::piece).collect(Collectors.toSet());
 			} else {
