@@ -185,7 +185,17 @@ public final class MyGameStateFactory implements Factory<GameState> {
 					//for jade
 
 					//TODO
-					return null;
+					if (move.commencedBy() != MrX.MRX) throw new IllegalArgumentException("Detectives can't make double moves!");
+
+					//should use three tickets, double move and the associated moves used
+					List<Ticket> ticketsUsed = new ArrayList<>();
+					move.tickets().forEach(ticketsUsed::add);
+
+					//load new gamestate and return it
+					gs = new MyGameState();
+					return gs;
+
+					})
 				}
 			});
 
