@@ -157,6 +157,7 @@ public final class MyGameStateFactory implements Factory<GameState> {
 				copyOfRemaining = detectives.stream().map(Player::piece).toList();
 			} else {
 				//switch to detectives
+				copyOfRemaining.remove(0);
 				if(copyOfRemaining.isEmpty()) copyOfRemaining.add(mrX.piece());
 			}
 
