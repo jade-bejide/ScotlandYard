@@ -209,11 +209,13 @@ public final class MyGameStateFactory implements Factory<GameState> {
 		@Nonnull
 		@Override
 		public GameState advance(Move move) {
+
 			Player player = getPlayerOnPiece(move.commencedBy());
 			Piece piece = player.piece();
-			//if(!getAvailableMoves().contains(move)) throw new IllegalArgumentException("Illegal move! " + move);
+
 			return move.accept(new Visitor<GameState>(){ //our gamestate-making visitor
 				public GameState visit(SingleMove move){
+					//if(!getAvailableMoves().contains(move)) throw new IllegalArgumentException("Illegal move! " + move);
 					Ticket ticketUsed = ImmutableList.copyOf(move.tickets()).stream().limit(1).toList().get(0);
 					/* singlemove code */
 					if(player.piece() == MrX.MRX){ //if the player taking the move is a detective (black piece)
@@ -403,15 +405,13 @@ public final class MyGameStateFactory implements Factory<GameState> {
 			@Override
 			public ImmutableSet<Move> getAvailableMoves() {
 				Set<Move> allMoves = new HashSet<Move>();
-			if (winner == null || winner.isEmpty()) {
-				for (Player player : remaining.stream().map(this::getPlayerOnPiece).toList()) {
-					allMoves.addAll(makeSingleMoves(setup, detectives, player, player.location()));
-					if(player.isMrX()) allMoves.addAll(makeDoubleMoves(setup, detectives, player, player.location()));
+				if (winner == null || winner.isEmpty()) {
+					for (Player player : remaining.stream().map(this::getPlayerOnPiece).toList()) {
+						allMoves.addAll(makeSingleMoves(setup, detectives, player, player.location()));
+						if(player.isMrX()) allMoves.addAll(makeDoubleMoves(setup, detectives, player, player.location()));
+					}
 				}
-			}
-
-
-
+				System.out.println("Moves: " + allMoves);
 				return ImmutableSet.copyOf(allMoves);
 			}
 
