@@ -3,6 +3,7 @@ package uk.ac.bris.cs.scotlandyard.model;
 import com.google.common.collect.*;
 
 import javax.annotation.Nonnull;
+import javax.swing.*;
 import javax.swing.text.html.Option;
 
 import java.util.*;
@@ -148,7 +149,23 @@ public final class MyGameStateFactory implements Factory<GameState> {
 			return filter.get(0);
 		}
 
-		//write a "next player" helper method!
+		//write a "next player/remaining" helper method!
+		private ImmutableSet<Piece> nextRemaining(ImmutableSet<Piece> remaining){
+			List<Piece> copyOfRemaining = ImmutableSet.copyOf(remaining).stream().toList();
+			Piece temp = copyOfRemaining.get(0);
+			copyOfRemaining.add(temp);
+			copyOfRemaining.remove(0);
+			return ImmutableSet.copyOf(copyOfRemaining);
+		}
+
+		private ImmutableMap<Ticket, Integer> setTickets(Player p, Ticket t, int change){ //takes/gives a ticket to the given player of a given type
+			HashMap<Ticket, Integer> ticketsMutable = new HashMap<Ticket, Integer>();
+			for(HashMap.Entry<Ticket, Integer> e : p.tickets().entrySet()){
+				if(e.getKey() == t) ticketsMutable.put(e.getKey(), e.getValue() + change); //changes the used-ticket count
+				else ticketsMutable.put(e.getKey(), e.getValue());
+			}
+			return ImmutableMap.copyOf(ticketsMutable);
+		}
 
 		@Nonnull
 		@Override
@@ -157,27 +174,39 @@ public final class MyGameStateFactory implements Factory<GameState> {
 			if(!getAvailableMoves().contains(move)) throw new IllegalArgumentException("Illegal move! " + move);
 			return move.accept(new Visitor<GameState>(){ //our gamestate-making visitor
 				public GameState visit(SingleMove move){
-					GameState gs;
 					/* singlemove code */
-					if(player.piece() == MrX.MRX){
+					if(player.piece() == MrX.MRX){ //if the player taking the move is a detective (black piece)
 						boolean hidden = setup.moves.get(log.size()); //is this move hidden
 
-						List<LogEntry> mutableLog = ImmutableList.copyOf(log);
+						List<LogEntry> logMutable = ImmutableList.copyOf(log);
 						Ticket ticketUsed = ImmutableList.copyOf(move.tickets()).stream().limit(1).toList().get(0);
-						mutableLog.add(LogEntry.hidden(ticketUsed)); //finishes the state of the log
-
-						HashMap<Ticket, Integer> mutableTickets = new HashMap<Ticket, Integer>();
-						for(HashMap.Entry<Ticket, Integer> e : mrX.tickets().entrySet()){
-							if(e.getKey() != ticketUsed) mutableTickets.put(e.getKey(), e.getValue());
-						} //adds all but the ticket used in the move
-						Player mrXMutable = new Player(MrX.MRX, ImmutableMap.copyOf(mutableTickets), move.destination); //moves mr x and changes his tickets
-
+						logMutable.add(LogEntry.hidden(ticketUsed)); //finishes the state of the log
+//						HashMap<Ticket, Integer> ticketsMutable = new HashMap<Ticket, Integer>();
+//						for(HashMap.Entry<Ticket, Integer> e : mrX.tickets().entrySet()){
+//							if(e.getKey() == ticketUsed) ticketsMutable.put(e.getKey(), e.getValue() - 1);
+//							else ticketsMutable.put(e.getKey(), e.getValue());
+//						} //adds all but the ticket used in the move
+						Player mrXMutable = new Player(
+								MrX.MRX,
+								setTickets(mrX, ticketUsed, -1),
+								move.destination
+						); //moves mr x and changes his tickets
 						//cycle to the next player and set the game state
-						//for elliot
-					}
+						ImmutableSet<Piece> remainingNew = nextRemaining(remaining);
+						ImmutableList<LogEntry> logNew = ImmutableList.copyOf(logMutable);
+						return new MyGameState(setup, remainingNew, logNew, mrXMutable, detectives);
+					}else{
+						Player detMutable = new Player(
+								player.piece(),
+								setTickets(player, ImmutableList.copyOf(move.tickets()).stream().limit(1).toList().get(0), -1),
+								move.destination
+						);
+						Player mrXMutable = new Player(
+								mrX.piece(),
+								setTickets(mrX, )
+						);
 
-					//TODO
-					return gs;
+					}
 				}
 				public GameState visit(DoubleMove move){
 					/* doublemove code */
