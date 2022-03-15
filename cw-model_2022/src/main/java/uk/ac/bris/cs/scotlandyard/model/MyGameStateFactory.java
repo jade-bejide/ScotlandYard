@@ -130,18 +130,15 @@ public final class MyGameStateFactory implements Factory<GameState> {
 			this.remaining = remaining;
 			this.log = log;
 			this.detectives = detectives;
-
-			System.out.println("Probs null: " + determineWinner().stream().map(Player::piece).collect(Collectors.toSet()));
-			this.winner = ImmutableSet.copyOf(determineWinner().stream().map(Player::piece).collect(Collectors.toSet()));
-			System.out.println("Winner is " + this.winner);
-			if (this.winner.isEmpty()) this.moves = getAvailableMoves();
-			else {
-				System.out.println("h");
-				this.moves = ImmutableSet.copyOf(Collections.emptySet());
-			}
-			System.out.println("Winner: " + this.winner);
-
+			this.winner = ImmutableSet.of();
 			proxy();
+			System.out.println("Probs null: " + determineWinner().stream().map(Player::piece).collect(Collectors.toSet()));
+
+
+			if (this.winner.isEmpty()) this.moves = getAvailableMoves();
+			else this.moves = ImmutableSet.copyOf(Collections.emptySet());
+
+
 
 			//getAvailableMoves
 
@@ -405,8 +402,14 @@ public final class MyGameStateFactory implements Factory<GameState> {
 			@Override
 			public ImmutableSet<Move> getAvailableMoves() {
 				Set<Move> allMoves = new HashSet<Move>();
+				System.out.println("Mr X: " + mrX);
+				System.out.println("Pieces: " + remaining);
+				List<Player> remainingPlayers = new ArrayList<>();
+				remainingPlayers.addAll(detectives);
+				remainingPlayers.add(mrX);
+				remainingPlayers = remainingPlayers.stream().filter(x -> !remaining.contains(x.piece())).toList();
 				if (winner == null || winner.isEmpty()) {
-					for (Player player : remaining.stream().map(this::getPlayerOnPiece).toList()) {
+					for (Player player : remainingPlayers) {
 						allMoves.addAll(makeSingleMoves(setup, detectives, player, player.location()));
 						if(player.isMrX()) allMoves.addAll(makeDoubleMoves(setup, detectives, player, player.location()));
 					}
