@@ -149,11 +149,8 @@ public final class MyGameStateFactory implements Factory<GameState> {
 			return filter.get(0);
 		}
 
-		//write a "next player/remaining" helper method!
 		private ImmutableSet<Piece> nextRemaining(ImmutableSet<Piece> remaining){
 			List<Piece> copyOfRemaining = ImmutableSet.copyOf(remaining).stream().toList();
-			Piece temp = copyOfRemaining.get(0);
-			copyOfRemaining.add(temp);
 			copyOfRemaining.remove(0);
 			return ImmutableSet.copyOf(copyOfRemaining);
 		}
@@ -280,8 +277,6 @@ public final class MyGameStateFactory implements Factory<GameState> {
 //					}
 //				}
 //			}else{ mrX = player; } //sets mrX to discard one ticket
-
-			return null;
 		}
 
 		@Nonnull
@@ -353,7 +348,7 @@ public final class MyGameStateFactory implements Factory<GameState> {
 		}
 
 		private static Set<Move.DoubleMove> makeDoubleMoves(GameSetup setup, List<Player> detectives, Player player, int source1) {
-			if (player.isDetective()) throw new IllegalArgumentException("Detectives can't make double moves");
+			//if (player.isDetective()) throw new IllegalArgumentException("Detectives can't make double moves");
 			Set<DoubleMove> possibleDoubleMoves = new HashSet<>();
 			Set<SingleMove> possibleSingleMoves = makeSingleMoves(setup, detectives, player, source1);
 
