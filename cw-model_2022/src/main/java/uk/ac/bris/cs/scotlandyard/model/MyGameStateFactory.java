@@ -152,9 +152,9 @@ public final class MyGameStateFactory implements Factory<GameState> {
 		private ImmutableSet<Piece> nextRemaining(ImmutableSet<Piece> remaining){
 			List<Piece> copyOfRemaining = new ArrayList<Piece>(remaining);
 			copyOfRemaining.remove(0);
-			System.out.println("Remaining Before: " + copyOfRemaining);
-			if(copyOfRemaining.isEmpty()) { copyOfRemaining.add(mrX.piece()); copyOfRemaining.addAll(detectives.stream().map(Player::piece).toList());  System.out.println("Remaining After: " + copyOfRemaining);}
-
+			if(copyOfRemaining.equals(List.of(MrX.MRX))) copyOfRemaining = detectives.stream().map(Player::piece).toList();
+			if(copyOfRemaining.isEmpty()) copyOfRemaining.add(mrX.piece());
+			System.out.println();
 			return ImmutableSet.copyOf(copyOfRemaining);
 		}
 
@@ -388,18 +388,13 @@ public final class MyGameStateFactory implements Factory<GameState> {
 		@Override
 		public ImmutableSet<Move> getAvailableMoves() {
 			Set<Move> allMoves = new HashSet<Move>();
-			List<Player> allPlayers = new ArrayList<>();
-
-			for (Piece piece : remaining) {
-				allPlayers.add(getPlayerOnPiece(piece));
+			for (Player player : remaining.stream().map(this::getPlayerOnPiece).toList()) {
+				allMoves.addAll(makeSingleMoves(setup, detectives, player, player.location()));
+				if(player.isMrX()) allMoves.addAll(makeDoubleMoves(setup, detectives, player, player.location()));
 			}
 
-			for (Player player : allPlayers) {
-				allMoves.addAll(makeSingleMoves(this.setup, detectives, player, player.location()));
-				allMoves.addAll(makeDoubleMoves(this.setup, detectives, player, player.location()));
-			}
+			//System.out.println(allMoves);
 
-			System.out.println(allMoves);
 			return ImmutableSet.copyOf(allMoves);
 		}
 	}
