@@ -323,7 +323,9 @@ public final class MyGameStateFactory implements Factory<GameState> {
 
 		private static Set<Move.SingleMove> makeSingleMoves(GameSetup setup, List<Player> detectives, Player player, int source) {
 			Set<SingleMove> possibleMoves = new HashSet<SingleMove>();
+			System.out.println(player.piece());
 			for (int destination : setup.graph.adjacentNodes(source)) {
+				System.out.println("Hello " + player.piece());
 				// TODO find out if destination is occupied by a detective
 				//  if the location is occupied, don't add to the collection of moves to return
 				boolean occupied = detectives.stream().anyMatch(x -> x.location() == destination);
@@ -352,7 +354,9 @@ public final class MyGameStateFactory implements Factory<GameState> {
 			Set<DoubleMove> possibleDoubleMoves = new HashSet<>();
 			Set<SingleMove> possibleSingleMoves = makeSingleMoves(setup, detectives, player, source1);
 
+			System.out.println(player.piece());
 			for (SingleMove single : possibleSingleMoves) {
+				System.out.println("Hello mrx?");
 				for (int destination : setup.graph.adjacentNodes(source1)) {
 					boolean occupied = detectives.stream().anyMatch(x -> x.location() == destination);
 					if (!occupied) {
@@ -372,6 +376,8 @@ public final class MyGameStateFactory implements Factory<GameState> {
 					}
 				}
 				}
+
+
 				return possibleDoubleMoves;
 			}
 
@@ -388,8 +394,7 @@ public final class MyGameStateFactory implements Factory<GameState> {
 				allMoves.addAll(makeDoubleMoves(this.setup, detectives, player, player.location()));
 			}
 
-			moves.copyOf(allMoves);
-			return moves;
+			return ImmutableSet.copyOf(allMoves);
 		}
 	}
 
