@@ -105,7 +105,8 @@ public final class MyGameStateFactory implements Factory<GameState> {
 			if (noTickets) {
 				winners.add(mrX);
 				System.out.println("Detectives have no tickets left!");
-				System.out.println("Winners: " + winners);
+				System.out.println("Winners: " + winners + " Length: " + winners.size());
+
 				return ImmutableSet.copyOf(winners);
 			}
 
@@ -172,16 +173,18 @@ public final class MyGameStateFactory implements Factory<GameState> {
 		private ImmutableSet<Piece> nextRemaining(ImmutableSet<Piece> remaining, Piece piece){
 			Set<Piece> copyOfRemaining = new HashSet<>(remaining);
 
-			if(copyOfRemaining.equals(Set.of(MrX.MRX))) {
-				copyOfRemaining.remove(piece);
-				copyOfRemaining = detectives.stream().map(Player::piece).collect(Collectors.toSet());
-			} else {
-				//switch to detectives
-				copyOfRemaining.remove(piece);
-				if(copyOfRemaining.isEmpty()) copyOfRemaining.add(mrX.piece());
-			}
+				if(copyOfRemaining.equals(Set.of(MrX.MRX))) {
+					copyOfRemaining.remove(piece);
+					copyOfRemaining = detectives.stream().map(Player::piece).collect(Collectors.toSet());
+				} else {
+					//switch to detectives
+					copyOfRemaining.remove(piece);
+					if(copyOfRemaining.isEmpty()) copyOfRemaining.add(mrX.piece());
+				}
 
-			System.out.println("Remaining: " + copyOfRemaining.toString());
+				System.out.println("Remaining: " + copyOfRemaining.toString());
+
+
 			return ImmutableSet.copyOf(copyOfRemaining);
 		}
 
@@ -349,7 +352,7 @@ public final class MyGameStateFactory implements Factory<GameState> {
 		@Nonnull
 		@Override
 		public ImmutableSet<Piece> getWinner() {
-			return this.winner;
+			return ImmutableSet.copyOf(determineWinner().stream().map(x -> x.piece()).collect(Collectors.toSet()));
 		}
 
 		private static Set<Move.SingleMove> makeSingleMoves(GameSetup setup, List<Player> detectives, Player player, int source) {
