@@ -149,15 +149,18 @@ public final class MyGameStateFactory implements Factory<GameState> {
 			return filter.get(0);
 		}
 
-		private ImmutableSet<Piece> nextRemaining(ImmutableSet<Piece> remaining){
+		private ImmutableSet<Piece> nextRemaining(ImmutableSet<Piece> remaining, Piece piece){
 			List<Piece> copyOfRemaining = new ArrayList<Piece>(remaining);
 
 			if(copyOfRemaining.equals(List.of(MrX.MRX))) {
 				copyOfRemaining.remove(0);
 				copyOfRemaining = detectives.stream().map(Player::piece).toList();
+			} else {
+				//switch to detectives
+				if(copyOfRemaining.isEmpty()) copyOfRemaining.add(mrX.piece());
 			}
 
-			if(copyOfRemaining.isEmpty()) copyOfRemaining.add(mrX.piece());
+			System.out.println("Remaining: " + copyOfRemaining.toString());
 			return ImmutableSet.copyOf(copyOfRemaining);
 		}
 
