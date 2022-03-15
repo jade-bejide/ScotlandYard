@@ -150,7 +150,7 @@ public final class MyGameStateFactory implements Factory<GameState> {
 		}
 
 		private ImmutableSet<Piece> nextRemaining(ImmutableSet<Piece> remaining){
-			List<Piece> copyOfRemaining = ImmutableSet.copyOf(remaining).stream().toList();
+			List<Piece> copyOfRemaining = new ArrayList<Piece>(remaining);
 			copyOfRemaining.remove(0);
 			return ImmutableSet.copyOf(copyOfRemaining);
 		}
@@ -168,7 +168,7 @@ public final class MyGameStateFactory implements Factory<GameState> {
 		@Override
 		public GameState advance(Move move) {
 			Player player = getPlayerOnPiece(move.commencedBy());
-			if(!getAvailableMoves().contains(move)) throw new IllegalArgumentException("Illegal move! " + move);
+			//if(!getAvailableMoves().contains(move)) throw new IllegalArgumentException("Illegal move! " + move);
 			return move.accept(new Visitor<GameState>(){ //our gamestate-making visitor
 				public GameState visit(SingleMove move){
 					Ticket ticketUsed = ImmutableList.copyOf(move.tickets()).stream().limit(1).toList().get(0);
@@ -176,7 +176,7 @@ public final class MyGameStateFactory implements Factory<GameState> {
 					if(player.piece() == MrX.MRX){ //if the player taking the move is a detective (black piece)
 						boolean hidden = setup.moves.get(log.size()); //is this move hidden
 
-						List<LogEntry> logMutable = ImmutableList.copyOf(log);
+						List<LogEntry> logMutable = new ArrayList<LogEntry>(log);
 						logMutable.add(LogEntry.hidden(ticketUsed)); //finishes the state of the log
 //						HashMap<Ticket, Integer> ticketsMutable = new HashMap<Ticket, Integer>();
 //						for(HashMap.Entry<Ticket, Integer> e : mrX.tickets().entrySet()){
@@ -201,7 +201,7 @@ public final class MyGameStateFactory implements Factory<GameState> {
 								setTickets(mrX, ticketUsed, 1),
 								mrX.location()
 						);
-						List<Player> detectivesMutable = ImmutableList.copyOf(detectives).stream().toList();
+						List<Player> detectivesMutable = new ArrayList<Player>(detectives);
 						detectivesMutable.set(detectives.indexOf(player), detectiveMutable);
 						return new MyGameState(setup, nextRemaining(remaining), log, mrXMutable, ImmutableList.copyOf(detectivesMutable));
 					}
@@ -323,9 +323,7 @@ public final class MyGameStateFactory implements Factory<GameState> {
 
 		private static Set<Move.SingleMove> makeSingleMoves(GameSetup setup, List<Player> detectives, Player player, int source) {
 			Set<SingleMove> possibleMoves = new HashSet<SingleMove>();
-			System.out.println(player.piece());
 			for (int destination : setup.graph.adjacentNodes(source)) {
-				System.out.println("Hello " + player.piece());
 				// TODO find out if destination is occupied by a detective
 				//  if the location is occupied, don't add to the collection of moves to return
 				boolean occupied = detectives.stream().anyMatch(x -> x.location() == destination);
@@ -354,9 +352,7 @@ public final class MyGameStateFactory implements Factory<GameState> {
 			Set<DoubleMove> possibleDoubleMoves = new HashSet<>();
 			Set<SingleMove> possibleSingleMoves = makeSingleMoves(setup, detectives, player, source1);
 
-			System.out.println(player.piece());
 			for (SingleMove single : possibleSingleMoves) {
-				System.out.println("Hello mrx?");
 				for (int destination : setup.graph.adjacentNodes(source1)) {
 					boolean occupied = detectives.stream().anyMatch(x -> x.location() == destination);
 					if (!occupied) {
