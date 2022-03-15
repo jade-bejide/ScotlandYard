@@ -249,10 +249,8 @@ public final class MyGameStateFactory implements Factory<GameState> {
 					Player newMrX = new Player(MrX.MRX, ImmutableMap.copyOf(newTicketSet), newLocation);
 
 					//load new gamestate and return it
-					gs = new MyGameState();
+					gs = new MyGameState(setup, nextRemaining(remaining), ImmutableList.copyOf(newLog), newMrX, detectives);
 					return gs;
-
-
 				}
 			});
 
