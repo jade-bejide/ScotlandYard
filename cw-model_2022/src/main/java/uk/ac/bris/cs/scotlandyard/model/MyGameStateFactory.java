@@ -90,23 +90,23 @@ public final class MyGameStateFactory implements Factory<GameState> {
 
 
 		private ImmutableSet<Player> determineWinner() {
-			Set<Player> winners = new HashSet<>();
+			//Set<Player> winners = new HashSet<>();
 			boolean caught = detectives.stream().anyMatch(x -> x.location() == mrX.location());
 			boolean stuck = getAvailableMoves().stream().anyMatch(x -> x.commencedBy().isMrX());
 			//if there all detectives have no tickets left, mr x will win
 			boolean noTickets = detectives.stream().anyMatch(x -> x.tickets().entrySet().stream().anyMatch(y -> y.getValue() == 0));
 
 			if (log.size() == 24) {
-				winners.add(mrX);
+				//winners.add(mrX);
 				System.out.println("Log full!");
-				System.out.println("Winners: " + winners);
-				return ImmutableSet.copyOf(winners);
+				System.out.println("Winners: " + mrX);
+				return ImmutableSet.copyOf(Set.of(mrX));
 			}
 			if (noTickets) {
-				winners.add(mrX);
+				//winners.add(mrX);
 				System.out.println("Detectives have no tickets left!");
-				System.out.println("Winners: " + winners);
-				return ImmutableSet.copyOf(winners);
+				System.out.println("Winners: " + mrX);
+				return ImmutableSet.copyOf(Set.of(mrX));
 			}
 
 			if (caught) {
@@ -121,7 +121,7 @@ public final class MyGameStateFactory implements Factory<GameState> {
 			}
 
 			System.out.println("Issue");
-			return ImmutableSet.copyOf(winners);
+			return ImmutableSet.copyOf(new HashSet<Player>());
 		}
 
 		private MyGameState(final GameSetup gs, final ImmutableSet<Piece> remaining, final ImmutableList<LogEntry> log, final Player mrX, final List<Player> detectives) {
@@ -349,7 +349,7 @@ public final class MyGameStateFactory implements Factory<GameState> {
 		@Nonnull
 		@Override
 		public ImmutableSet<Piece> getWinner() {
-			return this.winner;
+			return ImmutableSet.copyOf(determineWinner().stream().map(Player::piece).collect(Collectors.toSet()));
 		}
 
 		private static Set<Move.SingleMove> makeSingleMoves(GameSetup setup, List<Player> detectives, Player player, int source) {
@@ -416,10 +416,13 @@ public final class MyGameStateFactory implements Factory<GameState> {
 		@Override
 		public ImmutableSet<Move> getAvailableMoves() {
 			Set<Move> allMoves = new HashSet<Move>();
-			for (Player player : remaining.stream().map(this::getPlayerOnPiece).toList()) {
-				allMoves.addAll(makeSingleMoves(setup, detectives, player, player.location()));
-				if(player.isMrX()) allMoves.addAll(makeDoubleMoves(setup, detectives, player, player.location()));
+			if(log.size() < 24){
+				for (Player player : remaining.stream().map(this::getPlayerOnPiece).toList()) {
+					allMoves.addAll(makeSingleMoves(setup, detectives, player, player.location()));
+					if(player.isMrX()) allMoves.addAll(makeDoubleMoves(setup, detectives, player, player.location()));
+				}
 			}
+
 
 			//System.out.println(allMoves);
 
