@@ -91,17 +91,36 @@ public final class MyGameStateFactory implements Factory<GameState> {
 
 		private ImmutableSet<Player> determineWinner() {
 			Set<Player> winners = new HashSet<>();
-			//boolean anyDetectives = remaining.stream().anyMatch (x -> x.isDetective());
 			boolean caught = detectives.stream().anyMatch(x -> x.location() == mrX.location());
 			boolean stuck = getAvailableMoves().stream().anyMatch(x -> x.commencedBy().isMrX());
+			//if there all detectives have no tickets left, mr x will win
+			boolean noTickets = detectives.stream().anyMatch(x -> x.tickets().entrySet().stream().anyMatch(y -> y.getValue() == 0));
 
+			if (log.size() == 24) {
+				winners.add(mrX);
+				System.out.println("Log full!");
+				System.out.println("Winners: " + winners);
+				return ImmutableSet.copyOf(winners);
+			}
+			if (noTickets) {
+				winners.add(mrX);
+				System.out.println("Detectives have no tickets left!");
+				System.out.println("Winners: " + winners);
+				return ImmutableSet.copyOf(winners);
+			}
 
-			if (log.size() == 24) winners.add(mrX);
-			if (!anyDetectives) winners.add(mrX);
+			if (caught) {
+				System.out.println("Detectives won!");
+				System.out.println("Detective catch mr x");
+				return ImmutableSet.copyOf(detectives);
+			}
+			if (stuck) {
+				System.out.println("Detectives won!");
+				System.out.println("mr x is surrounded!");
+				return ImmutableSet.copyOf(detectives);
+			}
 
-			if (caught) winners.addAll(detectives);
-			if (stuck) winners.addAll(detectives);
-
+			System.out.println("Issue");
 			return ImmutableSet.copyOf(winners);
 		}
 
