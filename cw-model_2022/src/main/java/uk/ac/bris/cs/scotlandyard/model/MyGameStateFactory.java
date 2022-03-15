@@ -94,7 +94,7 @@ public final class MyGameStateFactory implements Factory<GameState> {
 			boolean caught = detectives.stream().anyMatch(x -> x.location() == mrX.location());
 			boolean stuck = getAvailableMoves().stream().anyMatch(x -> x.commencedBy().isMrX());
 			//if there all detectives have no tickets left, mr x will win
-			boolean noTickets = detectives.stream().anyMatch(x -> x.tickets().entrySet().stream().anyMatch(y -> y.getValue() == 0));
+			boolean noTickets = detectives.stream().anyMatch(x -> x.tickets().entrySet().stream().allMatch(y -> y.getValue() == 0));
 
 			if (log.size() == 24) {
 				//winners.add(mrX);
@@ -131,11 +131,12 @@ public final class MyGameStateFactory implements Factory<GameState> {
 			this.log = log;
 			this.detectives = detectives;
 			this.winner = ImmutableSet.copyOf(determineWinner().stream().map(Player::piece).collect(Collectors.toSet()));
+			System.out.println("Winner: " + this.winner);
 
 			proxy();
 
 			//getAvailableMoves
-			determineWinner();
+
 		}
 		@Nonnull
 		@Override
@@ -285,32 +286,6 @@ public final class MyGameStateFactory implements Factory<GameState> {
 					return gs;
 				}
 			});
-
-
-
-//			List<Player> players = new ArrayList<Player>(detectives); players.add(mrX);
-//			List<Player> filter = players
-//					.stream()
-//					.filter(x -> x.piece() == move.commencedBy())
-//					.toList(); //gets player (singleton list)
-//			Player player = filter.get(0);
-//			Map<ScotlandYard.Ticket, Integer> mutableTickets = player.tickets();
-//			mutableTickets.remove(move.tickets()); //warning can be ignored because this method only deals with valid moves
-//			player = new Player(player.piece(), mutableTickets, );
-//			//gets player and its tickets
-//			if(!player.equals(mrX)){
-//				Map<ScotlandYard.Ticket, Integer> mrXTickets = mrX.tickets();
-//				for(ScotlandYard.Ticket t : move.tickets()){
-//					mrXTickets.put(t, mrXTickets.get(move.tickets()) + 1); //adds one to each ticket type
-//				}
-//				mrX = new Player(mrX.piece(), (ImmutableMap<ScotlandYard.Ticket, Integer>) mrXTickets, mrX.location()); //mrx receives ticket but stays still
-//				//sets the correct player in detectives
-//				for(int i = 0; i < detectives.size(); i++){
-//					if(detectives.get(i).piece() == player.piece()) {
-//						detectives.set(i, player); i = detectives.size(); //exit loop
-//					}
-//				}
-//			}else{ mrX = player; } //sets mrX to discard one ticket
 		}
 
 		@Nonnull
@@ -420,7 +395,7 @@ public final class MyGameStateFactory implements Factory<GameState> {
 		@Override
 		public ImmutableSet<Move> getAvailableMoves() {
 			Set<Move> allMoves = new HashSet<Move>();
-			if(log.size() < 24){
+			if(winner == null){
 				for (Player player : remaining.stream().map(this::getPlayerOnPiece).toList()) {
 					allMoves.addAll(makeSingleMoves(setup, detectives, player, player.location()));
 					if(player.isMrX()) allMoves.addAll(makeDoubleMoves(setup, detectives, player, player.location()));
