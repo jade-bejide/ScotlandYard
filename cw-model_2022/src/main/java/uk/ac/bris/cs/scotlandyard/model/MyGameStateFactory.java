@@ -91,16 +91,36 @@ public final class MyGameStateFactory implements Factory<GameState> {
 
 		private ImmutableSet<Player> determineWinner() {
 			Set<Player> winners = new HashSet<>();
-			boolean anyDetectives = remaining.stream().anyMatch (x -> x.isDetective());
 			boolean caught = detectives.stream().anyMatch(x -> x.location() == mrX.location());
 			boolean stuck = getAvailableMoves().stream().anyMatch(x -> x.commencedBy().isMrX());
+			//if there all detectives have no tickets left, mr x will win
+			boolean noTickets = detectives.stream().anyMatch(x -> x.tickets().entrySet().stream().anyMatch(y -> y.getValue() == 0));
 
-			if (log.size() == 24) winners.add(mrX);
-			if (!anyDetectives) winners.add(mrX);
+			if (log.size() == 24) {
+				winners.add(mrX);
+				System.out.println("Log full!");
+				System.out.println("Winners: " + winners);
+				return ImmutableSet.copyOf(winners);
+			}
+			if (noTickets) {
+				winners.add(mrX);
+				System.out.println("Detectives have no tickets left!");
+				System.out.println("Winners: " + winners);
+				return ImmutableSet.copyOf(winners);
+			}
 
-			if (caught) winners.addAll(detectives);
-			if (stuck) winners.addAll(detectives);
+			if (caught) {
+				System.out.println("Detectives won!");
+				System.out.println("Detective catch mr x");
+				return ImmutableSet.copyOf(detectives);
+			}
+			if (stuck) {
+				System.out.println("Detectives won!");
+				System.out.println("mr x is surrounded!");
+				return ImmutableSet.copyOf(detectives);
+			}
 
+			System.out.println("Issue");
 			return ImmutableSet.copyOf(winners);
 		}
 
@@ -150,14 +170,14 @@ public final class MyGameStateFactory implements Factory<GameState> {
 		}
 
 		private ImmutableSet<Piece> nextRemaining(ImmutableSet<Piece> remaining, Piece piece){
-			List<Piece> copyOfRemaining = new ArrayList<Piece>(remaining);
+			Set<Piece> copyOfRemaining = new HashSet<>(remaining);
 
-			if(copyOfRemaining.equals(List.of(MrX.MRX))) {
-				copyOfRemaining.remove(0);
-				copyOfRemaining = detectives.stream().map(Player::piece).toList();
+			if(copyOfRemaining.equals(Set.of(MrX.MRX))) {
+				copyOfRemaining.remove(piece);
+				copyOfRemaining = detectives.stream().map(Player::piece).collect(Collectors.toSet());
 			} else {
 				//switch to detectives
-				copyOfRemaining.remove(0);
+				copyOfRemaining.remove(piece);
 				if(copyOfRemaining.isEmpty()) copyOfRemaining.add(mrX.piece());
 			}
 
@@ -178,6 +198,7 @@ public final class MyGameStateFactory implements Factory<GameState> {
 		@Override
 		public GameState advance(Move move) {
 			Player player = getPlayerOnPiece(move.commencedBy());
+			Piece piece = player.piece();
 			//if(!getAvailableMoves().contains(move)) throw new IllegalArgumentException("Illegal move! " + move);
 			return move.accept(new Visitor<GameState>(){ //our gamestate-making visitor
 				public GameState visit(SingleMove move){
@@ -199,7 +220,7 @@ public final class MyGameStateFactory implements Factory<GameState> {
 								move.destination
 						); //moves mr x and changes his tickets
 						//cycle to the next player and set the game state
-						return new MyGameState(setup,  nextRemaining(remaining), ImmutableList.copyOf(logMutable), mrXMutable, detectives);
+						return new MyGameState(setup,  nextRemaining(remaining, piece), ImmutableList.copyOf(logMutable), mrXMutable, detectives);
 					}else{
 						Player detectiveMutable = new Player( //detective moves to move destination and uses a ticket
 								player.piece(),
@@ -213,7 +234,7 @@ public final class MyGameStateFactory implements Factory<GameState> {
 						);
 						List<Player> detectivesMutable = new ArrayList<Player>(detectives);
 						detectivesMutable.set(detectives.indexOf(player), detectiveMutable);
-						return new MyGameState(setup, nextRemaining(remaining), log, mrXMutable, ImmutableList.copyOf(detectivesMutable));
+						return new MyGameState(setup, nextRemaining(remaining, piece), log, mrXMutable, ImmutableList.copyOf(detectivesMutable));
 					}
 				}
 				public GameState visit(DoubleMove move){
@@ -257,7 +278,7 @@ public final class MyGameStateFactory implements Factory<GameState> {
 					Player newMrX = new Player(MrX.MRX, ImmutableMap.copyOf(newTicketSet), newLocation);
 
 					//load new gamestate and return it
-					gs = new MyGameState(setup, nextRemaining(remaining), ImmutableList.copyOf(newLog), newMrX, detectives);
+					gs = new MyGameState(setup, nextRemaining(remaining, piece), ImmutableList.copyOf(newLog), newMrX, detectives);
 					return gs;
 				}
 			});
