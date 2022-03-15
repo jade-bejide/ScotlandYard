@@ -174,12 +174,12 @@ public final class MyGameStateFactory implements Factory<GameState> {
 			if(!getAvailableMoves().contains(move)) throw new IllegalArgumentException("Illegal move! " + move);
 			return move.accept(new Visitor<GameState>(){ //our gamestate-making visitor
 				public GameState visit(SingleMove move){
+					Ticket ticketUsed = ImmutableList.copyOf(move.tickets()).stream().limit(1).toList().get(0);
 					/* singlemove code */
 					if(player.piece() == MrX.MRX){ //if the player taking the move is a detective (black piece)
 						boolean hidden = setup.moves.get(log.size()); //is this move hidden
 
 						List<LogEntry> logMutable = ImmutableList.copyOf(log);
-						Ticket ticketUsed = ImmutableList.copyOf(move.tickets()).stream().limit(1).toList().get(0);
 						logMutable.add(LogEntry.hidden(ticketUsed)); //finishes the state of the log
 //						HashMap<Ticket, Integer> ticketsMutable = new HashMap<Ticket, Integer>();
 //						for(HashMap.Entry<Ticket, Integer> e : mrX.tickets().entrySet()){
@@ -192,20 +192,21 @@ public final class MyGameStateFactory implements Factory<GameState> {
 								move.destination
 						); //moves mr x and changes his tickets
 						//cycle to the next player and set the game state
-						ImmutableSet<Piece> remainingNew = nextRemaining(remaining);
-						ImmutableList<LogEntry> logNew = ImmutableList.copyOf(logMutable);
-						return new MyGameState(setup, remainingNew, logNew, mrXMutable, detectives);
+						return new MyGameState(setup,  nextRemaining(remaining), ImmutableList.copyOf(logMutable), mrXMutable, detectives);
 					}else{
-						Player detMutable = new Player(
+						Player detectiveMutable = new Player( //detective moves to move destination and uses a ticket
 								player.piece(),
-								setTickets(player, ImmutableList.copyOf(move.tickets()).stream().limit(1).toList().get(0), -1),
+								setTickets(player, ticketUsed, -1),
 								move.destination
 						);
-						Player mrXMutable = new Player(
+						Player mrXMutable = new Player( //mrx does not move on his turn
 								mrX.piece(),
-								setTickets(mrX, )
+								setTickets(mrX, ticketUsed, 1),
+								mrX.location()
 						);
-
+						List<Player> detectivesMutable = ImmutableList.copyOf(detectives).stream().toList();
+						detectivesMutable.set(detectives.indexOf(player), detectiveMutable);
+						return new MyGameState(setup, nextRemaining(remaining), log, mrXMutable, ImmutableList.copyOf(detectivesMutable));
 					}
 				}
 				public GameState visit(DoubleMove move){
