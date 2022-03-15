@@ -149,11 +149,8 @@ public final class MyGameStateFactory implements Factory<GameState> {
 			return filter.get(0);
 		}
 
-		//write a "next player/remaining" helper method!
 		private ImmutableSet<Piece> nextRemaining(ImmutableSet<Piece> remaining){
 			List<Piece> copyOfRemaining = ImmutableSet.copyOf(remaining).stream().toList();
-			Piece temp = copyOfRemaining.get(0);
-			copyOfRemaining.add(temp);
 			copyOfRemaining.remove(0);
 			return ImmutableSet.copyOf(copyOfRemaining);
 		}
