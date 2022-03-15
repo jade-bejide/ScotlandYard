@@ -280,8 +280,6 @@ public final class MyGameStateFactory implements Factory<GameState> {
 //					}
 //				}
 //			}else{ mrX = player; } //sets mrX to discard one ticket
-
-			return null;
 		}
 
 		@Nonnull
@@ -353,7 +351,7 @@ public final class MyGameStateFactory implements Factory<GameState> {
 		}
 
 		private static Set<Move.DoubleMove> makeDoubleMoves(GameSetup setup, List<Player> detectives, Player player, int source1) {
-			if (player.isDetective()) throw new IllegalArgumentException("Detectives can't make double moves");
+			//if (player.isDetective()) throw new IllegalArgumentException("Detectives can't make double moves");
 			Set<DoubleMove> possibleDoubleMoves = new HashSet<>();
 			Set<SingleMove> possibleSingleMoves = makeSingleMoves(setup, detectives, player, source1);
 
@@ -384,7 +382,11 @@ public final class MyGameStateFactory implements Factory<GameState> {
 		@Override
 		public ImmutableSet<Move> getAvailableMoves() {
 			Set<Move> allMoves = new HashSet<Move>();
-			for (Player player : detectives) {
+			List<Player> allPlayers = new ArrayList<>();
+			for (Piece piece : remaining) {
+				allPlayers.add(getPlayerOnPiece(piece));
+			}
+			for (Player player : allPlayers) {
 				allMoves.addAll(makeSingleMoves(this.setup, detectives, player, player.location()));
 				allMoves.addAll(makeDoubleMoves(this.setup, detectives, player, player.location()));
 			}
