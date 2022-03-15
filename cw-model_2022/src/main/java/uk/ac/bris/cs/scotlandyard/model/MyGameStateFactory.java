@@ -148,6 +148,8 @@ public final class MyGameStateFactory implements Factory<GameState> {
 			return filter.get(0);
 		}
 
+		//write a "next player" helper method!
+
 		@Nonnull
 		@Override
 		public GameState advance(Move move) {
@@ -155,29 +157,27 @@ public final class MyGameStateFactory implements Factory<GameState> {
 			if(!getAvailableMoves().contains(move)) throw new IllegalArgumentException("Illegal move! " + move);
 			return move.accept(new Visitor<GameState>(){ //our gamestate-making visitor
 				public GameState visit(SingleMove move){
+					GameState gs;
 					/* singlemove code */
-					GameState gs; // build the gamestate here
 					if(player.piece() == MrX.MRX){
 						boolean hidden = setup.moves.get(log.size()); //is this move hidden
 
-						List<LogEntry> mutableLog = log;
-						List<Ticket> moveTickets = (List<Ticket>) move.tickets(); Ticket ticket = moveTickets.get(0);
-						mutableLog.add(LogEntry.hidden(ticket));
-
-						gs = new MyGameState(setup, remaining, ImmutableList.copyOf(mutableLog), mrX, detectives);
+						List<LogEntry> mutableLog = ImmutableList.copyOf(log);
+						Ticket ticketUsed = ImmutableList.copyOf(move.tickets()).stream().limit(1).toList().get(0);
+						mutableLog.add(LogEntry.hidden(ticketUsed)); //finishes the state of the log
 
 						HashMap<Ticket, Integer> mutableTickets = new HashMap<Ticket, Integer>();
 						for(HashMap.Entry<Ticket, Integer> e : mrX.tickets().entrySet()){
-							if(e.getKey() != ticket) mutableTickets.put(e.getKey(), e.getValue());
+							if(e.getKey() != ticketUsed) mutableTickets.put(e.getKey(), e.getValue());
 						} //adds all but the ticket used in the move
-						Player mrMutable = new Player(MrX.MRX, ImmutableMap.copyOf(mutableTickets), move.destination); //moves mr x and changes his tickets
-						gs = new MyGameState(setup, remaining, gs.getMrXTravelLog(), mrMutable, detectives);
+						Player mrXMutable = new Player(MrX.MRX, ImmutableMap.copyOf(mutableTickets), move.destination); //moves mr x and changes his tickets
 
+						//cycle to the next player and set the game state
 						//for elliot
 					}
 
 					//TODO
-					return null;
+					return gs;
 				}
 				public GameState visit(DoubleMove move){
 					/* doublemove code */
@@ -276,7 +276,7 @@ public final class MyGameStateFactory implements Factory<GameState> {
 				// TODO find out if destination is occupied by a detective
 				//  if the location is occupied, don't add to the collection of moves to return
 				boolean occupied = detectives.stream().anyMatch(x -> x.location() == destination);
-
+				//may need to make a flag for when doublemove is called on singlemove (we can go through a detective on a double move)
 				if (!occupied) {
 					for (Transport t : setup.graph.edgeValueOrDefault(source, destination, ImmutableSet.of())) {
 						boolean canTravel = player.tickets().entrySet()
