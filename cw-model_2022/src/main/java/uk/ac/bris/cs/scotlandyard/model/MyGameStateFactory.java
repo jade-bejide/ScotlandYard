@@ -221,11 +221,37 @@ public final class MyGameStateFactory implements Factory<GameState> {
 					List<Ticket> ticketsUsed = new ArrayList<>();
 					move.tickets().forEach(ticketsUsed::add);
 
+					Map<Ticket, Integer>  newTicketSet = new HashMap<Ticket,Integer>();
+					newTicketSet.putAll(mrX.tickets());
+
+					List<LogEntry> newLog = new ArrayList<>();
+					newLog.addAll(log);
+
+					int newLocation = 0;
+
+					int destination = 0;
+					//start at index 1 to skip deduction of double ticket
+					for (int i = 1; i < ticketsUsed.size(); i++) {
+						Ticket ticket = ticketsUsed.get(i);
+						if (i == 1) destination = move.destination1;
+						if (i == 2) destination = move.destination2;
+						boolean isHidden = setup.moves.get(log.size());
+						if (isHidden) newLog.add(LogEntry.hidden(ticket));
+						else {
+							newLog.add(LogEntry.reveal(ticket, destination));
+							newLocation = destination;
+						}
+					}
+
+					for(HashMap.Entry<Ticket, Integer> ticketEntry : newTicketSet.entrySet()) {
+						if (ticketsUsed.contains(ticketEntry.getKey())) newTicketSet.put(ticketEntry.getKey(), ticketEntry.getValue() - 1);
+					}
+
+					Player newMrX = new Player(MrX.MRX, ImmutableMap.copyOf(newTicketSet), newLocation);
+
 					//load new gamestate and return it
-					gs = new MyGameState();
+					gs = new MyGameState(setup, nextRemaining(remaining), ImmutableList.copyOf(newLog), newMrX, detectives);
 					return gs;
-
-
 				}
 			});
 
