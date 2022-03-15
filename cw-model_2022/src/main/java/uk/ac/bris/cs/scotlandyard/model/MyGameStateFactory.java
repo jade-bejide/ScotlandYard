@@ -379,7 +379,11 @@ public final class MyGameStateFactory implements Factory<GameState> {
 		@Override
 		public ImmutableSet<Move> getAvailableMoves() {
 			Set<Move> allMoves = new HashSet<Move>();
-			for (Player player : detectives) {
+			List<Player> allPlayers = new ArrayList<>();
+			for (Piece piece : remaining) {
+				allPlayers.add(getPlayerOnPiece(piece));
+			}
+			for (Player player : allPlayers) {
 				allMoves.addAll(makeSingleMoves(this.setup, detectives, player, player.location()));
 				allMoves.addAll(makeDoubleMoves(this.setup, detectives, player, player.location()));
 			}
