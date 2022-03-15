@@ -35,7 +35,7 @@ public final class MyGameStateFactory implements Factory<GameState> {
 		private final ImmutableList<LogEntry> log;
 		private Player mrX;
 		private final List<Player> detectives;
-		private ImmutableSet<Move> moves;
+		private final ImmutableSet<Move> moves;
 		//may need to change after checking detectives
 		private final ImmutableSet<Piece> winner;
 
@@ -121,7 +121,7 @@ public final class MyGameStateFactory implements Factory<GameState> {
 			}
 
 			System.out.println("Issue");
-			return ImmutableSet.copyOf(new HashSet<Player>());
+			return ImmutableSet.copyOf(Collections.emptySet());
 		}
 
 		private MyGameState(final GameSetup gs, final ImmutableSet<Piece> remaining, final ImmutableList<LogEntry> log, final Player mrX, final List<Player> detectives) {
@@ -130,7 +130,15 @@ public final class MyGameStateFactory implements Factory<GameState> {
 			this.remaining = remaining;
 			this.log = log;
 			this.detectives = detectives;
+
+			System.out.println("Probs null: " + determineWinner().stream().map(Player::piece).collect(Collectors.toSet()));
 			this.winner = ImmutableSet.copyOf(determineWinner().stream().map(Player::piece).collect(Collectors.toSet()));
+			System.out.println("Winner is " + this.winner);
+			if (this.winner.isEmpty()) this.moves = getAvailableMoves();
+			else {
+				System.out.println("h");
+				this.moves = ImmutableSet.copyOf(Collections.emptySet());
+			}
 			System.out.println("Winner: " + this.winner);
 
 			proxy();
@@ -391,22 +399,23 @@ public final class MyGameStateFactory implements Factory<GameState> {
 				return possibleDoubleMoves;
 			}
 
-		@Nonnull
-		@Override
-		public ImmutableSet<Move> getAvailableMoves() {
-			Set<Move> allMoves = new HashSet<Move>();
-//			if(winner == null || winner.equals(ImmutableSet.of())){
+			@Nonnull
+			@Override
+			public ImmutableSet<Move> getAvailableMoves() {
+				Set<Move> allMoves = new HashSet<Move>();
+			if (winner == null || winner.isEmpty()) {
 				for (Player player : remaining.stream().map(this::getPlayerOnPiece).toList()) {
 					allMoves.addAll(makeSingleMoves(setup, detectives, player, player.location()));
 					if(player.isMrX()) allMoves.addAll(makeDoubleMoves(setup, detectives, player, player.location()));
 				}
-//			}
+			}
 
 
-			//System.out.println(allMoves);
 
-			return ImmutableSet.copyOf(allMoves);
-		}
+				return ImmutableSet.copyOf(allMoves);
+			}
+
+
 	}
 
 	@Nonnull @Override public GameState build(
