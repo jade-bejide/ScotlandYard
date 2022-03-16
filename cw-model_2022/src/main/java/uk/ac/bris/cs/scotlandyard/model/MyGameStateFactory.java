@@ -3,6 +3,7 @@ package uk.ac.bris.cs.scotlandyard.model;
 import com.google.common.collect.*;
 
 import javax.annotation.Nonnull;
+import javax.annotation.concurrent.Immutable;
 import javax.swing.*;
 import javax.swing.text.html.Option;
 
@@ -44,7 +45,7 @@ public final class MyGameStateFactory implements Factory<GameState> {
 			this.log = log;
 			this.mrX = mrX;
 			this.detectives = detectives;
-			this.winner = ImmutableSet.of();
+			this.winner = ImmutableSet.copyOf(determineWinner().stream().map(Player::piece).collect(Collectors.toSet()));
 			proxy();
 			System.out.println("Probs null: " + determineWinner().stream().map(Player::piece).collect(Collectors.toSet()));
 
@@ -413,7 +414,7 @@ public final class MyGameStateFactory implements Factory<GameState> {
 					for (Player player : remainingPlayers) {
 						allMoves.addAll(makeSingleMoves(setup, detectives, player, player.location()));
 						if(player.isMrX() && (setup.moves.size() - log.size() >= 2)) allMoves.addAll(makeDoubleMoves(setup, detectives, player, player.location()));
-						//if mrx has 2 or more moves left in his log, then we can double move
+						//if mrx has 2 or more moves left in his log, then he can double move
 					}
 				}
 
