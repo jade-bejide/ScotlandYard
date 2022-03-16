@@ -186,6 +186,7 @@ public final class MyGameStateFactory implements Factory<GameState> {
 		}
 
 		private ImmutableSet<Piece> nextRemaining(ImmutableSet<Piece> remaining, Piece piece){
+			//thinking about logic which will skip a turn if the "next" player
 			Set<Piece> copyOfRemaining = new HashSet<Piece>(remaining);
 
 				if(copyOfRemaining.equals(Set.of(MrX.MRX))) {
