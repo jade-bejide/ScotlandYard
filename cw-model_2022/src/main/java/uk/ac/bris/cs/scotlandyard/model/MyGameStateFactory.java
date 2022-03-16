@@ -49,6 +49,7 @@ public final class MyGameStateFactory implements Factory<GameState> {
 			proxy();
 			System.out.println("this.winner: " + winner);
 
+
 //			if (this.winner.isEmpty()) this.moves = getAvailableMoves();
 //			else this.moves = ImmutableSet.copyOf(Collections.emptySet());
 
@@ -195,7 +196,6 @@ public final class MyGameStateFactory implements Factory<GameState> {
 					copyOfRemaining.remove(piece);
 					if(copyOfRemaining.isEmpty()) copyOfRemaining.add(mrX.piece());
 				}
-
 
 			return ImmutableSet.copyOf(copyOfRemaining);
 		}
