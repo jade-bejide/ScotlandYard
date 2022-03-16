@@ -117,9 +117,14 @@ public final class MyGameStateFactory implements Factory<GameState> {
 			boolean noTickets = detectives.stream().allMatch(x -> x.tickets().entrySet().stream().allMatch(y -> y.getValue() == 0));
 			//boolean noTicketsX = mrX.tickets().entrySet().stream().allMatch(x -> x.getValue() == 0);
 
-			boolean someStuck = true;
+			boolean someStuck = remaining.stream().anyMatch(x -> x.isDetective());
+			boolean emptyMoves = getAvailableMoves().isEmpty();
+
+			System.out.println("Remaining: " + remaining);
+			System.out.println(someStuck + " " + emptyMoves);
 			boolean noMovesLeft = setup.moves.size() == log.size();
 
+			if (someStuck && emptyMoves) return ImmutableSet.copyOf(Collections.emptySet());
 			if (noMovesLeft) return ImmutableSet.copyOf(Set.of(mrX));
 
 			if (cornered) return ImmutableSet.copyOf(detectives);
@@ -183,14 +188,14 @@ public final class MyGameStateFactory implements Factory<GameState> {
 		private ImmutableSet<Piece> nextRemaining(ImmutableSet<Piece> remaining, Piece piece){
 			Set<Piece> copyOfRemaining = new HashSet<Piece>(remaining);
 
-				if(copyOfRemaining.equals(Set.of(MrX.MRX))) {
-					copyOfRemaining.remove(piece);
-					copyOfRemaining = detectives.stream().map(Player::piece).collect(Collectors.toSet());
-				} else {
-					//switch to detectives
-					copyOfRemaining.remove(piece);
-					if(copyOfRemaining.isEmpty()) copyOfRemaining.add(mrX.piece());
-				}
+			if(copyOfRemaining.equals(Set.of(MrX.MRX))) {
+				copyOfRemaining.remove(piece);
+				copyOfRemaining = detectives.stream().map(Player::piece).collect(Collectors.toSet());
+			} else {
+				//switch to detectives
+				copyOfRemaining.remove(piece);
+				if(copyOfRemaining.isEmpty()) copyOfRemaining.add(mrX.piece());
+			}
 
 
 			return ImmutableSet.copyOf(copyOfRemaining);
