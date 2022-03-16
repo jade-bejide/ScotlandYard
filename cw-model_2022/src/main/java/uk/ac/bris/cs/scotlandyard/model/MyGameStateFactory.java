@@ -129,12 +129,21 @@ public final class MyGameStateFactory implements Factory<GameState> {
 			System.out.println(someStuck + " " + emptyMoves);
 			boolean noMovesLeft = setup.moves.size() == log.size();
 
-			if (someStuck && emptyMoves) return ImmutableSet.copyOf(Collections.emptySet());
+
 			if (noMovesLeft) return ImmutableSet.copyOf(Set.of(mrX));
 
-			if (cornered) return ImmutableSet.copyOf(detectives);
+			if (cornered) {
+				System.out.println("Cornered");
+				return ImmutableSet.copyOf(detectives);
+			}
 
-			if (getAvailableMoves().isEmpty()) return ImmutableSet.copyOf(detectives);
+
+			if (getAvailableMoves().isEmpty()) {
+				System.out.println("is empty");
+				return ImmutableSet.copyOf(detectives);
+			}
+
+
 			if (noTickets) {
 				//winners.add(mrX);
 				System.out.println("Detectives have no tickets left!");
@@ -156,6 +165,7 @@ public final class MyGameStateFactory implements Factory<GameState> {
 //			}
 
 			//System.out.println("Issue");
+			if (someStuck) return ImmutableSet.copyOf(Collections.emptySet());
 			return ImmutableSet.copyOf(Collections.emptySet());
 		}
 
