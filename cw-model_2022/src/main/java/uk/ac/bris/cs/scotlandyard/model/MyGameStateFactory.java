@@ -47,6 +47,7 @@ public final class MyGameStateFactory implements Factory<GameState> {
 			this.detectives = detectives;
 			this.winner = ImmutableSet.copyOf(determineWinner().stream().map(Player::piece).collect(Collectors.toSet()));
 			proxy();
+			System.out.println("this.winner: " + winner);
 
 
 //			if (this.winner.isEmpty()) this.moves = getAvailableMoves();
@@ -107,6 +108,10 @@ public final class MyGameStateFactory implements Factory<GameState> {
 			}
 		}
 
+		private Set<Player> getAllPlayers(){
+			Set<Player> p = new HashSet<Player>(detectives); p.add(mrX);
+			return p;
+		}
 
 		private ImmutableSet<Player> determineWinner() {
 			//Set<Player> winners = new HashSet<>();
@@ -196,7 +201,6 @@ public final class MyGameStateFactory implements Factory<GameState> {
 				copyOfRemaining.remove(piece);
 				if(copyOfRemaining.isEmpty()) copyOfRemaining.add(mrX.piece());
 			}
-
 
 			return ImmutableSet.copyOf(copyOfRemaining);
 		}
