@@ -33,11 +33,31 @@ public final class MyGameStateFactory implements Factory<GameState> {
 		private final GameSetup setup;
 		private final ImmutableSet<Piece> remaining;
 		private final ImmutableList<LogEntry> log;
-		private Player mrX;
+		private final Player mrX;
 		private final List<Player> detectives;
-		private final ImmutableSet<Move> moves;
+		private ImmutableSet<Move> moves;
 		//may need to change after checking detectives
-		private final ImmutableSet<Piece> winner;
+		private ImmutableSet<Piece> winner;
+
+		private MyGameState(final GameSetup gs, final ImmutableSet<Piece> remaining, final ImmutableList<LogEntry> log, final Player mrX, final List<Player> detectives) {
+			this.setup = gs;
+			this.remaining = remaining;
+			this.log = log;
+			this.mrX = mrX;
+			this.detectives = detectives;
+			//this.winner = ImmutableSet.of();
+			proxy();
+			System.out.println("Probs null: " + determineWinner().stream().map(Player::piece).collect(Collectors.toSet()));
+
+
+//			if (this.winner.isEmpty()) this.moves = getAvailableMoves();
+//			else this.moves = ImmutableSet.copyOf(Collections.emptySet());
+
+
+
+			//getAvailableMoves
+
+		}
 
 		private void proxy() {
 			if (!mrX.isMrX()) throw new IllegalArgumentException("Mr X is empty");
@@ -124,25 +144,7 @@ public final class MyGameStateFactory implements Factory<GameState> {
 			return ImmutableSet.copyOf(Collections.emptySet());
 		}
 
-		private MyGameState(final GameSetup gs, final ImmutableSet<Piece> remaining, final ImmutableList<LogEntry> log, final Player mrX, final List<Player> detectives) {
-			this.setup = gs;
-			this.mrX = mrX;
-			this.remaining = remaining;
-			this.log = log;
-			this.detectives = detectives;
-			this.winner = ImmutableSet.of();
-			proxy();
-			System.out.println("Probs null: " + determineWinner().stream().map(Player::piece).collect(Collectors.toSet()));
 
-
-			if (this.winner.isEmpty()) this.moves = getAvailableMoves();
-			else this.moves = ImmutableSet.copyOf(Collections.emptySet());
-
-
-
-			//getAvailableMoves
-
-		}
 		@Nonnull
 		@Override
 		public GameSetup getSetup() { return setup; }
@@ -156,16 +158,6 @@ public final class MyGameStateFactory implements Factory<GameState> {
 
 			return ImmutableSet.copyOf(players);
 		}
-
-//		private int findDestinationFromMoves(Move move, Player player){
-//
-//			ImmutableSet<Move> availableMoves = getAvailableMoves();
-//			for(Move m : availableMoves){
-//				if(m.)
-//			}
-//
-//			return 0; //there is no zero node so this is an error code
-//		}
 
 		private Player getPlayerOnPiece(Piece p){
 			List<Player> players = new ArrayList<Player>(detectives); players.add(mrX);
@@ -255,9 +247,10 @@ public final class MyGameStateFactory implements Factory<GameState> {
 
 					//TODO
 					if (move.commencedBy() != MrX.MRX) throw new IllegalArgumentException("Detectives can't make double moves!");
-
+					System.out.println("Hello?");
 					//should use three tickets, double move and the associated moves used
 					List<Ticket> ticketsUsed = new ArrayList<>();
+					System.out.println("Tickets used: " + move.tickets());
 					move.tickets().forEach(ticketsUsed::add);
 
 					Map<Ticket, Integer>  newTicketSet = new HashMap<Ticket,Integer>();
@@ -282,6 +275,7 @@ public final class MyGameStateFactory implements Factory<GameState> {
 						}
 					}
 
+					System.out.println("Tickets Used: "  + ticketsUsed);
 					for(HashMap.Entry<Ticket, Integer> ticketEntry : newTicketSet.entrySet()) {
 						if (ticketsUsed.contains(ticketEntry.getKey())) newTicketSet.put(ticketEntry.getKey(), ticketEntry.getValue() - 1);
 					}
@@ -340,6 +334,7 @@ public final class MyGameStateFactory implements Factory<GameState> {
 
 		private static Set<Move.SingleMove> makeSingleMoves(GameSetup setup, List<Player> detectives, Player player, int source) {
 			Set<SingleMove> possibleMoves = new HashSet<SingleMove>();
+			System.out.println("Neighbours: " + setup.graph.adjacentNodes(source));
 			for (int destination : setup.graph.adjacentNodes(source)) {
 				// TODO find out if destination is occupied by a detective
 				//  if the location is occupied, don't add to the collection of moves to return
@@ -347,11 +342,13 @@ public final class MyGameStateFactory implements Factory<GameState> {
 				//may need to make a flag for when doublemove is called on singlemove (we can go through a detective on a double move)
 				if (!occupied) {
 					for (Transport t : setup.graph.edgeValueOrDefault(source, destination, ImmutableSet.of())) {
-						boolean canTravel = player.tickets().entrySet()
-								.stream()
-								.filter(x -> x.getKey().equals(t.requiredTicket()))
-								.limit(1)
-								.anyMatch(x -> x.getValue() > 0);
+//						boolean canTravel = player.tickets().entrySet()
+//								.stream()
+//								.filter(x -> x.getKey().equals(t.requiredTicket()))
+//								.limit(1)
+//								.anyMatch(x -> x.getValue() > 0);
+
+						boolean canTravel = player.tickets().containsKey(t.requiredTicket()) && player.tickets().get(t.requiredTicket()) > 0 && t.requiredTicket() != DOUBLE;
 						if (canTravel) {
 							possibleMoves.add(new SingleMove(player.piece(), source, t.requiredTicket(), destination));
 						}
@@ -370,28 +367,51 @@ public final class MyGameStateFactory implements Factory<GameState> {
 			//if (player.isDetective()) throw new IllegalArgumentException("Detectives can't make double moves");
 			Set<DoubleMove> possibleDoubleMoves = new HashSet<>();
 			Set<SingleMove> possibleSingleMoves = makeSingleMoves(setup, detectives, player, source1);
+
+
 			//if (player.isDetective()) System.out.println("Uh oh!");
 			if (player.isMrX()) {
 				for (SingleMove single : possibleSingleMoves) {
-					for (int destination : setup.graph.adjacentNodes(source1)) {
+					Map<Ticket, Integer> ticketTracker = new HashMap<Ticket, Integer>();
+					ticketTracker.putAll(player.tickets());
+
+					ticketTracker.put(single.ticket, ticketTracker.get(single.ticket) - 1);
+					System.out.println("Tickets B : " + player.tickets().entrySet());
+					System.out.println("Neighbours: " + setup.graph.adjacentNodes(single.destination));
+					for (int destination : setup.graph.adjacentNodes(single.destination)) {
 						boolean occupied = detectives.stream().anyMatch(x -> x.location() == destination);
+						System.out.println("First travelled via " + single.ticket);
 						if (!occupied) {
-							for (Transport t : setup.graph.edgeValueOrDefault(source1, destination, ImmutableSet.of())) {
-								boolean canTravel = player.tickets().entrySet()
-										.stream()
-										.filter(x -> x.getKey().equals(t.requiredTicket()) && t.requiredTicket() != DOUBLE)
-										.limit(1)
-										.anyMatch(x -> x.getValue() > 0);
+							for (Transport t : setup.graph.edgeValueOrDefault(single.destination, destination, ImmutableSet.of())) {
+//								boolean canTravel = player.tickets().entrySet()
+//										.stream()
+//										.filter(x -> x.getKey().equals(t.requiredTicket()) && t.requiredTicket() != DOUBLE)
+//										.limit(1)
+//										.anyMatch(x -> x.getValue() > 0);
+
+								boolean canTravel = player.tickets().containsKey(t.requiredTicket()) && ticketTracker.get(t.requiredTicket()) > 0 && t.requiredTicket() != DOUBLE;
 								if (canTravel) {
-									possibleDoubleMoves.add(new DoubleMove(player.piece(), single.source(), single.ticket, single.destination, t.requiredTicket(), destination));
+									System.out.println("Can travel via: " + t);
+									possibleDoubleMoves.add(new DoubleMove(player.piece(), source1, single.ticket, single.destination, t.requiredTicket(), destination));
+									ticketTracker.put(t.requiredTicket(), ticketTracker.get(t.requiredTicket()) - 1);
 								}
+								else System.out.println("You aint got it");
+
+								if (t.requiredTicket().equals(SECRET)) System.out.println("Beep");
+
 							}
 
-							if (player.tickets().containsKey(SECRET) && player.tickets().get(SECRET) > 0)
-								possibleDoubleMoves.add(new DoubleMove(player.piece(), single.source(), single.ticket, single.destination, SECRET, destination));
+							if (player.tickets().containsKey(SECRET) && ticketTracker.get(SECRET) > 0) {
+								possibleDoubleMoves.add(new DoubleMove(player.piece(), source1, single.ticket, single.destination, SECRET, destination));
+								System.out.println("Tickets B : " + ticketTracker.entrySet());
+								ticketTracker.put(SECRET, ticketTracker.get(SECRET) - 1);
+							}
+							System.out.println("Tickets A : " + ticketTracker.entrySet());
+
 						}
 					}
 				}
+
 			}
 
 
@@ -407,7 +427,8 @@ public final class MyGameStateFactory implements Factory<GameState> {
 				List<Player> remainingPlayers = new ArrayList<>();
 				remainingPlayers.addAll(detectives);
 				remainingPlayers.add(mrX);
-				remainingPlayers = remainingPlayers.stream().filter(x -> !remaining.contains(x.piece())).toList();
+				remainingPlayers = remainingPlayers.stream().filter(x -> remaining.contains(x.piece())).toList();
+				System.out.println("Remaining Players: " + remainingPlayers);
 				if (winner == null || winner.isEmpty()) {
 					for (Player player : remainingPlayers) {
 						allMoves.addAll(makeSingleMoves(setup, detectives, player, player.location()));
