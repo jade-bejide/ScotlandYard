@@ -113,31 +113,6 @@ public final class MyGameStateFactory implements Factory<GameState> {
 			return p;
 		}
 
-		private boolean canMrXMove() {
-			List<Integer> possibleLocations = setup.graph.adjacentNodes(mrX.location()).stream().toList();
-			List<Integer> finalPossibleLocations = possibleLocations;
-			List<Integer> overlap = detectives.stream().filter(x -> finalPossibleLocations.contains(x.location())).map(y -> y.location()).toList();
-
-			possibleLocations = possibleLocations.stream().filter(x -> !overlap.contains(x)).toList();
-
-
-
-			for (Integer possibleLocation : possibleLocations) {
-				for (Transport t : setup.graph.edgeValueOrDefault(mrX.location(), possibleLocation, ImmutableSet.of())) {
-					System.out.println("Transport: " + t);
-					boolean canTravel = mrX.tickets().containsKey(t.requiredTicket()) && mrX.tickets().get(t.requiredTicket()) > 0;
-					boolean canSecretTravel = mrX.tickets().containsKey(SECRET) && mrX.tickets().get(SECRET) > 0;
-					if (canTravel || canSecretTravel) {
-						return true;
-					}
-				}
-			}
-
-			return false;
-		}
-
-
-
 		private ImmutableSet<Player> determineWinner() {
 			//Set<Player> winners = new HashSet<>();
 			boolean caught = detectives.stream().anyMatch(x -> x.location() == mrX.location());
@@ -152,9 +127,7 @@ public final class MyGameStateFactory implements Factory<GameState> {
 
 			if (noMovesLeft) return ImmutableSet.copyOf(Set.of(mrX));
 
-			if (canMrXMove()) return ImmutableSet.copyOf(Collections.emptySet());
 			if (cornered) return ImmutableSet.copyOf(detectives);
-
 
 			if (getAvailableMoves().isEmpty()) return ImmutableSet.copyOf(detectives);
 			if (noTickets) {
@@ -178,7 +151,6 @@ public final class MyGameStateFactory implements Factory<GameState> {
 //			}
 
 			//System.out.println("Issue");
-
 			return ImmutableSet.copyOf(Collections.emptySet());
 		}
 
@@ -446,8 +418,6 @@ public final class MyGameStateFactory implements Factory<GameState> {
 			remainingPlayers = remainingPlayers.stream().filter(x -> remaining.contains(x.piece())).toList();
 			System.out.println("WINNER: " + this.winner);
 
-
-
 			if (winner == null || winner.isEmpty()) {
 				for (Player player : remainingPlayers) {
 					allMoves.addAll(makeSingleMoves(setup, detectives, player, player.location()));
@@ -460,12 +430,6 @@ public final class MyGameStateFactory implements Factory<GameState> {
 					allMoves.addAll(makeSingleMoves(setup, detectives, mrX, mrX.location()));
 					if (setup.moves.size() - log.size() >= 2) allMoves.addAll(makeDoubleMoves(setup, detectives, mrX, mrX.location()));
 				}
-
-//				if (canMrXMove() && allMoves.isEmpty()) {
-//					System.out.println("Hello?");
-//					allMoves.addAll(makeSingleMoves(setup, detectives, mrX, mrX.location()));
-//					if (setup.moves.size() - log.size() >= 2) allMoves.addAll(makeDoubleMoves(setup, detectives, mrX, mrX.location()));
-//				}
 
 			}
 
