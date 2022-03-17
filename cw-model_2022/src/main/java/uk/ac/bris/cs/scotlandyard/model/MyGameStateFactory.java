@@ -170,7 +170,6 @@ public final class MyGameStateFactory implements Factory<GameState> {
 			System.out.println(someStuck + " " + emptyMoves);
 			boolean noMovesLeft = setup.moves.size() == log.size();
 
-<<<<<<< HEAD
 			System.out.println("Mr x routes: " + setup.graph.adjacentNodes(mrX.location()));
 
 			List<Integer> notCornered = detectives.stream().filter(x -> setup.graph.adjacentNodes(mrX.location()).contains(x.location())).map(y -> y.location()).toList();
@@ -187,13 +186,8 @@ public final class MyGameStateFactory implements Factory<GameState> {
 				System.out.println("is empty");
 				return ImmutableSet.copyOf(detectives);
 			}
-
-=======
 			if (someStuck && emptyMoves) return ImmutableSet.copyOf(Collections.emptySet());
-			if (noMovesLeft) return ImmutableSet.copyOf(Set.of(mrX));
 
-			if (cornered) return ImmutableSet.copyOf(detectives);
->>>>>>> parent of 57cd3ed (End of lab)
 
 			if (getAvailableMoves().isEmpty()) return ImmutableSet.copyOf(detectives);
 			if (noTickets) {
