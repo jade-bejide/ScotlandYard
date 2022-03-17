@@ -489,12 +489,7 @@ public final class MyGameStateFactory implements Factory<GameState> {
 						//if mrx has 2 or more moves left in his log, then he can double move
 					}
 
-					boolean detectiveRound = remainingPlayers.stream().anyMatch(x -> x.isDetective());
 
-					if (detectiveRound && allMoves.isEmpty()) {
-						allMoves.addAll(makeSingleMoves(setup, detectives, mrX, mrX.location()));
-						if (setup.moves.size() - log.size() >= 2) allMoves.addAll(makeDoubleMoves(setup, detectives, mrX, mrX.location()));
-					}
 				}
 
 				return ImmutableSet.copyOf(allMoves);
