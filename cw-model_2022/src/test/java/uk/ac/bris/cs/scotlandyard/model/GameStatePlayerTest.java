@@ -184,7 +184,7 @@ public class GameStatePlayerTest extends ParameterisedModelTestBase {
 		state = state.advance(taxi(MRX, 45, 46));
 		state = state.advance(taxi(BLUE, 94, 93));
 		assertThat(state.getMrXTravelLog()).containsExactly(
-				LogEntry.reveal(TAXI, 46));
+						LogEntry.reveal(TAXI, 46));
 		state = state.advance(taxi(MRX, 46, 47));
 		state = state.advance(taxi(BLUE, 93, 92));
 		assertThat(state.getMrXTravelLog()).containsExactly(

@@ -24,12 +24,12 @@ public final class MyModelFactory implements Factory<Model> {
 		return new Model() {
 
 			private List<Observer> characters = new ArrayList<>();
-			private Board.GameState gs;
+			private Board.GameState gs = new MyGameStateFactory().build(setup, mrX, detectives);
 
 			@Nonnull
 			@Override
 			public Board getCurrentBoard() {
-				return null;
+				return gs;
 			}
 
 			@Override
@@ -54,7 +54,13 @@ public final class MyModelFactory implements Factory<Model> {
 
 			@Override
 			public void chooseMove(@Nonnull Move move) {
-				System.out.println("");
+				gs = gs.advance(move);
+				ImmutableSet<Piece> winners = gs.getWinner();
+				if(winners.size() > 0){
+					for(Observer observer : characters) observer.onModelChanged(gs, Observer.Event.GAME_OVER);
+				}else{
+					for(Observer observer : characters) observer.onModelChanged(gs, Observer.Event.MOVE_MADE);
+				}
 			}
 		};
 	}

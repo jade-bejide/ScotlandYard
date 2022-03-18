@@ -226,6 +226,7 @@ public final class MyGameStateFactory implements Factory<GameState> {
 
 		public static void showEntry(LogEntry l) {
 			System.out.println("Log entry: ticket:" + l.ticket() + " location:" + l.location());
+
 		}
 
 		@Nonnull
@@ -234,8 +235,6 @@ public final class MyGameStateFactory implements Factory<GameState> {
 
 			Player player = getPlayerOnPiece(move.commencedBy());
 			Piece piece = player.piece();
-
-
 
 			return move.accept(new Visitor<GameState>(){ //our gamestate-making visitor
 				public GameState visit(SingleMove move){
@@ -257,6 +256,7 @@ public final class MyGameStateFactory implements Factory<GameState> {
 								move.destination
 						); //moves mr x and changes his tickets
 						//cycle to the next player and set the game state
+						showEntry(logMutable.get(logMutable.size() - 1));
 						return new MyGameState(setup,  nextRemaining(remaining, piece), ImmutableList.copyOf(logMutable), mrXMutable, detectives);
 					}else{
 						Player detectiveMutable = new Player( //detective moves to move destination and uses a ticket
@@ -271,9 +271,6 @@ public final class MyGameStateFactory implements Factory<GameState> {
 						);
 						List<Player> detectivesMutable = new ArrayList<Player>(detectives);
 						detectivesMutable.set(detectives.indexOf(player), detectiveMutable);
-						System.out.println("Single Move");
-						System.out.println("Destination: " + mrX.location());
-						showEntry(log.get(0));
 						return new MyGameState(setup, nextRemaining(remaining, piece), log, mrXMutable, ImmutableList.copyOf(detectivesMutable));
 					}
 				}
@@ -317,7 +314,6 @@ public final class MyGameStateFactory implements Factory<GameState> {
 
 						newLocation = destination;
 					}
-
 
 					for(HashMap.Entry<Ticket, Integer> ticketEntry : newTicketSet.entrySet()) {
 						if (ticketsUsed.contains(ticketEntry.getKey())) newTicketSet.put(ticketEntry.getKey(), ticketEntry.getValue() - 1);
