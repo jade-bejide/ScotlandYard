@@ -225,6 +225,10 @@ public final class MyGameStateFactory implements Factory<GameState> {
 			return ImmutableMap.copyOf(ticketsMutable);
 		}
 
+		private void showEntry(LogEntry l) {
+			System.out.println("Log entry: ticket:" + l.ticket() + " location:" + l.location());
+		}
+
 		@Nonnull
 		@Override
 		public GameState advance(Move move) {
@@ -268,6 +272,7 @@ public final class MyGameStateFactory implements Factory<GameState> {
 						);
 						List<Player> detectivesMutable = new ArrayList<Player>(detectives);
 						detectivesMutable.set(detectives.indexOf(player), detectiveMutable);
+						showEntry(log.get(0));
 						return new MyGameState(setup, nextRemaining(remaining, piece), log, mrXMutable, ImmutableList.copyOf(detectivesMutable));
 					}
 				}
@@ -300,8 +305,8 @@ public final class MyGameStateFactory implements Factory<GameState> {
 						if (isHidden) newLog.add(LogEntry.hidden(ticket));
 						else {
 							newLog.add(LogEntry.reveal(ticket, destination));
-							newLocation = destination;
 						}
+						newLocation = destination;
 					}
 					System.out.println(newLog.get(newLog.size() - 1));
 
