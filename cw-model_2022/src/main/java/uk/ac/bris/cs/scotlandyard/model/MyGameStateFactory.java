@@ -134,6 +134,7 @@ public final class MyGameStateFactory implements Factory<GameState> {
 		private ImmutableSet<Player> determineWinner() {
 			boolean caught = detectives.stream().anyMatch(x -> x.location() == mrX.location());
 			boolean stuckX = getAvailableMoves().stream().noneMatch(x -> x.commencedBy().isMrX());
+			System.out.println("Locations: " + setup.graph.adjacentNodes(mrX.location()));
 			boolean cornered = detectives.stream().allMatch(x -> setup.graph.adjacentNodes(mrX.location()).contains(x.location()));
 			//if there all detectives have no tickets left, mr x will win
 			boolean noTickets = detectives.stream().allMatch(x -> x.tickets().entrySet().stream().allMatch(y -> y.getValue() == 0));
@@ -194,6 +195,7 @@ public final class MyGameStateFactory implements Factory<GameState> {
 		private ImmutableSet<Piece> nextRemaining(ImmutableSet<Piece> remaining, Piece piece){
 			Set<Piece> copyOfRemaining = new HashSet<Piece>(remaining);
 			boolean cornered = detectives.stream().allMatch(x -> setup.graph.adjacentNodes(mrX.location()).contains(x.location()));
+			//boolean detectivesNoTickets = remaining.stream().anyMatch(x -> x.isDetective()) && remaining.stream().map(this::getPlayerOnPiece).allMatch(x -> x.tickets().entrySet().stream().allMatch(y -> y.getValue() == 0));
 
 			//swap to Mr X's go
 			if (cornered && canMrXMove()) {
@@ -229,8 +231,11 @@ public final class MyGameStateFactory implements Factory<GameState> {
 			Player player = getPlayerOnPiece(move.commencedBy());
 			Piece piece = player.piece();
 
+
+
 			return move.accept(new Visitor<GameState>(){ //our gamestate-making visitor
 				public GameState visit(SingleMove move){
+                    if (!setup.graph.adjacentNodes(move.source()).contains(move.destination)) throw new IllegalArgumentException("Illegal move! " + move);
 					//if(!getAvailableMoves().contains(move)) throw new IllegalArgumentException("Illegal move! " + move);
 					Ticket ticketUsed = ImmutableList.copyOf(move.tickets()).stream().limit(1).toList().get(0);
 					/* singlemove code */
@@ -269,6 +274,8 @@ public final class MyGameStateFactory implements Factory<GameState> {
 					/* doublemove code */
 					GameState gs;
 					//for jade
+
+                    //if (!setup.graph.adjacentNodes(move.source()).contains(move.destination)) throw new IllegalArgumentException("Illegal move! " + move);
 
 					if (move.commencedBy() != MrX.MRX) throw new IllegalArgumentException("Detectives can't make double moves!");
 					//should use three tickets, double move and the associated moves used
