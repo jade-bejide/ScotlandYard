@@ -225,8 +225,9 @@ public final class MyGameStateFactory implements Factory<GameState> {
 			return ImmutableMap.copyOf(ticketsMutable);
 		}
 
-		private void showEntry(LogEntry l) {
+		public static void showEntry(LogEntry l) {
 			System.out.println("Log entry: ticket:" + l.ticket() + " location:" + l.location());
+
 		}
 
 		@Nonnull
@@ -236,8 +237,6 @@ public final class MyGameStateFactory implements Factory<GameState> {
 			Player player = getPlayerOnPiece(move.commencedBy());
 			Piece piece = player.piece();
 
-
-
 			return move.accept(new Visitor<GameState>(){ //our gamestate-making visitor
 				public GameState visit(SingleMove move){
                     if (!setup.graph.adjacentNodes(move.source()).contains(move.destination)) throw new IllegalArgumentException("Illegal move! " + move);
@@ -245,7 +244,7 @@ public final class MyGameStateFactory implements Factory<GameState> {
 					Ticket ticketUsed = ImmutableList.copyOf(move.tickets()).stream().limit(1).toList().get(0);
 					/* singlemove code */
 					if(player.piece() == MrX.MRX){ //if the player taking the move is a detective (black piece)
-						boolean hidden = setup.moves.get(log.size()); //is this move hidden
+						boolean hidden = !setup.moves.get(log.size()); //is this move hidden
 
 						List<LogEntry> logMutable = new ArrayList<LogEntry>(log);
 						if (hidden) logMutable.add(LogEntry.hidden(ticketUsed)); //finishes the state of the log
@@ -258,6 +257,7 @@ public final class MyGameStateFactory implements Factory<GameState> {
 								move.destination
 						); //moves mr x and changes his tickets
 						//cycle to the next player and set the game state
+						showEntry(logMutable.get(logMutable.size() - 1));
 						return new MyGameState(setup,  nextRemaining(remaining, piece), ImmutableList.copyOf(logMutable), mrXMutable, detectives);
 					}else{
 						Player detectiveMutable = new Player( //detective moves to move destination and uses a ticket
@@ -272,7 +272,7 @@ public final class MyGameStateFactory implements Factory<GameState> {
 						);
 						List<Player> detectivesMutable = new ArrayList<Player>(detectives);
 						detectivesMutable.set(detectives.indexOf(player), detectiveMutable);
-						showEntry(log.get(0));
+						showEntry(log.get(log.size() - 1));
 						return new MyGameState(setup, nextRemaining(remaining, piece), log, mrXMutable, ImmutableList.copyOf(detectivesMutable));
 					}
 				}
@@ -301,14 +301,14 @@ public final class MyGameStateFactory implements Factory<GameState> {
 						Ticket ticket = ticketsUsed.get(i);
 						if (i == 1) destination = move.destination1;
 						if (i == 2) destination = move.destination2;
-						boolean isHidden = setup.moves.get(log.size());
+						boolean isHidden = !setup.moves.get(log.size() + i - 1);
 						if (isHidden) newLog.add(LogEntry.hidden(ticket));
 						else {
 							newLog.add(LogEntry.reveal(ticket, destination));
 						}
 						newLocation = destination;
 					}
-					System.out.println(newLog.get(newLog.size() - 1));
+					showEntry(newLog.get(newLog.size() - 1));
 
 					for(HashMap.Entry<Ticket, Integer> ticketEntry : newTicketSet.entrySet()) {
 						if (ticketsUsed.contains(ticketEntry.getKey())) newTicketSet.put(ticketEntry.getKey(), ticketEntry.getValue() - 1);
