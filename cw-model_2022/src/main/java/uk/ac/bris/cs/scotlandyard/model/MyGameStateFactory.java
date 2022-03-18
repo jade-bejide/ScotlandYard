@@ -198,13 +198,11 @@ public final class MyGameStateFactory implements Factory<GameState> {
 					if(copyOfRemaining.isEmpty()) copyOfRemaining.add(mrX.piece());
 				}
 
-			//if a single detective remains after this call is stuck, we can skip them!
-			if (copyOfRemaining
-					.stream()
-					.filter(Piece::isDetective)
-					.collect(Collectors.toSet())
-					.size() == 1 && getAvailableMoves().isEmpty()) { //if one detective
-				nextRemaining(remaining, copyOfRemaining.stream().toList().get(0));
+			//if the remaining detectives are not the whole list of detectives, and none have moves, then skips
+			System.out.println(remaining);
+			if (getAvailableMoves().isEmpty() && !remaining.equals(detectives.stream().map(Player::piece))){ //if nobody left can move
+				System.out.println("skipped");
+				copyOfRemaining = Set.of(MrX.MRX);
 			}
 
 			return ImmutableSet.copyOf(copyOfRemaining);
