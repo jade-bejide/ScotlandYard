@@ -134,7 +134,6 @@ public final class MyGameStateFactory implements Factory<GameState> {
 		private ImmutableSet<Player> determineWinner() {
 			boolean caught = detectives.stream().anyMatch(x -> x.location() == mrX.location());
 			boolean stuckX = getAvailableMoves().stream().noneMatch(x -> x.commencedBy().isMrX());
-			System.out.println("Locations: " + setup.graph.adjacentNodes(mrX.location()));
 			boolean cornered = detectives.stream().allMatch(x -> setup.graph.adjacentNodes(mrX.location()).contains(x.location()));
 			//if there all detectives have no tickets left, mr x will win
 			boolean noTickets = detectives.stream().allMatch(x -> x.tickets().entrySet().stream().allMatch(y -> y.getValue() == 0));
@@ -272,7 +271,6 @@ public final class MyGameStateFactory implements Factory<GameState> {
 						);
 						List<Player> detectivesMutable = new ArrayList<Player>(detectives);
 						detectivesMutable.set(detectives.indexOf(player), detectiveMutable);
-						showEntry(log.get(log.size() - 1));
 						return new MyGameState(setup, nextRemaining(remaining, piece), log, mrXMutable, ImmutableList.copyOf(detectivesMutable));
 					}
 				}
@@ -291,24 +289,31 @@ public final class MyGameStateFactory implements Factory<GameState> {
 					Map<Ticket, Integer>  newTicketSet = new HashMap<Ticket,Integer>();
 					newTicketSet.putAll(mrX.tickets());
 
+					System.out.println("Tickets Used: " + ticketsUsed);
+
 					List<LogEntry> newLog = new ArrayList<>(log);
 
 					int newLocation = 0;
 
 					int destination = 0;
 					//start at index 1 to skip deduction of double ticket
-					for (int i = 1; i < ticketsUsed.size(); i++) {
+					for (int i = 0; i < ticketsUsed.size()-1; i++) {
 						Ticket ticket = ticketsUsed.get(i);
-						if (i == 1) destination = move.destination1;
-						if (i == 2) destination = move.destination2;
-						boolean isHidden = !setup.moves.get(log.size() + i - 1);
-						if (isHidden) newLog.add(LogEntry.hidden(ticket));
+						if (i == 0) destination = move.destination1;
+						if (i == 1) destination = move.destination2;
+						System.out.println("Ticket: " + ticket + " Destination: " + destination);
+						boolean isHidden = !setup.moves.get(log.size() + i);
+						if (isHidden) {
+							newLog.add(LogEntry.hidden(ticket));
+							System.out.println("Double Hidden");
+						}
 						else {
 							newLog.add(LogEntry.reveal(ticket, destination));
+							System.out.println("Double Reveal");
 						}
+
 						newLocation = destination;
 					}
-					showEntry(newLog.get(newLog.size() - 1));
 
 					for(HashMap.Entry<Ticket, Integer> ticketEntry : newTicketSet.entrySet()) {
 						if (ticketsUsed.contains(ticketEntry.getKey())) newTicketSet.put(ticketEntry.getKey(), ticketEntry.getValue() - 1);
