@@ -10,6 +10,8 @@ import javax.swing.text.html.Option;
 import java.util.*;
 import javax.annotation.Nonnull;
 
+import com.google.common.graph.ImmutableValueGraph;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import uk.ac.bris.cs.scotlandyard.model.Board.GameState;
 import uk.ac.bris.cs.scotlandyard.model.ScotlandYard.Factory;
 import uk.ac.bris.cs.scotlandyard.model.Move.*;
@@ -114,7 +116,9 @@ public final class MyGameStateFactory implements Factory<GameState> {
 
 
 			for (Integer possibleLocation : possibleLocations) {
-				for (Transport t : setup.graph.edgeValueOrDefault(mrX.location(), possibleLocation, ImmutableSet.of())) {
+				ImmutableSet<Transport> map = setup.graph.edgeValueOrDefault(mrX.location(), possibleLocation, ImmutableSet.of());
+				assert map != null; //since edgeValueOrDefault is nullable, we check the return value to quell a warning
+				for (Transport t : map) {
 
 					boolean canTravel = mrX.tickets().containsKey(t.requiredTicket()) && mrX.tickets().get(t.requiredTicket()) > 0;
 					if (canTravel) {
