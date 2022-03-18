@@ -292,21 +292,24 @@ public final class MyGameStateFactory implements Factory<GameState> {
 					int destination = 0;
 					//start at index 1 to skip deduction of double ticket
 					for (int i = 1; i < ticketsUsed.size(); i++) {
+						System.out.println("i: " + i);
 						Ticket ticket = ticketsUsed.get(i);
 						if (i == 1) destination = move.destination1;
 						if (i == 2) destination = move.destination2;
+						System.out.println("Destination: " + destination);
 						boolean isHidden = setup.moves.get(log.size());
 						if (isHidden) newLog.add(LogEntry.hidden(ticket));
-						else {
-							newLog.add(LogEntry.reveal(ticket, destination));
-							newLocation = destination;
-						}
+						else newLog.add(LogEntry.reveal(ticket, destination));
+
+						newLocation = destination;
 					}
 					System.out.println(newLog.get(newLog.size() - 1));
 
 					for(HashMap.Entry<Ticket, Integer> ticketEntry : newTicketSet.entrySet()) {
 						if (ticketsUsed.contains(ticketEntry.getKey())) newTicketSet.put(ticketEntry.getKey(), ticketEntry.getValue() - 1);
 					}
+
+					System.out.println("New Location: " + newLocation);
 
 					Player newMrX = new Player(MrX.MRX, ImmutableMap.copyOf(newTicketSet), newLocation);
 
