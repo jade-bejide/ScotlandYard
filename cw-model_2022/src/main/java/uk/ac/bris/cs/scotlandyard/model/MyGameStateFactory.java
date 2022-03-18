@@ -134,7 +134,6 @@ public final class MyGameStateFactory implements Factory<GameState> {
 		private ImmutableSet<Player> determineWinner() {
 			boolean caught = detectives.stream().anyMatch(x -> x.location() == mrX.location());
 			boolean stuckX = getAvailableMoves().stream().noneMatch(x -> x.commencedBy().isMrX());
-			System.out.println("Locations: " + setup.graph.adjacentNodes(mrX.location()));
 			boolean cornered = detectives.stream().allMatch(x -> setup.graph.adjacentNodes(mrX.location()).contains(x.location()));
 			//if there all detectives have no tickets left, mr x will win
 			boolean noTickets = detectives.stream().allMatch(x -> x.tickets().entrySet().stream().allMatch(y -> y.getValue() == 0));
@@ -193,6 +192,7 @@ public final class MyGameStateFactory implements Factory<GameState> {
 		}
 
 		private ImmutableSet<Piece> nextRemaining(ImmutableSet<Piece> remaining, Piece piece){
+			//thinking about logic which will skip a turn if the "next" player
 			Set<Piece> copyOfRemaining = new HashSet<Piece>(remaining);
 			boolean cornered = detectives.stream().allMatch(x -> setup.graph.adjacentNodes(mrX.location()).contains(x.location()));
 			//boolean detectivesNoTickets = remaining.stream().anyMatch(x -> x.isDetective()) && remaining.stream().map(this::getPlayerOnPiece).allMatch(x -> x.tickets().entrySet().stream().allMatch(y -> y.getValue() == 0));
@@ -224,6 +224,10 @@ public final class MyGameStateFactory implements Factory<GameState> {
 			return ImmutableMap.copyOf(ticketsMutable);
 		}
 
+		public static void showEntry(LogEntry l) {
+			System.out.println("Log entry: ticket:" + l.ticket() + " location:" + l.location());
+		}
+
 		@Nonnull
 		@Override
 		public GameState advance(Move move) {
@@ -240,7 +244,7 @@ public final class MyGameStateFactory implements Factory<GameState> {
 					Ticket ticketUsed = ImmutableList.copyOf(move.tickets()).stream().limit(1).toList().get(0);
 					/* singlemove code */
 					if(player.piece() == MrX.MRX){ //if the player taking the move is a detective (black piece)
-						boolean hidden = setup.moves.get(log.size()); //is this move hidden
+						boolean hidden = !setup.moves.get(log.size()); //is this move hidden
 
 						List<LogEntry> logMutable = new ArrayList<LogEntry>(log);
 						if (hidden) logMutable.add(LogEntry.hidden(ticketUsed)); //finishes the state of the log
@@ -267,6 +271,9 @@ public final class MyGameStateFactory implements Factory<GameState> {
 						);
 						List<Player> detectivesMutable = new ArrayList<Player>(detectives);
 						detectivesMutable.set(detectives.indexOf(player), detectiveMutable);
+						System.out.println("Single Move");
+						System.out.println("Destination: " + mrX.location());
+						showEntry(log.get(0));
 						return new MyGameState(setup, nextRemaining(remaining, piece), log, mrXMutable, ImmutableList.copyOf(detectivesMutable));
 					}
 				}
@@ -285,31 +292,36 @@ public final class MyGameStateFactory implements Factory<GameState> {
 					Map<Ticket, Integer>  newTicketSet = new HashMap<Ticket,Integer>();
 					newTicketSet.putAll(mrX.tickets());
 
+					System.out.println("Tickets Used: " + ticketsUsed);
+
 					List<LogEntry> newLog = new ArrayList<>(log);
 
 					int newLocation = 0;
 
 					int destination = 0;
 					//start at index 1 to skip deduction of double ticket
-					for (int i = 1; i < ticketsUsed.size(); i++) {
-						System.out.println("i: " + i);
+					for (int i = 0; i < ticketsUsed.size()-1; i++) {
 						Ticket ticket = ticketsUsed.get(i);
-						if (i == 1) destination = move.destination1;
-						if (i == 2) destination = move.destination2;
-						System.out.println("Destination: " + destination);
-						boolean isHidden = setup.moves.get(log.size());
-						if (isHidden) newLog.add(LogEntry.hidden(ticket));
-						else newLog.add(LogEntry.reveal(ticket, destination));
+						if (i == 0) destination = move.destination1;
+						if (i == 1) destination = move.destination2;
+						System.out.println("Ticket: " + ticket + " Destination: " + destination);
+						boolean isHidden = !setup.moves.get(log.size() + i);
+						if (isHidden) {
+							newLog.add(LogEntry.hidden(ticket));
+							System.out.println("Double Hidden");
+						}
+						else {
+							newLog.add(LogEntry.reveal(ticket, destination));
+							System.out.println("Double Reveal");
+						}
 
 						newLocation = destination;
 					}
-					System.out.println(newLog.get(newLog.size() - 1));
+
 
 					for(HashMap.Entry<Ticket, Integer> ticketEntry : newTicketSet.entrySet()) {
 						if (ticketsUsed.contains(ticketEntry.getKey())) newTicketSet.put(ticketEntry.getKey(), ticketEntry.getValue() - 1);
 					}
-
-					System.out.println("New Location: " + newLocation);
 
 					Player newMrX = new Player(MrX.MRX, ImmutableMap.copyOf(newTicketSet), newLocation);
 
