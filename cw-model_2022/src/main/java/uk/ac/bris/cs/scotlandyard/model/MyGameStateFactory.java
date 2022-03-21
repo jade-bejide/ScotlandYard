@@ -52,7 +52,6 @@ public final class MyGameStateFactory implements Factory<GameState> {
 
 			if (setup.graph.nodes().size() == 0) throw new IllegalArgumentException("Graph is empty!");
 			if (setup.moves.isEmpty()) throw new IllegalArgumentException("Moves is empty!");
-			if (this.mrX == null) throw new NullPointerException("Mr X not present!");
 			if (this.remaining == null) throw new NullPointerException("Remaining players is empty!");
 			if (this.detectives.isEmpty()) throw new NullPointerException("No detectives present!");
 
