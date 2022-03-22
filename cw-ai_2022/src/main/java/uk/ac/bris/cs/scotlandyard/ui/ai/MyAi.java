@@ -14,6 +14,9 @@ import com.google.common.graph.ImmutableValueGraph;
 import io.atlassian.fugue.Pair;
 import uk.ac.bris.cs.scotlandyard.model.*;
 
+import static uk.ac.bris.cs.scotlandyard.model.ScotlandYard.defaultDetectiveTickets;
+import static uk.ac.bris.cs.scotlandyard.model.ScotlandYard.defaultMrXTickets;
+
 public class MyAi implements Ai {
 
 	@Nonnull @Override public String name() { return "Name me!"; }
@@ -99,17 +102,26 @@ public class MyAi implements Ai {
 		}
 	}
 
-	private List<Move> countMoves(List<Integer> path, Board board) {
-		var x = board.getAvailableMoves()
-				.stream()
-				.filter(z -> z.commencedBy(player))
-				.map(y -> y.destination)
-				.toList();
-		if (x.contains(nextNode));
-		return null;
-	}
+//	private List<Move> countMoves(List<Integer> path, Board board) {
+//		var x = board.getAvailableMoves()
+//				.stream()
+//				.filter(z -> z.commencedBy(player))
+//				.map(y -> y.destination)
+//				.toList();
+//		if (x.contains(nextNode));
+//		return null;
+//	}
+//
+//	private Player getPlayerOnPiece(Piece p){
+//		List<Player> players = new ArrayList<Player>(detectives); players.add(mrX);
+//		List<Player> filter = players
+//				.stream()
+//				.filter(x -> x.piece() == p)
+//				.toList(); //gets player (singleton list)
+//		return filter.get(0);
+//	}
 
-	private Integer cumulativeDistance(Board board, List<Player> detectives, Player mrX) {
+	private Integer cumulativeDistance(Board board, Player mrX, List<Player> detectives) {
 		int min = Integer.MAX_VALUE;
 		Integer mrXLocation = mrX.location();
 		List<Integer> distancePerDetective = new ArrayList<>();
@@ -124,42 +136,41 @@ public class MyAi implements Ai {
 		return distancePerDetective.stream().reduce(0, (x,y) -> x+y);
 	}
 
-	private Integer getDesiredDestination(Player mrX) {
-		int newLocation = mrX.location();
-
-
-	}
-
-	private Integer score(Board board) {
+	public Integer score(Board board) {
 		//after calling minimax, for static evaluation we need to score elements:
 		//distance from detectives (tickets away)
 		//available moves
 
-		int distance = cumulativeDistance(null, null);
 
-		return null;
+
+		//int distance = cumulativeDistance(board, mrY, myDetect);
+
+		int distance = 0;
+		System.out.println(distance);
+
+		return distance;
 	}
 
-	private Integer minimax(Player player, Integer depth, Board.GameState board){
-		if(depth == 0) { return score(board); } //scores the current game state
-
-		//maximising player
-		if(player.isMrX()) {
-			Integer max = Integer.MIN_VALUE;
-			for(Move move : board.getAvailableMoves()){ //for all mrx's moves
-				max = Math.max(max, minimax(player.next(), depth - 1, board.advance(move)));
-			}
-			return max;
-		}
-		//minimising player
-		if(player.isDetective()) {
-			Integer min = Integer.MAX_VALUE;
-			for(Move move : board.getAvailableMoves()){
-				min = Math.min(min, minimax(player.next(), depth - 1, board.advance(move)))
-			}
-			minimax();
-		}
-	}
+//	private Integer minimax(Player player, Integer depth, Board.GameState board){
+//		if(depth == 0) { return score(board); } //scores the current game state
+//
+//		//maximising player
+//		if(player.isMrX()) {
+//			Integer max = Integer.MIN_VALUE;
+//			for(Move move : board.getAvailableMoves()){ //for all mrx's moves
+//				max = Math.max(max, minimax(player.next(), depth - 1, board.advance(move)));
+//			}
+//			return max;
+//		}
+//		//minimising player
+//		if(player.isDetective()) {
+//			Integer min = Integer.MAX_VALUE;
+//			for(Move move : board.getAvailableMoves()){
+//				min = Math.min(min, minimax(player.next(), depth - 1, board.advance(move)))
+//			}
+//			minimax();
+//		}
+//	}
 
 	private Move minimaxer(Player player, Integer depth, Board.GameState board) {
 		//build gamestate tree for all possible moves of all possible players
