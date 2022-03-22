@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/ScotlandYard.iml" filepath="$PROJECT_DIR$/.idea/ScotlandYard.iml" />
+      <module fileurl="file://$PROJECT_DIR$/cw-ai_2022/cw-ai.iml" filepath="$PROJECT_DIR$/cw-ai_2022/cw-ai.iml" />
+      <module fileurl="file://$PROJECT_DIR$/cw-model_2022/cw-model.iml" filepath="$PROJECT_DIR$/cw-model_2022/cw-model.iml" />
+    </modules>
+  </component>
+</project>
