@@ -21,6 +21,12 @@ public class MyAi implements Ai {
 
 	@Nonnull @Override public String name() { return "Name me!"; }
 
+	//get players
+//	private List<Player> getPlayers(Board board) {
+//		List<Piece> pieces = board.getPlayers().stream().toList(); //good riddance, immutables! (just kidding hehe)
+//		return pieces.stream().map()
+//	}
+
 	static Dictionary<Integer, ArrayList<Integer>> populate(Dictionary<Integer, ArrayList<Integer>> nodeDict,
 															ImmutableValueGraph<Integer, ImmutableSet<ScotlandYard.Transport>> graph, Integer source){
 		nodeDict.put(source, new ArrayList<Integer>(Arrays.asList(0, null)));
@@ -142,7 +148,6 @@ public class MyAi implements Ai {
 		//available moves
 
 
-
 		//int distance = cumulativeDistance(board, mrY, myDetect);
 
 		int distance = 0;
@@ -150,27 +155,39 @@ public class MyAi implements Ai {
 
 		return distance;
 	}
+	//turnsThisRound - who's yet to take a turn this round (round = { mrx | detectives })
+	private Integer minimax(List<Piece> turnsThisRound, Integer depth, Board.GameState board){
+		List<Move> moves = board.getAvailableMoves().stream().toList();
+		int selector = new Random().nextInt(turnsThisRound.size());
+		Piece toMove = turnsThisRound.get(selector); //who's turn?
 
-//	private Integer minimax(Player player, Integer depth, Board.GameState board){
-//		if(depth == 0) { return score(board); } //scores the current game state
-//
-//		//maximising player
-//		if(player.isMrX()) {
-//			Integer max = Integer.MIN_VALUE;
-//			for(Move move : board.getAvailableMoves()){ //for all mrx's moves
-//				max = Math.max(max, minimax(player.next(), depth - 1, board.advance(move)));
-//			}
-//			return max;
-//		}
-//		//minimising player
-//		if(player.isDetective()) {
-//			Integer min = Integer.MAX_VALUE;
-//			for(Move move : board.getAvailableMoves()){
-//				min = Math.min(min, minimax(player.next(), depth - 1, board.advance(move)))
-//			}
-//			minimax();
-//		}
-//	}
+		if(depth == 0) { return score(board); } //scores the current game state
+		if(moves.size() == 0) { return score(board); } //someone has won
+
+		//maximising player
+		if(toMove.isMrX()) {
+			turnsThisRound = board.getPlayers().stream().toList(); //now its all players
+			int max = Integer.MIN_VALUE;
+			for(Move move : moves){ //for all mrx's moves
+				max = Math.max(max, minimax(turnsThisRound, depth - 1, board.advance(move)));
+			}
+			return max;
+		}
+		//minimising player
+		if(toMove.isDetective()) {
+			turnsThisRound.remove(selector);
+			if(turnsThisRound.isEmpty()) turnsThisRound = List.of(Piece.MrX.MRX); //mrx round
+			int min = Integer.MAX_VALUE;
+			moves = moves.stream().filter(x -> x.commencedBy().equals(toMove)).toList();
+			for(Move move : moves){
+				min = Math.min(min, minimax(turnsThisRound, depth - 1, board.advance(move)));
+			}
+			return min;
+		}
+
+		return null;
+
+	}
 
 	private Move minimaxer(Player player, Integer depth, Board.GameState board) {
 		//build gamestate tree for all possible moves of all possible players

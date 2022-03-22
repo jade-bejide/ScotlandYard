@@ -171,10 +171,6 @@ public final class MyGameStateFactory implements Factory<GameState> {
 			return ImmutableSet.copyOf(players);
 		}
 
-//		public Player getMrX() {
-//			return mrX;
-//		}
-//
 //		public List<Player> getDetectivesForAI(){ //get players for the ai (the actual players)
 //			ImmutableSet<Piece> pieces = getPlayers();
 //			return pieces.stream().map(this::getPlayerOnPiece).filter(Player::isDetective).collect(Collectors.toList());
