@@ -10,6 +10,7 @@ import javax.annotation.Nonnull;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.graph.ImmutableValueGraph;
 import io.atlassian.fugue.Pair;
 import uk.ac.bris.cs.scotlandyard.model.*;
@@ -29,11 +30,11 @@ public class MyAi implements Ai {
 		return nodeDict;
 	}
 
-	static boolean searchList(Integer[] nodes, Integer x) {
+	private boolean searchList(Integer[] nodes, Integer x) {
 		return Arrays.asList(nodes).contains(x);
 	}
 
-	static List<Integer> shortestPathFromSourceToDestination(
+	private List<Integer> shortestPathFromSourceToDestination(
 			ImmutableValueGraph<Integer, Integer> graph,
 			Integer source,
 			Integer destination) {
@@ -52,13 +53,13 @@ public class MyAi implements Ai {
 
 			//getting successors
 			Object[] succ = graph.successors(currentNode).toArray();
-			for (Object node : succ) {
-				if(graph.edgeValue((Integer) node, currentNode).isPresent() && !MyAi.searchList(visitedNodes, (Integer)node) && (Integer)node != source) {
-					Integer edgeVal = graph.edgeValue((Integer) node, currentNode).get();
-					Integer distance = (nodeDict.get(currentNode).get(0) + edgeVal);
+					for (Object node : succ) {
+						if(graph.edgeValue((Integer) node, currentNode).isPresent() && !MyAi.searchList(visitedNodes, (Integer)node) && (Integer)node != source) {
+							Integer edgeVal = graph.edgeValue((Integer) node, currentNode).get();
+							Integer distance = (nodeDict.get(currentNode).get(0) + edgeVal);
 
-					//only update the distance if its shorter than our shortest to that node
-					if(distance < nodeDict.get(node).get(0)) { nodeDict.put((Integer) node, new ArrayList<Integer>(Arrays.asList(distance, currentNode))); }
+							//only update the distance if its shorter than our shortest to that node
+							if(distance < nodeDict.get(node).get(0)) { nodeDict.put((Integer) node, new ArrayList<Integer>(Arrays.asList(distance, currentNode))); }
 					//all endpoints can be distinct
 					if(!endPoints.contains((Integer) node)) { endPoints.add((Integer) node); } //add this node to the endpoints list
 
@@ -105,16 +106,41 @@ public class MyAi implements Ai {
 		return null;
 	}
 
-	private Integer score() {
-		//score elements:
+	private Integer score(Board board) {
+		//after calling minimax, for static evaluation we need to score elements:
 		//distance from detectives (tickets away)
 		//available moves
-		//then call minimax
 
 		return null;
 	}
 
-	private Move minimax(Player player) {
+	private Integer minimax(Player player, Integer depth, Board.GameState board){
+		if(depth == 0) { return score(board); } //scores the current game state
+
+		//maximising player
+		if(player.isMrX()) {
+			Integer max = Integer.MIN_VALUE;
+			for(Move move : board.getAvailableMoves()){ //for all mrx's moves
+				max = Math.max(max, minimax(player.next(), depth - 1, board.advance(move)));
+			}
+			return max;
+		}
+		//minimising player
+		if(player.isDetective()) {
+			Integer min = Integer.MAX_VALUE;
+			for(Move move : board.getAvailableMoves()){
+				min = Math.min(min, minimax(player.next(), depth - 1, board.advance(move)))
+			}
+			minimax();
+		}
+	}
+
+	private Move minimaxer(Player player, Integer depth, Board.GameState board) {
+		//build gamestate tree for all possible moves of all possible players
+		//use static evaluation to see which outcome favours player
+		//propagate up the tree to discover the best move
+
+
 		return null;
 	}
 
