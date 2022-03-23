@@ -13,6 +13,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.graph.ImmutableValueGraph;
 import io.atlassian.fugue.Pair;
+import org.checkerframework.checker.nullness.Opt;
 import uk.ac.bris.cs.scotlandyard.model.*;
 
 import static uk.ac.bris.cs.scotlandyard.model.ScotlandYard.defaultDetectiveTickets;
@@ -187,7 +188,7 @@ public class MyAi implements Ai {
 			distancePerDetective.add(distance);
 		}
 
-		return distancePerDetective.stream().reduce(0, (x,y) -> x+y);
+		return distancePerDetective.stream().map(x -> x * x).reduce(0, (x,y) -> x+y);
 	}
 
 
@@ -205,54 +206,87 @@ public class MyAi implements Ai {
 
 		return distance;
 	}
-	//turnsThisRound - who's yet to take a turn this round (round = { mrx | detectives })
-	private Integer minimax(List<Piece> turnsThisRound, Integer depth, Board.GameState board){
-		List<Move> moves = board.getAvailableMoves().stream().toList();
+//	private static Move.SingleMove blankMove = new Move.SingleMove(Piece.MrX.MRX, 1 , ScotlandYard.Ticket.TAXI, 1);
+//	//turnsThisRound - who's yet to take a turn this round (round = { mrx | detectives })
+//  returns a list of moves which are best for for player(s) in the starting round
+	private Pair<Integer, List<Move>> minimax(List<Piece> turnsThisRound, Integer depth, Board.GameState board){
 		int selector = new Random().nextInt(turnsThisRound.size());
 		Piece toMove = turnsThisRound.get(selector); //who's turn?
+		//this stream decides which moves were done by the player moving this round
+		List<Move> moves = board.getAvailableMoves().stream().filter(x -> x.commencedBy().equals(toMove)).toList();
 
-		if(depth == 0) { return score(board); } //scores the current game state
-		if(moves.size() == 0) { return score(board); } //someone has won
+		if(depth == 0) { return new Pair<Integer, List<Move>>(score(board), new ArrayList<Move>()); } //scores the current game state
+		if(moves.size() == 0) { return new Pair<Integer, List<Move>>(score(board), new ArrayList<Move>());  } //someone has won
+
+		List<Move> newPath = new ArrayList<Move>(); //keeps compiler smiling (choice is always initialised)
+		int evaluation;
 
 		//maximising player
 		if(toMove.isMrX()) {
 			turnsThisRound = board.getPlayers().stream().toList(); //now its all players
-			int max = Integer.MIN_VALUE;
+			evaluation = Integer.MIN_VALUE;
 			for(Move move : moves){ //for all mrx's moves
-				max = Math.max(max, minimax(turnsThisRound, depth - 1, board.advance(move)));
+				Pair<Integer, List<Move>> child = minimax(turnsThisRound, depth - 1, board.advance(move));
+				if(evaluation <= child.left()){
+					evaluation = child.left();
+					newPath = child.right(); //sets the movement path in the gametree for a respective good route
+					newPath.add(0, move); //prepend this move to the path
+				}
 			}
-			return max;
+			return new Pair<Integer, List<Move>>(evaluation, newPath);
 		}
 		//minimising player
-		if(toMove.isDetective()) {
-			turnsThisRound.remove(selector);
-			if(turnsThisRound.isEmpty()) turnsThisRound = List.of(Piece.MrX.MRX); //mrx round
-			int min = Integer.MAX_VALUE;
-			moves = moves.stream().filter(x -> x.commencedBy().equals(toMove)).toList();
-			for(Move move : moves){
-				min = Math.min(min, minimax(turnsThisRound, depth - 1, board.advance(move)));
+		else /*if(toMove.isDetective())*/ {
+			turnsThisRound.remove(selector); //this current detective is not to have another turn
+			//advances to mrx's round in a similar way to nextRemaining
+			if (turnsThisRound.isEmpty()) turnsThisRound = List.of(Piece.MrX.MRX);
+			evaluation = Integer.MAX_VALUE;
+			for (Move move : moves) { //for all mrx's moves
+				Pair<Integer, List<Move>> child = minimax(turnsThisRound, depth - 1, board.advance(move));
+				if (evaluation >= child.left()) {
+					evaluation = child.left();
+					newPath = child.right(); //sets the movement path in the gametree for a respective good route
+					newPath.add(0, move); //prepend this move to the path
+				}
 			}
-			return min;
+			return new Pair<Integer, List<Move>>(evaluation, newPath);
 		}
-
-		return null;
-
 	}
 
-	private Move minimaxer(Player player, Integer depth, Board.GameState board) {
+	//i'll find you all the pieces currently yet to play in a round! (for the minimax method)
+	private List<Piece> buildRemaining(Board.GameState board){
+		List<Move> moves = board.getAvailableMoves().stream().toList();
+		Set<Piece> pieces = new HashSet<Piece>(); //element-distinct set of people in remaining
+		for(Move move : moves){
+			pieces.add(move.commencedBy());
+		}
+		return pieces.stream().toList();
+	}
+
+	private Move minimaxer(Integer depth, Board board) {
 		//build gamestate tree for all possible moves of all possible players
 		//use static evaluation to see which outcome favours player
 		//propagate up the tree to discover the best move
-
-
-		return null;
+		List<Piece> piecesInPlay = buildRemaining(board); //who's left to take a turn in this round
+		//sequence of moves taken from current game state that give the best outcome for the current round's players
+		List<Move> path = minimax(buildRemaining(board), depth, board).right();
+		if(piecesInPlay.equals(List.of(Piece.MrX.MRX))){
+			return path.get(0);
+		}else{
+			return path
+					.stream()
+					.filter(x -> x.commencedBy().equals(piecesInPlay.get(0))) //moves which correspond to who's next to go
+					.toList().get(0);
+		}
 	}
 
 	@Nonnull @Override public Move pickMove(
 			@Nonnull Board board,
 			Pair<Long, TimeUnit> timeoutPair) {
 		// returns a random move, replace with your own implementation
-		var moves = board.getAvailableMoves().asList();
-		return moves.get(new Random().nextInt(moves.size()));
+//		var moves = board.getAvailableMoves().asList();
+//		return moves.get(new Random().nextInt(moves.size()));
+		return minimaxer(1, board);
+
 	}
 }

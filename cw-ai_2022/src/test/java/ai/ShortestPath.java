@@ -4,8 +4,6 @@ import uk.ac.bris.cs.scotlandyard.model.*;
 
 public class ShortestPath {
     public static void main(String[] args) {
-
-
         Player mrY = new Player(Piece.MrX.MRX, defaultMrXTickets(), 82);
         Player blue = new Player(Piece.Detective.BLUE, defaultDetectiveTickets(), 69);
         Player green = new Player(Piece.Detective.GREEN, defaultDetectiveTickets(), 115);
