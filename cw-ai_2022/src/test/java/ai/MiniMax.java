@@ -39,6 +39,6 @@ public class MiniMax{
     }
 
     private static void test1(Ai ai, Board.GameState state){
-        System.out.println()
+        System.out.println("hello");
     }
 }
