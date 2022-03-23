@@ -3,11 +3,13 @@ package ai;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.graph.ImmutableValueGraph;
 import com.google.common.io.Resources;
+import io.atlassian.fugue.Pair;
 import uk.ac.bris.cs.scotlandyard.model.*;
 import uk.ac.bris.cs.scotlandyard.ui.ai.MyAi;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.TimeUnit;
 
 import static uk.ac.bris.cs.scotlandyard.model.Piece.Detective.*;
 import static uk.ac.bris.cs.scotlandyard.model.Piece.MrX.MRX;
@@ -39,6 +41,10 @@ public class MiniMax{
     }
 
     private static void test1(Ai ai, Board.GameState state){
-        System.out.println()
+        for(int i = 0; i < 5; i++){
+            Board.GameState neoState = state.advance(ai.pickMove(state, new Pair<Long, TimeUnit>(15L, TimeUnit.MILLISECONDS)));
+            state = neoState;
+        }
+
     }
 }
