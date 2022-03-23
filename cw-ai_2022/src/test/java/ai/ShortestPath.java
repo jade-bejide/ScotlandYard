@@ -1,11 +1,15 @@
-package uk.ac.bris.scotlandyard.ai;
+package ai;
+
+import uk.ac.bris.cs.scotlandyard.model.*;
 
 public class ShortestPath {
-    public static main(String[] args) {
+    public static void main(String[] args) {
+
+
         Player mrY = new Player(Piece.MrX.MRX, defaultMrXTickets(), 82);
         Player blue = new Player(Piece.Detective.BLUE, defaultDetectiveTickets(), 69);
         Player green = new Player(Piece.Detective.GREEN, defaultDetectiveTickets(), 115);
-        GameState game = gameStateFactory.build(standard24MoveSetup(), mrX, blue, green);
+        GameState game = new GameStateFactory.build(new GameSetup(defaultGraph, STANDARD24MOVES), mrY, blue, green);
 
         Pair<Long, TimeUnit> time = new Pair<>(15, SECONDS);
 
