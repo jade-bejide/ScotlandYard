@@ -213,7 +213,7 @@ public class MyAi implements Ai {
 		return pieces.stream().toList();
 	}
 
-	private Move minimaxer(Integer depth, Board board) {
+	private Move minimaxer(Integer depth, Board.GameState board) {
 		//build gamestate tree for all possible moves of all possible players
 		//use static evaluation to see which outcome favours player
 		//propagate up the tree to discover the best move
