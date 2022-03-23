@@ -50,10 +50,10 @@ public class MyAi implements Ai {
 			Integer destination) {
 		Dictionary<Integer, ArrayList<Integer>> nodeDict = new Hashtable<Integer, ArrayList<Integer>>();
 
-		nodeDict = populate(nodeDict, graph, source);
+		populate(nodeDict, graph, source);
 
 		int pos = 0;
-		Integer[] visitedNodes = new Integer[35];
+		Integer[] visitedNodes = new Integer[200];
 		Integer currentNode = source;
 		Integer min = Integer.MAX_VALUE;
 		Integer bestNode = -1;
@@ -120,14 +120,6 @@ public class MyAi implements Ai {
 //		return null;
 //	}
 //
-//	private Player getPlayerOnPiece(Piece p){
-//		List<Player> players = new ArrayList<Player>(detectives); players.add(mrX);
-//		List<Player> filter = players
-//				.stream()
-//				.filter(x -> x.piece() == p)
-//				.toList(); //gets player (singleton list)
-//		return filter.get(0);
-//	}
 
 	@Nonnull
 	private List<Player> getPlayers(Board board) {
@@ -158,18 +150,38 @@ public class MyAi implements Ai {
 			else {
 				ImmutableList<LogEntry> log = board.getMrXTravelLog();
 				int n = log.size();
-				LogEntry lastLog = log.get(n-1);
+				//default location (no significance)
+				int location = 50;
+				if (n > 0) {
+					LogEntry lastLog = log.get(n-1);
+					boolean hasLocation = lastLog.location().isPresent();
+					if (hasLocation) {
+						location = lastLog.location().get();
 
-				boolean hasLocation = lastLog.location().isPresent();
-				if (hasLocation) {
-					int location = lastLog.location().get();
-					Player newMrX = new Player(piece, defaultMrXTickets(), location);
-					players.add(newMrX);
+					}
 				}
+
+				boolean mrXRound = board.getAvailableMoves().stream().anyMatch(x -> x.commencedBy() == Piece.MrX.MRX);
+
+				if (mrXRound) {
+					List<Move> grabMoves = board.getAvailableMoves().stream().limit(1).toList();
+					Move grabMove = grabMoves.get(0);
+					location = grabMove.source();
+				}
+
+				Player newMrX = new Player(piece, defaultMrXTickets(), location);
+				players.add(newMrX);
+
+
 			}
 		}
 
 		return players;
+	}
+
+	private List<Player> getDetectives(Board board) {
+		List<Player> detectives = getPlayers(board).stream().filter(Player::isDetective).toList();
+		return detectives;
 	}
 
 	private Player getMrX(Board board) {
@@ -198,12 +210,7 @@ public class MyAi implements Ai {
 		//after calling minimax, for static evaluation we need to score elements:
 		//distance from detectives (tickets away)
 		//available moves
-
-
-		//int distance = cumulativeDistance(board, mrY, myDetect);
-
-		int distance = 0;
-		//System.out.println(distance);
+		int distance = cumulativeDistance(board, getMrX(board), getDetectives(board));
 
 		return distance;
 	}
@@ -289,7 +296,9 @@ public class MyAi implements Ai {
 		// returns a random move, replace with your own implementation
 //		var moves = board.getAvailableMoves().asList();
 //		return moves.get(new Random().nextInt(moves.size()));
+
 		return minimaxer(3, (Board.GameState) board);
+
 
 	}
 }
