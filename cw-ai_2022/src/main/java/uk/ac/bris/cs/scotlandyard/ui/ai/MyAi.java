@@ -8,6 +8,7 @@ import java.util.function.Predicate;
 import javax.annotation.Nonnull;
 
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.graph.ImmutableValueGraph;
@@ -19,7 +20,6 @@ import static uk.ac.bris.cs.scotlandyard.model.ScotlandYard.defaultDetectiveTick
 import static uk.ac.bris.cs.scotlandyard.model.ScotlandYard.defaultMrXTickets;
 
 public class MyAi implements Ai {
-
 	@Nonnull @Override public String name() { return "Name me!"; }
 
 	//get players
@@ -128,6 +128,54 @@ public class MyAi implements Ai {
 //		return filter.get(0);
 //	}
 
+	@Nonnull
+	private List<Player> getPlayers(Board board) {
+		List<Piece.Detective> detectives = board.getPlayers().stream().filter(Piece::isDetective).map(y -> (Piece.Detective)y).toList();
+		List<Piece.MrX> mrXSingle = board.getPlayers().stream().filter(Piece::isMrX).map(y -> (Piece.MrX)y).limit(1).toList();
+
+		List<Piece> pieces = new ArrayList<Piece>();
+		pieces.add(mrXSingle.get(0));
+		pieces.addAll(detectives);
+
+		List<Player> players = new ArrayList<Player>();
+
+		for (Piece piece : pieces) {
+			boolean hasticketBoard = board.getPlayerTickets(piece).isPresent();
+			if (hasticketBoard) {
+				Board.TicketBoard ticketBoard = board.getPlayerTickets(piece).get();
+			}
+
+			if (piece.isDetective()) {
+				boolean hasLocation = board.getDetectiveLocation((Piece.Detective)piece).isPresent();
+				if (hasLocation) {
+					int location = board.getDetectiveLocation((Piece.Detective)piece).get();
+					Player newDetective = new Player(piece, defaultDetectiveTickets(),location);
+					players.add(newDetective);
+				}
+
+			}
+			else {
+				ImmutableList<LogEntry> log = board.getMrXTravelLog();
+				int n = log.size();
+				LogEntry lastLog = log.get(n-1);
+
+				boolean hasLocation = lastLog.location().isPresent();
+				if (hasLocation) {
+					int location = lastLog.location().get();
+					Player newMrX = new Player(piece, defaultMrXTickets(), location);
+					players.add(newMrX);
+				}
+			}
+		}
+
+		return players;
+	}
+
+	private Player getMrX(Board board) {
+		List<Player> mrXS = getPlayers(board).stream().filter(Player::isMrX).toList();
+		return mrXS.get(0);
+	}
+
 	private Integer cumulativeDistance(Board board, Player mrX, List<Player> detectives) {
 		int min = Integer.MAX_VALUE;
 		Integer mrXLocation = mrX.location();
@@ -142,6 +190,8 @@ public class MyAi implements Ai {
 
 		return distancePerDetective.stream().map(x -> x * x).reduce(0, (x,y) -> x+y);
 	}
+
+
 
 	public Integer score(Board board) {
 		//after calling minimax, for static evaluation we need to score elements:

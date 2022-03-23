@@ -416,6 +416,8 @@ public final class MyGameStateFactory implements Factory<GameState> {
 			return possibleDoubleMoves;
 		}
 
+
+
 		@Nonnull
 		@Override
 		public ImmutableSet<Move> getAvailableMoves() {
