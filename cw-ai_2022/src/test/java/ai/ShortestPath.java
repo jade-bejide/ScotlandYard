@@ -31,7 +31,10 @@ public class ShortestPath {
         Player mrY = new Player(Piece.MrX.MRX, defaultMrXTickets(), 1);
         Player blue = new Player(Piece.Detective.BLUE, defaultDetectiveTickets(), 32);
         Player green = new Player(Piece.Detective.GREEN, defaultDetectiveTickets(), 199);
-        Board.GameState game = new MyGameStateFactory().build(new GameSetup(defaultGraph, STANDARD24MOVES), mrY, blue, green);
+        Player red = new Player (Piece.Detective.RED, defaultDetectiveTickets(), 54);
+        Player yellow = new Player(Piece.Detective.YELLOW, defaultDetectiveTickets(), 34);
+        Player white = new Player(Piece.Detective.WHITE, defaultDetectiveTickets(), 21);
+        Board.GameState game = new MyGameStateFactory().build(new GameSetup(defaultGraph, STANDARD24MOVES), mrY, blue, green, red, yellow, white);
 
         Pair<Long, TimeUnit> time = new Pair<Long, TimeUnit>(15L, SECONDS);
 
