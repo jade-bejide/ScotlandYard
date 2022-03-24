@@ -103,7 +103,7 @@ public class MyAi implements Ai {
 			currentNode = nodeDict.get(currentNode).get(1);
 			path.add(0, currentNode);
 			if(Objects.equals(currentNode, source)) {
-				System.out.println("Path: " +path);
+				//System.out.println("Path: " +path);
 				Pair<Integer, List<Integer>> pathDistance = new Pair<Integer, List<Integer>>(nodeDict.get(destination).get(0), path);
 				return pathDistance;
 			} //needs to include source
@@ -210,9 +210,9 @@ public class MyAi implements Ai {
 		//after calling minimax, for static evaluation we need to score elements:
 		//distance from detectives (tickets away)
 		//available moves
-		int distance = cumulativeDistance(board, getMrX(board), getDetectives(board));
+		//int distance = cumulativeDistance(board, getMrX(board), getDetectives(board));
 
-		return distance;
+		return 1;
 	}
 //	private static Move.SingleMove blankMove = new Move.SingleMove(Piece.MrX.MRX, 1 , ScotlandYard.Ticket.TAXI, 1);
 //	//turnsThisRound - who's yet to take a turn this round (round = { mrx | detectives })
@@ -233,6 +233,7 @@ public class MyAi implements Ai {
 		//maximising player
 		if(toMove.isMrX()) {
 			turnsThisRound = new ArrayList<Piece>(board.getPlayers()); //now its all players
+			turnsThisRound.remove(Piece.MrX.MRX);
 			evaluation = Integer.MIN_VALUE;
 			for(Move move : moves){ //for all mrx's moves
 				Pair<Integer, List<Move>> child = minimax(turnsThisRound, depth - 1, board.advance(move));
@@ -279,7 +280,7 @@ public class MyAi implements Ai {
 		List<Piece> piecesInPlay = buildRemaining(board); //who's left to take a turn in this round
 		//sequence of moves taken from current game state that give the best outcome for the current round's players
 		List<Move> path = minimax(buildRemaining(board), depth, board).right();
-		System.out.println(path);
+		//System.out.println(path);
 		if(piecesInPlay.equals(List.of(Piece.MrX.MRX))){
 			return path.get(0);
 		}else{

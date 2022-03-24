@@ -41,9 +41,6 @@ public class MiniMax{
     }
 
     private static void test1(Ai ai, Board.GameState state) {
-        for (int i = 0; i < 5; i++) {
-            Board.GameState neoState = state.advance(ai.pickMove(state, new Pair<Long, TimeUnit>(15L, TimeUnit.MILLISECONDS)));
-            state = neoState;
-        }
+        state.advance(ai.pickMove(state, new Pair<Long, TimeUnit>(15L, TimeUnit.MILLISECONDS)));
     }
 }
