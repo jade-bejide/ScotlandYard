@@ -14,6 +14,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.graph.ImmutableValueGraph;
 import io.atlassian.fugue.Pair;
 import org.checkerframework.checker.nullness.Opt;
+import org.checkerframework.checker.units.qual.A;
 import uk.ac.bris.cs.scotlandyard.model.*;
 
 import static uk.ac.bris.cs.scotlandyard.model.ScotlandYard.defaultDetectiveTickets;
@@ -209,8 +210,6 @@ public class MyAi implements Ai {
 		//after calling minimax, for static evaluation we need to score elements:
 		//distance from detectives (tickets away)
 		//available moves
-
-
 		int distance = cumulativeDistance(board, getMrX(board), getDetectives(board));
 
 		return distance;
@@ -218,7 +217,8 @@ public class MyAi implements Ai {
 //	private static Move.SingleMove blankMove = new Move.SingleMove(Piece.MrX.MRX, 1 , ScotlandYard.Ticket.TAXI, 1);
 //	//turnsThisRound - who's yet to take a turn this round (round = { mrx | detectives })
 //  returns a list of moves which are best for for player(s) in the starting round
-	private Pair<Integer, List<Move>> minimax(List<Piece> turnsThisRound, Integer depth, Board.GameState board){
+	private Pair<Integer, List<Move>> minimax(ArrayList<Piece> turnsThisRound, Integer depth, Board.GameState board){
+		System.out.println(turnsThisRound);
 		int selector = new Random().nextInt(turnsThisRound.size());
 		Piece toMove = turnsThisRound.get(selector); //who's turn?
 		//this stream decides which moves were done by the player moving this round
@@ -232,7 +232,7 @@ public class MyAi implements Ai {
 
 		//maximising player
 		if(toMove.isMrX()) {
-			turnsThisRound = board.getPlayers().stream().toList(); //now its all players
+			turnsThisRound = new ArrayList<Piece>(board.getPlayers()); //now its all players
 			evaluation = Integer.MIN_VALUE;
 			for(Move move : moves){ //for all mrx's moves
 				Pair<Integer, List<Move>> child = minimax(turnsThisRound, depth - 1, board.advance(move));
@@ -248,7 +248,7 @@ public class MyAi implements Ai {
 		else /*if(toMove.isDetective())*/ {
 			turnsThisRound.remove(selector); //this current detective is not to have another turn
 			//advances to mrx's round in a similar way to nextRemaining
-			if (turnsThisRound.isEmpty()) turnsThisRound = List.of(Piece.MrX.MRX);
+			if (turnsThisRound.isEmpty()) turnsThisRound = new ArrayList<Piece>(List.of(Piece.MrX.MRX));
 			evaluation = Integer.MAX_VALUE;
 			for (Move move : moves) { //for all mrx's moves
 				Pair<Integer, List<Move>> child = minimax(turnsThisRound, depth - 1, board.advance(move));
@@ -263,13 +263,13 @@ public class MyAi implements Ai {
 	}
 
 	//i'll find you all the pieces currently yet to play in a round! (for the minimax method)
-	private List<Piece> buildRemaining(Board.GameState board){
+	private ArrayList<Piece> buildRemaining(Board.GameState board){
 		List<Move> moves = board.getAvailableMoves().stream().toList();
 		Set<Piece> pieces = new HashSet<Piece>(); //element-distinct set of people in remaining
 		for(Move move : moves){
 			pieces.add(move.commencedBy());
 		}
-		return pieces.stream().toList();
+		return new ArrayList<Piece>(pieces);
 	}
 
 	private Move minimaxer(Integer depth, Board.GameState board) {
@@ -279,6 +279,7 @@ public class MyAi implements Ai {
 		List<Piece> piecesInPlay = buildRemaining(board); //who's left to take a turn in this round
 		//sequence of moves taken from current game state that give the best outcome for the current round's players
 		List<Move> path = minimax(buildRemaining(board), depth, board).right();
+		System.out.println(path);
 		if(piecesInPlay.equals(List.of(Piece.MrX.MRX))){
 			return path.get(0);
 		}else{
@@ -295,7 +296,9 @@ public class MyAi implements Ai {
 		// returns a random move, replace with your own implementation
 //		var moves = board.getAvailableMoves().asList();
 //		return moves.get(new Random().nextInt(moves.size()));
-		return minimaxer(1, (Board.GameState)board);
+
+		return minimaxer(3, (Board.GameState) board);
+
 
 	}
 }
