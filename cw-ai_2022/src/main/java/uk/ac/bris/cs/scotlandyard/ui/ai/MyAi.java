@@ -61,8 +61,7 @@ public class MyAi implements Ai {
 		endPoints.add(source);
 
 		//Track tickets
-		while (currentNode != destination) {
-
+		while (!currentNode.equals(destination)) {
 			//getting successors
 			Object[] succ = graph.successors(currentNode).toArray();
 			for (Object node : succ) {
@@ -78,7 +77,7 @@ public class MyAi implements Ai {
 				}
 			}
 			visitedNodes[pos] = currentNode;
-
+			pos++;
 			endPoints.removeIf(Predicate.isEqual(currentNode)); //removes current node (its been fully visited)
 			Integer localBestDist = Integer.MAX_VALUE; Integer d;
 			ArrayList<Integer> debugDistances = new ArrayList<Integer>();
@@ -91,7 +90,7 @@ public class MyAi implements Ai {
 				}
 			}
 			//currentNode = bestNode;
-			pos++;
+
 		}
 
 
@@ -152,12 +151,12 @@ public class MyAi implements Ai {
 				int n = log.size();
 				//default location (no significance)
 				int location = 50;
+				System.out.println(n);
 				if (n > 0) {
 					LogEntry lastLog = log.get(n-1);
 					boolean hasLocation = lastLog.location().isPresent();
 					if (hasLocation) {
 						location = lastLog.location().get();
-
 					}
 				}
 
