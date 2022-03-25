@@ -211,33 +211,40 @@ public class MyAi implements Ai {
 		//available moves
 		//int distance = cumulativeDistance(board, getMrX(board), getDetectives(board));
 
-		return 1;
+		return 0;
+	}
+
+	private Piece getNextGo(List<Piece> whosLeft){
+		int selector = new Random().nextInt(whosLeft.size());
+		return whosLeft.get(selector); //who's turn is it in the tree level below this?
 	}
 //	private static Move.SingleMove blankMove = new Move.SingleMove(Piece.MrX.MRX, 1 , ScotlandYard.Ticket.TAXI, 1);
-//	//turnsThisRound - who's yet to take a turn this round (round = { mrx | detectives })
+//	//whosLeft - who's yet to take a turn this round (round = { mrx | detectives })
 //  returns a list of moves which are best for for player(s) in the starting round
-	private Pair<Integer, List<Move>> minimax(ArrayList<Piece> turnsThisRound, Integer depth, Board.GameState board){
-		if(depth == 0) { return new Pair<Integer, List<Move>>(score(board), new ArrayList<Move>()); } //scores the current game state
+	private Pair<Integer, List<Move>> minimax(List<Piece> whosLeft, Piece whosGo, int depth, Board.GameState board){
+		//'whosGo' is whos turn it currently is
+		List<Move> moves = board.getAvailableMoves().stream().filter(x -> x.commencedBy().equals(whosGo)).toList();
+		//we've reached ample recursion depth
+		if(depth == 0) { return new Pair<Integer, List<Move>>(score(board), new ArrayList<Move>()); }
+		//someone has won
+		if(moves.size() == 0) { return new Pair<Integer, List<Move>>(score(board), new ArrayList<Move>());  }
 
-		System.out.println(turnsThisRound); System.out.println(depth);
-
-		int selector = new Random().nextInt(turnsThisRound.size());
-		Piece toMove = turnsThisRound.get(selector); //who's turn?
 		//this stream decides which moves were done by the player moving this round
-		List<Move> moves = board.getAvailableMoves().stream().filter(x -> x.commencedBy().equals(toMove)).toList();
-
-		if(moves.size() == 0) { return new Pair<Integer, List<Move>>(score(board), new ArrayList<Move>());  } //someone has won
 
 		List<Move> newPath = new ArrayList<Move>(); //keeps compiler smiling (choice is always initialised)
 		int evaluation;
 
 		//maximising player
-		if(toMove.isMrX()) {
-			turnsThisRound = new ArrayList<Piece>(board.getPlayers()); //now its all players
-			turnsThisRound.remove(Piece.MrX.MRX);
+		if(whosGo.isMrX()) {
+			whosLeft = new ArrayList<Piece>(board.getPlayers()); //now its all players
+			whosLeft.remove(Piece.MrX.MRX); //remove whos currently played from whos left to play
+			Piece nextGo = getNextGo(whosLeft); //chooses random of whos left
 			evaluation = Integer.MIN_VALUE;
+			System.out.println(whosLeft.toString() + whosGo.toString());
 			for(Move move : moves){ //for all mrx's moves
-				Pair<Integer, List<Move>> child = minimax(turnsThisRound, depth - 1, board.advance(move)); //board.advance is causing issues that may be solved by deep copying gamestate
+				//copy variables we pass to the next recursion level (pass by-ref messed whosLeft up)
+				List<Piece> whosLeftCopy = new ArrayList<Piece>(whosLeft);
+				Pair<Integer, List<Move>> child = minimax(whosLeftCopy, nextGo,depth - 1, board.advance(move)); //board.advance is causing issues that may be solved by deep copying gamestate
 				if(evaluation <= child.left()){
 					evaluation = child.left();
 					newPath = child.right(); //sets the movement path in the gametree for a respective good route
@@ -248,12 +255,15 @@ public class MyAi implements Ai {
 		}
 		//minimising player
 		else /*if(toMove.isDetective())*/ {
-			turnsThisRound.remove(selector); //this current detective is not to have another turn
-			//advances to mrx's round in a similar way to nextRemaining
-			if (turnsThisRound.isEmpty()) turnsThisRound = new ArrayList<Piece>(List.of(Piece.MrX.MRX));
+			whosLeft.remove(whosGo); //this current detective is not to have another turn this round
+			if (whosLeft.isEmpty()) whosLeft = new ArrayList<Piece>(List.of(Piece.MrX.MRX));
+			Piece nextGo = getNextGo(whosLeft); //chooses random of whos left
 			evaluation = Integer.MAX_VALUE;
+			System.out.println(whosLeft.toString() + whosGo.toString());
 			for (Move move : moves) { //for all mrx's moves
-				Pair<Integer, List<Move>> child = minimax(turnsThisRound, depth - 1, board.advance(move));
+				//copy variables we pass to the next recursion level (pass by-ref messed whosLeft up)
+				List<Piece> whosLeftCopy = new ArrayList<Piece>(whosLeft);
+				Pair<Integer, List<Move>> child = minimax(whosLeftCopy, nextGo,depth - 1, board.advance(move));
 				if (evaluation >= child.left()) {
 					evaluation = child.left();
 					newPath = child.right(); //sets the movement path in the gametree for a respective good route
@@ -280,7 +290,7 @@ public class MyAi implements Ai {
 		//propagate up the tree to discover the best move
 		List<Piece> piecesInPlay = buildRemaining(board); //who's left to take a turn in this round
 		//sequence of moves taken from current game state that give the best outcome for the current round's players
-		List<Move> path = minimax(buildRemaining(board), depth, board).right();
+		List<Move> path = minimax(piecesInPlay, piecesInPlay.get(0), depth, board).right(); //start on the first piece in remaining
 		System.out.println(path);
 		if(piecesInPlay.equals(List.of(Piece.MrX.MRX))){
 			return path.get(0);
