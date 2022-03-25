@@ -6,6 +6,7 @@ import uk.ac.bris.cs.scotlandyard.model.Move;
 import uk.ac.bris.cs.scotlandyard.model.Piece;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class MiniMaxBox {
     /*minimax handler is a stateful singleton class
@@ -18,7 +19,7 @@ public class MiniMaxBox {
     static private MiniMaxBox instance = null;
 
     private final int depth = 3; //recursion depth
-    private List<Move> preComputedMoves;
+    private List<Move> optimalMoves; //saves moves between calls
     private final Evaluator evaluator;
 
     private MiniMaxBox(Evaluator evaluator){
@@ -119,8 +120,23 @@ public class MiniMaxBox {
         return sequence;
     }
      //@Overloading
-    public Move minimax(int depth, Board.GameState board){
+    public Move minimax(Board.GameState board){
         List<Turn> order = makeTurnSequence(depth, board);
-        List<Move> path = minimax(order, depth, board).right(); //start on the first piece in remaining
+        Piece myTurn = order.get(0).playedBy();
+        Move preComputedMove = null;
+        if(optimalMoves != null){
+            preComputedMove = optimalMoves //if we have already computer this players move in the tree
+                    .stream()
+                    .filter(x -> x.commencedBy().equals(myTurn))
+                    .toList()
+                    .get(0);
+        }
+
+        if(preComputedMove != null) {
+            return preComputedMove;
+        }
+        optimalMoves = minimax(order, depth, board).right(); //start on the first piece in remaining
+        //System.out.println(optimalMoves);
+        return optimalMoves.get(0);
     }
 }

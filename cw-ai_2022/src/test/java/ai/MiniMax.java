@@ -48,11 +48,13 @@ public class MiniMax{
     }
 
     private static void testMultipleMoves(Ai ai, Board.GameState state) {
+        long time = System.nanoTime();
         final int turns = 4;
         for(int i = 0; i < turns; i++){
             Move move = ai.pickMove(state, new Pair<Long, TimeUnit>(15L, TimeUnit.MILLISECONDS));
             System.out.println(move);
             state = state.advance(move);
         }
+        System.out.println(((System.nanoTime() - time) / 1000000) + "ms");
     }
 }

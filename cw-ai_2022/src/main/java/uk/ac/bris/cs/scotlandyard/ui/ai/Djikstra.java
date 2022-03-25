@@ -15,7 +15,6 @@ import static uk.ac.bris.cs.scotlandyard.model.ScotlandYard.Ticket.*;
 import static uk.ac.bris.cs.scotlandyard.model.ScotlandYard.Transport.FERRY;
 
 public class Djikstra implements Evaluator{ //something we can give minimaxbox to score a game state
-    private Board.GameState board;
 
     private void populate(Dictionary<Integer, ArrayList<Integer>> nodeDict,
                                                             ImmutableValueGraph<Integer, ImmutableSet<ScotlandYard.Transport>> graph, Integer source){
