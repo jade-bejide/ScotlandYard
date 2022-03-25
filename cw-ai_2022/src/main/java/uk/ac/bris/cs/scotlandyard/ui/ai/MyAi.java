@@ -17,6 +17,7 @@ import org.checkerframework.checker.nullness.Opt;
 import org.checkerframework.checker.units.qual.A;
 import uk.ac.bris.cs.scotlandyard.model.*;
 
+import static uk.ac.bris.cs.scotlandyard.model.ScotlandYard.Ticket.*;
 import static uk.ac.bris.cs.scotlandyard.model.ScotlandYard.defaultDetectiveTickets;
 import static uk.ac.bris.cs.scotlandyard.model.ScotlandYard.defaultMrXTickets;
 
@@ -55,8 +56,6 @@ public class MyAi implements Ai {
 		int pos = 0;
 		Integer[] visitedNodes = new Integer[200];
 		Integer currentNode = source;
-		Integer min = Integer.MAX_VALUE;
-		Integer bestNode = -1;
 		ArrayList<Integer> endPoints = new ArrayList<>(); //places we know at least one distance to (we've calculated at least once)
 		endPoints.add(source);
 
@@ -80,33 +79,24 @@ public class MyAi implements Ai {
 			pos++;
 			endPoints.removeIf(Predicate.isEqual(currentNode)); //removes current node (its been fully visited)
 			Integer localBestDist = Integer.MAX_VALUE; Integer d;
-			ArrayList<Integer> debugDistances = new ArrayList<Integer>();
 			for(Integer node : endPoints){// selects the shortest distance of all endpoints bar the ones already visited
 				d = nodeDict.get(node).get(0);
-				debugDistances.add(d);
 				if(d < localBestDist){
 					currentNode = node;
 					localBestDist = d;
 				}
 			}
-			//currentNode = bestNode;
 
 		}
-
 
 		List<Integer> path = new ArrayList<Integer>();
-
-
 		path.add(0, currentNode);
-		while (true) {
+		while (!Objects.equals(currentNode, source)) {
 			currentNode = nodeDict.get(currentNode).get(1);
 			path.add(0, currentNode);
-			if(Objects.equals(currentNode, source)) {
-				//System.out.println("Path: " +path);
-				Pair<Integer, List<Integer>> pathDistance = new Pair<Integer, List<Integer>>(nodeDict.get(destination).get(0), path);
-				return pathDistance;
-			} //needs to include source
 		}
+
+		return new Pair<Integer, List<Integer>>(nodeDict.get(destination).get(0), path);//needs to include source
 	}
 
 //	private List<Move> countMoves(List<Integer> path, Board board) {
@@ -119,9 +109,25 @@ public class MyAi implements Ai {
 //		return null;
 //	}
 //
+	//reconstructing the player tickets
+	@Nonnull ImmutableMap<ScotlandYard.Ticket, Integer> getPlayerTickets(Board.GameState board, Piece piece) {
+		ArrayList<ScotlandYard.Ticket> ticketTypes = new ArrayList<ScotlandYard.Ticket>(Arrays.asList(TAXI, BUS, UNDERGROUND));
 
+		if (piece.isMrX()) ticketTypes.addAll(Arrays.asList(DOUBLE, SECRET));
+		Map<ScotlandYard.Ticket, Integer> tickets = new HashMap<ScotlandYard.Ticket, Integer>();
+
+		for (ScotlandYard.Ticket ticket : ticketTypes) {
+			if (board.getPlayerTickets(piece).isPresent()) {
+				tickets.put(ticket, board.getPlayerTickets(piece).get().getCount(ticket));
+			}
+		}
+
+		System.out.println("Player: " + piece + "Ticket: " + tickets);
+
+		return ImmutableMap.copyOf(tickets);
+	}
 	@Nonnull
-	private List<Player> getPlayers(Board board) {
+	private List<Player> getPlayers(Board.GameState board) {
 		List<Piece.Detective> detectives = board.getPlayers().stream().filter(Piece::isDetective).map(y -> (Piece.Detective)y).toList();
 		List<Piece.MrX> mrXSingle = board.getPlayers().stream().filter(Piece::isMrX).map(y -> (Piece.MrX)y).limit(1).toList();
 
@@ -132,16 +138,12 @@ public class MyAi implements Ai {
 		List<Player> players = new ArrayList<Player>();
 
 		for (Piece piece : pieces) {
-			boolean hasticketBoard = board.getPlayerTickets(piece).isPresent();
-			if (hasticketBoard) {
-				Board.TicketBoard ticketBoard = board.getPlayerTickets(piece).get();
-			}
 
 			if (piece.isDetective()) {
 				boolean hasLocation = board.getDetectiveLocation((Piece.Detective)piece).isPresent();
 				if (hasLocation) {
 					int location = board.getDetectiveLocation((Piece.Detective)piece).get();
-					Player newDetective = new Player(piece, defaultDetectiveTickets(),location);
+					Player newDetective = new Player(piece, getPlayerTickets(board, piece),location);
 					players.add(newDetective);
 				}
 
@@ -150,8 +152,7 @@ public class MyAi implements Ai {
 				ImmutableList<LogEntry> log = board.getMrXTravelLog();
 				int n = log.size();
 				//default location (no significance)
-				int location = 50;
-				System.out.println(n);
+				int location = 1;
 				if (n > 0) {
 					LogEntry lastLog = log.get(n-1);
 					boolean hasLocation = lastLog.location().isPresent();
@@ -168,7 +169,7 @@ public class MyAi implements Ai {
 					location = grabMove.source();
 				}
 
-				Player newMrX = new Player(piece, defaultMrXTickets(), location);
+				Player newMrX = new Player(piece, getPlayerTickets(board, piece), location);
 				players.add(newMrX);
 
 
@@ -178,17 +179,17 @@ public class MyAi implements Ai {
 		return players;
 	}
 
-	private List<Player> getDetectives(Board board) {
+	private List<Player> getDetectives(Board.GameState board) {
 		List<Player> detectives = getPlayers(board).stream().filter(Player::isDetective).toList();
 		return detectives;
 	}
 
-	private Player getMrX(Board board) {
+	private Player getMrX(Board.GameState board) {
 		List<Player> mrXS = getPlayers(board).stream().filter(Player::isMrX).toList();
 		return mrXS.get(0);
 	}
 
-	private Integer cumulativeDistance(Board board, Player mrX, List<Player> detectives) {
+	private Integer cumulativeDistance(Board.GameState board, Player mrX, List<Player> detectives) {
 		int min = Integer.MAX_VALUE;
 		Integer mrXLocation = mrX.location();
 		List<Integer> distancePerDetective = new ArrayList<>();
@@ -205,13 +206,13 @@ public class MyAi implements Ai {
 
 
 
-	public Integer score(Board board) {
+	public Integer score(Board.GameState board) {
 		//after calling minimax, for static evaluation we need to score elements:
 		//distance from detectives (tickets away)
 		//available moves
-		//int distance = cumulativeDistance(board, getMrX(board), getDetectives(board));
+		int distance = cumulativeDistance(board, getMrX(board), getDetectives(board));
 
-		return 0;
+		return distance;
 	}
 
 	private Piece getNextGo(List<Piece> whosLeft){
