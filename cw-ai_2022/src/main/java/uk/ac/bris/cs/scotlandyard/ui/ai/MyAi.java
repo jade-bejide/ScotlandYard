@@ -217,13 +217,15 @@ public class MyAi implements Ai {
 //	//turnsThisRound - who's yet to take a turn this round (round = { mrx | detectives })
 //  returns a list of moves which are best for for player(s) in the starting round
 	private Pair<Integer, List<Move>> minimax(ArrayList<Piece> turnsThisRound, Integer depth, Board.GameState board){
-		System.out.println(turnsThisRound);
+		if(depth == 0) { return new Pair<Integer, List<Move>>(score(board), new ArrayList<Move>()); } //scores the current game state
+
+		System.out.println(turnsThisRound); System.out.println(depth);
+
 		int selector = new Random().nextInt(turnsThisRound.size());
 		Piece toMove = turnsThisRound.get(selector); //who's turn?
 		//this stream decides which moves were done by the player moving this round
 		List<Move> moves = board.getAvailableMoves().stream().filter(x -> x.commencedBy().equals(toMove)).toList();
 
-		if(depth == 0) { return new Pair<Integer, List<Move>>(score(board), new ArrayList<Move>()); } //scores the current game state
 		if(moves.size() == 0) { return new Pair<Integer, List<Move>>(score(board), new ArrayList<Move>());  } //someone has won
 
 		List<Move> newPath = new ArrayList<Move>(); //keeps compiler smiling (choice is always initialised)
@@ -235,7 +237,7 @@ public class MyAi implements Ai {
 			turnsThisRound.remove(Piece.MrX.MRX);
 			evaluation = Integer.MIN_VALUE;
 			for(Move move : moves){ //for all mrx's moves
-				Pair<Integer, List<Move>> child = minimax(turnsThisRound, depth - 1, board.advance(move));
+				Pair<Integer, List<Move>> child = minimax(turnsThisRound, depth - 1, board.advance(move)); //board.advance is causing issues that may be solved by deep copying gamestate
 				if(evaluation <= child.left()){
 					evaluation = child.left();
 					newPath = child.right(); //sets the movement path in the gametree for a respective good route
@@ -279,7 +281,7 @@ public class MyAi implements Ai {
 		List<Piece> piecesInPlay = buildRemaining(board); //who's left to take a turn in this round
 		//sequence of moves taken from current game state that give the best outcome for the current round's players
 		List<Move> path = minimax(buildRemaining(board), depth, board).right();
-		//System.out.println(path);
+		System.out.println(path);
 		if(piecesInPlay.equals(List.of(Piece.MrX.MRX))){
 			return path.get(0);
 		}else{
