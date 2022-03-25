@@ -31,7 +31,7 @@ public class MyAi implements Ai {
 //		return pieces.stream().map()
 //	}
 
-	static Dictionary<Integer, ArrayList<Integer>> populate(Dictionary<Integer, ArrayList<Integer>> nodeDict,
+	static void populate(Dictionary<Integer, ArrayList<Integer>> nodeDict,
 															ImmutableValueGraph<Integer, ImmutableSet<ScotlandYard.Transport>> graph, Integer source){
 		nodeDict.put(source, new ArrayList<Integer>(Arrays.asList(0, null)));
 		for(Object n : graph.nodes()){
@@ -39,7 +39,6 @@ public class MyAi implements Ai {
 				nodeDict.put((Integer) n, new ArrayList<Integer>(Arrays.asList(Integer.MAX_VALUE, null)));
 			}
 		}
-		return nodeDict;
 	}
 
 	private boolean searchList(Integer[] nodes, Integer x) {
@@ -339,7 +338,6 @@ public class MyAi implements Ai {
 		}
 
 		return sequence;
-
 	}
 
 	private Move minimaxer(Integer depth, Board.GameState board) {
