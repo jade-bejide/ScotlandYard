@@ -6,7 +6,7 @@ import java.util.List;
 
 public class Turn {
     private final Piece playedBy;
-    private final List<Piece> remaining;
+    private final List<Piece> remaining; //remaining after the playedBy turn
 
     Turn(Piece playedBy, List<Piece> remaining){
         this.playedBy = playedBy;

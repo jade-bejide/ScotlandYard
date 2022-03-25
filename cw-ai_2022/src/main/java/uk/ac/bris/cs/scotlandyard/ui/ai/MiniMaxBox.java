@@ -6,6 +6,7 @@ import uk.ac.bris.cs.scotlandyard.model.Move;
 import uk.ac.bris.cs.scotlandyard.model.Piece;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class MiniMaxBox {
     /*minimax handler is a stateful singleton class
@@ -17,8 +18,8 @@ public class MiniMaxBox {
      */
     static private MiniMaxBox instance = null;
 
-    private final int depth = 3; //recursion depth
-    private List<Move> preComputedMoves;
+    //private final int depth = 3; //recursion depth
+    private List<Move> optimalMoves; //saves moves between calls
     private final Evaluator evaluator;
 
     private MiniMaxBox(Evaluator evaluator){
@@ -121,8 +122,28 @@ public class MiniMaxBox {
      //@Overloading
     public Move minimax(int depth, Board.GameState board){
         List<Turn> order = makeTurnSequence(depth, board);
-        List<Move> path = minimax(order, depth, board).right(); //start on the first piece in remaining
 
-        return null;
+        System.out.println(order.stream().map(Turn::playedBy).toList());
+//        Piece myTurn = order.get(0).playedBy();
+//        System.out.println(myTurn.toString() + ", " + getBoardRemaining(board));
+//        Move preComputedMove = null;
+//        if(optimalMoves != null && optimalMoves.stream().anyMatch(x -> x.commencedBy().equals(myTurn))){
+//            preComputedMove = optimalMoves //if we have already computer this players move in the tree
+//                    .stream()
+//                    .filter(x -> x.commencedBy().equals(myTurn))
+//                    .toList()
+//                    .get(0);
+//        } concluded that this compromised the AIs ability
+//
+//        if(preComputedMove != null) {
+//            System.out.println(optimalMoves);
+//            System.out.println("saved time!");
+//            return preComputedMove;
+//        }
+        optimalMoves = minimax(order, depth, board).right(); //start on the first piece in remaining
+        //System.out.println(optimalMoves);
+        //System.out.println("calculated move.");
+        return optimalMoves.get(0);
+
     }
 }
