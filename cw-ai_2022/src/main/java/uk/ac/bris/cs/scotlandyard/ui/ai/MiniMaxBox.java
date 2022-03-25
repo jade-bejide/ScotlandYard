@@ -18,7 +18,7 @@ public class MiniMaxBox {
      */
     static private MiniMaxBox instance = null;
 
-    private final int depth = 3; //recursion depth
+    //private final int depth = 3; //recursion depth
     private List<Move> optimalMoves; //saves moves between calls
     private final Evaluator evaluator;
 
@@ -120,23 +120,28 @@ public class MiniMaxBox {
         return sequence;
     }
      //@Overloading
-    public Move minimax(Board.GameState board){
+    public Move minimax(int depth, Board.GameState board){
         List<Turn> order = makeTurnSequence(depth, board);
-        Piece myTurn = order.get(0).playedBy();
-        Move preComputedMove = null;
-        if(optimalMoves != null){
-            preComputedMove = optimalMoves //if we have already computer this players move in the tree
-                    .stream()
-                    .filter(x -> x.commencedBy().equals(myTurn))
-                    .toList()
-                    .get(0);
-        }
-
-        if(preComputedMove != null) {
-            return preComputedMove;
-        }
+        System.out.println(order.stream().map(Turn::playedBy).toList());
+//        Piece myTurn = order.get(0).playedBy();
+//        System.out.println(myTurn.toString() + ", " + getBoardRemaining(board));
+//        Move preComputedMove = null;
+//        if(optimalMoves != null && optimalMoves.stream().anyMatch(x -> x.commencedBy().equals(myTurn))){
+//            preComputedMove = optimalMoves //if we have already computer this players move in the tree
+//                    .stream()
+//                    .filter(x -> x.commencedBy().equals(myTurn))
+//                    .toList()
+//                    .get(0);
+//        } concluded that this compromised the AIs ability
+//
+//        if(preComputedMove != null) {
+//            System.out.println(optimalMoves);
+//            System.out.println("saved time!");
+//            return preComputedMove;
+//        }
         optimalMoves = minimax(order, depth, board).right(); //start on the first piece in remaining
         //System.out.println(optimalMoves);
+        //System.out.println("calculated move.");
         return optimalMoves.get(0);
     }
 }

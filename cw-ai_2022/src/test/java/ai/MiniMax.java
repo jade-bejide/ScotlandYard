@@ -37,7 +37,7 @@ public class MiniMax{
 
         Ai ai = new MyAi();
 
-        testFromMrX(ai, state); //can we predict for mrX
+        //testFromMrX(ai, state); //can we predict for mrX
         testMultipleMoves(ai, state);
     }
 
@@ -48,13 +48,13 @@ public class MiniMax{
     }
 
     private static void testMultipleMoves(Ai ai, Board.GameState state) {
-        long time = System.nanoTime();
         final int turns = 4;
         for(int i = 0; i < turns; i++){
+            long time = System.nanoTime();
             Move move = ai.pickMove(state, new Pair<Long, TimeUnit>(15L, TimeUnit.MILLISECONDS));
             System.out.println(move);
             state = state.advance(move);
+            System.out.println(((System.nanoTime() - time) / 1000000) + "ms");
         }
-        System.out.println(((System.nanoTime() - time) / 1000000) + "ms");
     }
 }

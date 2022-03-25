@@ -365,6 +365,6 @@ public class MyAi implements Ai {
 //		return moves.get(new Random().nextInt(moves.size()));
 		Evaluator shortestPath = new Djikstra();
 		MiniMaxBox miniMaxBox = MiniMaxBox.getInstance(shortestPath);
-		return miniMaxBox.minimax((Board.GameState) board);
+		return miniMaxBox.minimax(3, (Board.GameState) board);
 	}
 }
