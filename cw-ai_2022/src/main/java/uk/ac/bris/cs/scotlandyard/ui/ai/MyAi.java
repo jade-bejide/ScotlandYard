@@ -218,6 +218,21 @@ public class MyAi implements Ai {
 		int selector = new Random().nextInt(whosLeft.size());
 		return whosLeft.get(selector); //who's turn is it in the tree level below this?
 	}
+
+//	private Piece copyPiece(Piece p){
+//		return new Piece() {
+//			@Nonnull
+//			@Override
+//			public String webColour() {
+//				return p.webColour();
+//			}
+//
+//			@Override
+//			public boolean isDetective() {
+//				return p;
+//			}
+//		}
+//	}
 //	private static Move.SingleMove blankMove = new Move.SingleMove(Piece.MrX.MRX, 1 , ScotlandYard.Ticket.TAXI, 1);
 //	//whosLeft - who's yet to take a turn this round (round = { mrx | detectives })
 //  returns a list of moves which are best for for player(s) in the starting round
@@ -240,7 +255,7 @@ public class MyAi implements Ai {
 			whosLeft.remove(Piece.MrX.MRX); //remove whos currently played from whos left to play
 			Piece nextGo = getNextGo(whosLeft); //chooses random of whos left
 			evaluation = Integer.MIN_VALUE;
-			System.out.println(whosLeft.toString() + whosGo.toString());
+			System.out.println(whosLeft.toString() + whosGo.toString() + " -> " + nextGo.toString());
 			for(Move move : moves){ //for all mrx's moves
 				//copy variables we pass to the next recursion level (pass by-ref messed whosLeft up)
 				List<Piece> whosLeftCopy = new ArrayList<Piece>(whosLeft);
@@ -259,10 +274,11 @@ public class MyAi implements Ai {
 			if (whosLeft.isEmpty()) whosLeft = new ArrayList<Piece>(List.of(Piece.MrX.MRX));
 			Piece nextGo = getNextGo(whosLeft); //chooses random of whos left
 			evaluation = Integer.MAX_VALUE;
-			System.out.println(whosLeft.toString() + whosGo.toString());
+			System.out.println(whosLeft.toString() + whosGo.toString() + " -> " + nextGo.toString());
 			for (Move move : moves) { //for all mrx's moves
 				//copy variables we pass to the next recursion level (pass by-ref messed whosLeft up)
 				List<Piece> whosLeftCopy = new ArrayList<Piece>(whosLeft);
+
 				Pair<Integer, List<Move>> child = minimax(whosLeftCopy, nextGo,depth - 1, board.advance(move));
 				if (evaluation >= child.left()) {
 					evaluation = child.left();
@@ -275,7 +291,7 @@ public class MyAi implements Ai {
 	}
 
 	//i'll find you all the pieces currently yet to play in a round! (for the minimax method)
-	private ArrayList<Piece> buildRemaining(Board.GameState board){
+	private ArrayList<Piece> getRemaining(Board.GameState board){
 		List<Move> moves = board.getAvailableMoves().stream().toList();
 		Set<Piece> pieces = new HashSet<Piece>(); //element-distinct set of people in remaining
 		for(Move move : moves){
@@ -284,11 +300,28 @@ public class MyAi implements Ai {
 		return new ArrayList<Piece>(pieces);
 	}
 
+	private List<Piece> getNextRemaining(List<Piece> remaining, Board.GameState board){
+		if(remaining.equals(List.of(Piece.MrX.MRX))) {
+			remaining = new ArrayList<Piece>(board.getPlayers()); //now its all players
+			remaining.remove(Piece.MrX.MRX); //remove whos currently played from whos left to play
+			return remaining;
+		}else /*if detective*/{
+
+		}
+	}
+
+	private List<Piece> makeTurnSequence(int depth, Board.GameState board){
+		List<Piece> pieces = new ArrayList<Piece>(board.getPlayers());
+		for(int i = 0; i < depth; i++){
+
+		}
+	}
+
 	private Move minimaxer(Integer depth, Board.GameState board) {
 		//build gamestate tree for all possible moves of all possible players
 		//use static evaluation to see which outcome favours player
 		//propagate up the tree to discover the best move
-		List<Piece> piecesInPlay = buildRemaining(board); //who's left to take a turn in this round
+		List<Piece> piecesInPlay = getRemaining(board); //who's left to take a turn in this round
 		//sequence of moves taken from current game state that give the best outcome for the current round's players
 		List<Move> path = minimax(piecesInPlay, piecesInPlay.get(0), depth, board).right(); //start on the first piece in remaining
 		System.out.println(path);
