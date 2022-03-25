@@ -18,6 +18,7 @@ import org.checkerframework.checker.units.qual.A;
 import uk.ac.bris.cs.scotlandyard.model.*;
 
 import static uk.ac.bris.cs.scotlandyard.model.ScotlandYard.Ticket.*;
+import static uk.ac.bris.cs.scotlandyard.model.ScotlandYard.Transport.FERRY;
 import static uk.ac.bris.cs.scotlandyard.model.ScotlandYard.defaultDetectiveTickets;
 import static uk.ac.bris.cs.scotlandyard.model.ScotlandYard.defaultMrXTickets;
 
@@ -45,12 +46,17 @@ public class MyAi implements Ai {
 		return Arrays.asList(nodes).contains(x);
 	}
 
+	//pass in the detective so that we can track their tickets
 	private Pair<Integer, List<Integer>> shortestPathFromSourceToDestination(
 			ImmutableValueGraph<Integer, ImmutableSet<ScotlandYard.Transport>> graph,
 			Integer source,
-			Integer destination) {
+			Integer destination,
+			Player detective,
+			Board.GameState board) {
+		//create a mutable copy of the player tickets to test if they can even move to certain nodes
+		Map<ScotlandYard.Ticket, Integer> ticketsCpy = new HashMap<>(Map.copyOf(getPlayerTickets(board, detective.piece())));
 		Dictionary<Integer, ArrayList<Integer>> nodeDict = new Hashtable<Integer, ArrayList<Integer>>();
-
+		List<ScotlandYard.Ticket> ticketsUsed = new ArrayList<ScotlandYard.Ticket>();
 		populate(nodeDict, graph, source);
 
 		int pos = 0;
@@ -66,17 +72,41 @@ public class MyAi implements Ai {
 			for (Object node : succ) {
 				if(graph.edgeValue((Integer) node, currentNode).isPresent() && !searchList(visitedNodes, (Integer)node) && (Integer)node != source) {
 					//each edge value is worth one (working version)
-					Integer distance = (nodeDict.get(currentNode).get(0) + 1);
+					ScotlandYard.Ticket ticketNeeded = graph.edgeValue((Integer) node, currentNode).get().stream().toList().get(0).requiredTicket();
+					int distance = 0;
+//					!needsFerry && ticketsCpy.get(ticketNeeded) > 0
+					boolean needsFerry = graph.edgeValue((Integer) node, currentNode).get().stream().toList().get(0) == FERRY;
+					if (!needsFerry) {
+						distance = nodeDict.get(currentNode).get(0) + 1;
+						//System.out.println("Detective: " + detective + " Ticket Needed: " + ticketNeeded + " Node: " + node);
+						//only update the distance if its shorter than our shortest to that node
+						if(distance < nodeDict.get(node).get(0)) { nodeDict.put((Integer) node, new ArrayList<Integer>(Arrays.asList(distance, currentNode))); }
 
-							//only update the distance if its shorter than our shortest to that node
-							if(distance < nodeDict.get(node).get(0)) { nodeDict.put((Integer) node, new ArrayList<Integer>(Arrays.asList(distance, currentNode))); }
-					//all endpoints can be distinct
-					if(!endPoints.contains((Integer) node)) { endPoints.add((Integer) node); } //add this node to the endpoints list
+						//all endpoints can be distinct
+						if(!endPoints.contains((Integer) node)) { endPoints.add((Integer) node); } //add this node to the endpoints list
+					}
+
+
 
 				}
 			}
-			visitedNodes[pos] = currentNode;
-			pos++;
+
+
+			Integer p = nodeDict.get(currentNode).get(1);
+			if (p != null && graph.edgeValue(p, currentNode).isPresent()) {
+
+				ScotlandYard.Ticket transportTaken = graph.edgeValue(p, currentNode).get().stream().toList().get(0).requiredTicket();
+
+				if (ticketsCpy.get(transportTaken) > 0) {
+
+					visitedNodes[pos] = currentNode;
+					pos++;
+//					ticketsCpy.put(transportTaken, ticketsCpy.get(transportTaken) -1);
+				}
+
+			}
+
+
 			endPoints.removeIf(Predicate.isEqual(currentNode)); //removes current node (its been fully visited)
 			Integer localBestDist = Integer.MAX_VALUE; Integer d;
 			for(Integer node : endPoints){// selects the shortest distance of all endpoints bar the ones already visited
@@ -122,8 +152,6 @@ public class MyAi implements Ai {
 			}
 		}
 
-		System.out.println("Player: " + piece + "Ticket: " + tickets);
-
 		return ImmutableMap.copyOf(tickets);
 	}
 	@Nonnull
@@ -138,7 +166,6 @@ public class MyAi implements Ai {
 		List<Player> players = new ArrayList<Player>();
 
 		for (Piece piece : pieces) {
-
 			if (piece.isDetective()) {
 				boolean hasLocation = board.getDetectiveLocation((Piece.Detective)piece).isPresent();
 				if (hasLocation) {
@@ -191,7 +218,7 @@ public class MyAi implements Ai {
 		List<Integer> distancePerDetective = new ArrayList<>();
 		for (Player detective : detectives) {
 			Integer detectiveLocation = detective.location();
-			var path = shortestPathFromSourceToDestination(board.getSetup().graph, detectiveLocation, mrXLocation);
+			var path = shortestPathFromSourceToDestination(board.getSetup().graph, detectiveLocation, mrXLocation, detective, board);
 			Integer distance = path.left();
 			List<Integer> nodes = path.right(); //may want to use for whatever reason
 			distancePerDetective.add(distance);
@@ -305,6 +332,8 @@ public class MyAi implements Ai {
 		}else /*if detective*/{
 
 		}
+
+		return null;
 	}
 
 	private List<Piece> makeTurnSequence(int depth, Board.GameState board){
@@ -312,6 +341,8 @@ public class MyAi implements Ai {
 		for(int i = 0; i < depth; i++){
 
 		}
+
+		return null;
 	}
 
 	private Move minimaxer(Integer depth, Board.GameState board) {

@@ -42,6 +42,7 @@ public class ShortestPath {
         long start = System.nanoTime();
         MyAi ai = new MyAi();
         long end = System.nanoTime();
+        ai.score(game);
         System.out.println("Approximate Time Taken: " + (end-start));
     }
 }
