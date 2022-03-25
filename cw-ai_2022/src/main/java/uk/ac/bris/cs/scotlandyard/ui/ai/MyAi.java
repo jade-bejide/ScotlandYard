@@ -151,6 +151,7 @@ public class MyAi implements Ai {
 			else {
 				ImmutableList<LogEntry> log = board.getMrXTravelLog();
 				int n = log.size();
+				boolean mrXRound = board.getAvailableMoves().stream().anyMatch(x -> x.commencedBy() == Piece.MrX.MRX);
 				//default location (no significance)
 				int location = 1;
 				if (n > 0) {
@@ -159,11 +160,7 @@ public class MyAi implements Ai {
 					if (hasLocation) {
 						location = lastLog.location().get();
 					}
-				}
-
-				boolean mrXRound = board.getAvailableMoves().stream().anyMatch(x -> x.commencedBy() == Piece.MrX.MRX);
-
-				if (mrXRound) {
+				} else if (mrXRound) {
 					List<Move> grabMoves = board.getAvailableMoves().stream().limit(1).toList();
 					Move grabMove = grabMoves.get(0);
 					location = grabMove.source();
@@ -180,8 +177,7 @@ public class MyAi implements Ai {
 	}
 
 	private List<Player> getDetectives(Board.GameState board) {
-		List<Player> detectives = getPlayers(board).stream().filter(Player::isDetective).toList();
-		return detectives;
+		return getPlayers(board).stream().filter(Player::isDetective).toList();
 	}
 
 	private Player getMrX(Board.GameState board) {
