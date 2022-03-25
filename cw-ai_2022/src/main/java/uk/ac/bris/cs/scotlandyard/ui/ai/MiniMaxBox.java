@@ -122,5 +122,7 @@ public class MiniMaxBox {
     public Move minimax(int depth, Board.GameState board){
         List<Turn> order = makeTurnSequence(depth, board);
         List<Move> path = minimax(order, depth, board).right(); //start on the first piece in remaining
+
+        return null;
     }
 }

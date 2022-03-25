@@ -32,7 +32,7 @@ public class Djikstra implements Evaluator{ //something we can give minimaxbox t
     }
 
     //pass in the detective so that we can track their tickets
-    private Pair<Integer, List<Integer>> shortestPathFromSourceToDestination(
+    private NdTypes.Triple<Integer, List<Integer>, List<ScotlandYard.Ticket>> shortestPathFromSourceToDestination(
             ImmutableValueGraph<Integer, ImmutableSet<ScotlandYard.Transport>> graph,
             Integer source,
             Integer destination,
@@ -66,7 +66,7 @@ public class Djikstra implements Evaluator{ //something we can give minimaxbox t
                         //System.out.println("Detective: " + detective + " Ticket Needed: " + ticketNeeded + " Node: " + node);
                         //only update the distance if its shorter than our shortest to that node
                         if(distance < nodeDict.get(node).get(0)) { nodeDict.put((Integer) node, new ArrayList<Integer>(Arrays.asList(distance, currentNode))); }
-
+                        ticketsUsed.add(ticketNeeded);
                         //all endpoints can be distinct
                         if(!endPoints.contains((Integer) node)) { endPoints.add((Integer) node); } //add this node to the endpoints list
                     }
@@ -110,7 +110,7 @@ public class Djikstra implements Evaluator{ //something we can give minimaxbox t
             path.add(0, currentNode);
         }
 
-        return new Pair<Integer, List<Integer>>(nodeDict.get(destination).get(0), path);//needs to include source
+        return new NdTypes.Triple<Integer, List<Integer>, List<ScotlandYard.Ticket>>(nodeDict.get(destination).get(0), path, ticketsUsed);//needs to include source
     }
 
     //reconstructing the player tickets
@@ -194,8 +194,10 @@ public class Djikstra implements Evaluator{ //something we can give minimaxbox t
         for (Player detective : detectives) {
             Integer detectiveLocation = detective.location();
             var path = shortestPathFromSourceToDestination(board.getSetup().graph, detectiveLocation, mrXLocation, detective, board);
-            Integer distance = path.left();
-            List<Integer> nodes = path.right(); //may want to use for whatever reason
+            Integer distance = path.getFirst();
+            List<Integer> nodes = path.getMiddle(); //may want to use for whatever reason
+            List<ScotlandYard.Ticket> ticketUsed = path.getLast(); //for testing, assert that detective had enough tickets to travel that path
+            System.out.println("Tickets Used: " + ticketUsed);
             distancePerDetective.add(distance);
         }
 

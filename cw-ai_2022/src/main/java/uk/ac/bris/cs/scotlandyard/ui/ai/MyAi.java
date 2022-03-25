@@ -361,10 +361,10 @@ public class MyAi implements Ai {
 			@Nonnull Board board,
 			Pair<Long, TimeUnit> timeoutPair) {
 		// returns a random move, replace with your own implementation
-//		var moves = board.getAvailableMoves().asList();
-//		return moves.get(new Random().nextInt(moves.size()));
+		var moves = board.getAvailableMoves().asList();
+		return moves.get(new Random().nextInt(moves.size()));
 
-		return minimaxer(3, (Board.GameState) board);
+//		return minimaxer(3, (Board.GameState) board);
 
 
 	}
