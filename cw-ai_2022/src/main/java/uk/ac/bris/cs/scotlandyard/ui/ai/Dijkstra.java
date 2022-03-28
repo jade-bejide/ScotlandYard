@@ -187,21 +187,27 @@ public class Dijkstra implements Evaluator{ //something we can give minimaxbox t
         return mrXS.get(0);
     }
 
-    private Integer cumulativeDistance(Board.GameState board, Player mrX, List<Player> detectives) {
+    private int cumulativeDistance(Board.GameState board, Player mrX, List<Player> detectives) {
         int min = Integer.MAX_VALUE;
         Integer mrXLocation = mrX.location();
-        List<Integer> distancePerDetective = new ArrayList<>();
+        List<Integer> distancePath = new ArrayList<>();
+        int totalDistance = 0;
         for (Player detective : detectives) {
             Integer detectiveLocation = detective.location();
             var path = shortestPathFromSourceToDestination(board.getSetup().graph, detectiveLocation, mrXLocation, detective, board);
             Integer distance = path.getFirst();
+            distancePath.add(distance);
+            totalDistance += distance;
             List<Integer> nodes = path.getMiddle(); //may want to use for whatever reason
             List<ScotlandYard.Ticket> ticketUsed = path.getLast(); //for testing, assert that detective had enough tickets to travel that path
-            distancePerDetective.add(distance);
 
         }
 
-        return distancePerDetective.stream().map(x -> (x * x)).reduce(0, (x,y) -> x+y);
+        distancePath.sort((x, y) -> x - y);
+
+
+
+        return totalDistance;
     }
 
     public int score(Board.GameState board) {
