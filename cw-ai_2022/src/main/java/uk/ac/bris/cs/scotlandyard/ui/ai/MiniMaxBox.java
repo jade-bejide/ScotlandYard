@@ -46,7 +46,7 @@ public class MiniMaxBox {
         Piece inPlay = thisTurn.playedBy(); //0th, 1st, 2nd... turn in the tree-level order
         //stream decides which moves were done by the player moving this round
         List<Move> moves = board.getAvailableMoves().stream().filter(x -> x.commencedBy().equals(inPlay)).toList();
-        System.out.println(moves);
+        //System.out.println(moves);
         if(moves.size() == 0) { //this player cant move?
             if (inPlay.isDetective()) { //are we in a detective round?
                 if (board.getAvailableMoves().stream().noneMatch(x -> x.commencedBy().isDetective())){ //are all detective stuck?
@@ -140,7 +140,7 @@ public class MiniMaxBox {
         List<Turn> order = makeTurnSequence(depth, board);
         Evaluator evaluator = order.get(0).playedBy().isMrX() ? eMrX : eDetectives;
         List<Move> optimalMoves = minimax(order, depth, board).right(); //start on the first piece in remaining
+        System.out.println(optimalMoves);
         return optimalMoves.get(0);
-
     }
 }
