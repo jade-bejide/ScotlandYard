@@ -18,32 +18,45 @@ public class MiniMaxBox {
      */
     static private MiniMaxBox instance = null;
 
-    //private final int depth = 3; //recursion depth
-    private List<Move> optimalMoves; //saves moves between calls
-    private final Evaluator evaluator;
+    private final Evaluator eMrX;
+    private final Evaluator eDetectives;
 
-    private MiniMaxBox(Evaluator evaluator){
-        this.evaluator = evaluator;
+    private MiniMaxBox(Evaluator eMrX, Evaluator eDetectives){
+        this.eMrX = eMrX;
+        this.eDetectives = eDetectives;
     }
 
-    static MiniMaxBox getInstance(Evaluator... evaluators){ //singleton
-        Evaluator evaluator = evaluators[0]; //if someone mistakenly passes lots of evaluators we only want the first
-        if(evaluators.length > 1) System.out.println("Warning: MiniMaxBox will take the first of " + evaluators.length + " evaluators.");
-        if(instance == null) { instance = new MiniMaxBox(evaluator); }
+    static MiniMaxBox getInstance(Evaluator eMrX, Evaluator eDetectives){ //singleton
+        //Evaluator evaluator = evaluators[0]; //if someone mistakenly passes lots of evaluators we only want the first
+        //if(evaluators.length > 1) System.out.println("Warning: MiniMaxBox will take the first of " + evaluators.length + " evaluators.");
+        if(instance == null) { instance = new MiniMaxBox(eMrX, eDetectives); }
         return instance;
+    }
+
+    private Pair<Integer, List<Move>> endTheGame(Turn turn, Board.GameState board){
+        return new Pair<Integer, List<Move>>(turn.evaluator().score(board), new ArrayList<Move>());
     }
 
     //  returns a list of moves which are best for for player(s) in the starting round
     private Pair<Integer, List<Move>> minimax(List<Turn> order, int depth, Board.GameState board){
+        Turn thisTurn = order.get(Math.min(order.size() - depth, order.size() - 1)); //this turn is last turn on depth = 0
         //we've reached ample recursion depth
-        if(depth == 0) { return new Pair<Integer, List<Move>>(evaluator.score(board), new ArrayList<Move>()); }
+        if(depth == 0) { return endTheGame(thisTurn, board); }
 
-        Piece inPlay = order.get(order.size() - depth).playedBy(); //0th, 1st, 2nd... turn in the tree-level order
+        Piece inPlay = thisTurn.playedBy(); //0th, 1st, 2nd... turn in the tree-level order
         //stream decides which moves were done by the player moving this round
         List<Move> moves = board.getAvailableMoves().stream().filter(x -> x.commencedBy().equals(inPlay)).toList();
-        //someone has won
-        if(moves.size() == 0) { return new Pair<Integer, List<Move>>(evaluator.score(board), new ArrayList<Move>());  }
-
+        System.out.println(moves);
+        if(moves.size() == 0) { //this player cant move?
+            if (inPlay.isDetective()) { //are we in a detective round?
+                if (board.getAvailableMoves().stream().noneMatch(x -> x.commencedBy().isDetective())){ //are all detective stuck?
+                    return endTheGame(thisTurn, board);
+                }
+                //if theyre not and one can move,
+                return minimax(order, depth - 1, board); //if we can move some detectives then the game isnt over
+            }
+            if (inPlay.isMrX()) return endTheGame(thisTurn, board);
+        }
 
         List<Move> newPath = new ArrayList<Move>(); //keeps compiler smiling (choice is always initialised)
         int evaluation;
@@ -54,7 +67,7 @@ public class MiniMaxBox {
             //System.out.println(inPlay);
             for(Move move : moves){ //for all mrx's moves
                 //copy variables we pass to the next recursion level (pass by-ref messed whosLeft up)
-                Pair<Integer, List<Move>> child = minimax(order,depth - 1, board.advance(move)); //board.advance is causing issues that may be solved by deep copying gamestate
+                Pair<Integer, List<Move>> child = minimax(order, depth - 1, board.advance(move)); //board.advance is causing issues that may be solved by deep copying gamestate
                 if(evaluation <= child.left()){ //child's children's min
                     evaluation = child.left();
                     newPath = child.right(); //sets the movement path in the gametree for a respective good route
@@ -96,22 +109,25 @@ public class MiniMaxBox {
 
     private Turn getTurn(List<Piece> remaining, Board.GameState board){
         Piece inPlay = getNextGo(remaining);
+        Evaluator evaluator;
         if(remaining.equals(List.of(Piece.MrX.MRX))) {
             remaining = new ArrayList<Piece>(board.getPlayers()); //now its all players
             remaining.remove(Piece.MrX.MRX); //remove whos currently played from whos left to play
+            evaluator = eMrX;
         }else /*if detective*/{
             remaining.remove(inPlay);
             if(remaining.isEmpty()) { remaining.add(Piece.MrX.MRX); } //mrx's round
+            evaluator = eDetectives;
         }
 
-        return new Turn(inPlay, remaining);
+        return new Turn(inPlay, remaining, evaluator);
 
     }
 
     private List<Turn> makeTurnSequence(int depth, Board.GameState board){
         List<Turn> sequence = new ArrayList<>();
         List<Piece> remaining = getBoardRemaining(board); //starts from where the game currently is
-        for(int i = 0; i < depth; i++){
+        for(int i = 0; i < depth; i++){ //as many as we require (may exceed game length)
             Turn nextTurn = getTurn(remaining, board);
             sequence.add(nextTurn);
             remaining = nextTurn.remaining(); //getter method
@@ -122,10 +138,8 @@ public class MiniMaxBox {
      //@Overloading
     public Move minimax(int depth, Board.GameState board){
         List<Turn> order = makeTurnSequence(depth, board);
-
-        optimalMoves = minimax(order, depth, board).right(); //start on the first piece in remaining
-        //System.out.println(optimalMoves);
-        //System.out.println("calculated move.");
+        Evaluator evaluator = order.get(0).playedBy().isMrX() ? eMrX : eDetectives;
+        List<Move> optimalMoves = minimax(order, depth, board).right(); //start on the first piece in remaining
         return optimalMoves.get(0);
 
     }

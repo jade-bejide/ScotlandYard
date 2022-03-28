@@ -199,7 +199,7 @@ public class Djikstra implements Evaluator{ //something we can give minimaxbox t
             Integer distance = path.getFirst();
             List<Integer> nodes = path.getMiddle(); //may want to use for whatever reason
             List<ScotlandYard.Ticket> ticketUsed = path.getLast(); //for testing, assert that detective had enough tickets to travel that path
-            System.out.println("Tickets Used: " + ticketUsed);
+            //System.out.println("Tickets Used: " + ticketUsed);
             distancePerDetective.add(distance);
         }
 
@@ -211,6 +211,7 @@ public class Djikstra implements Evaluator{ //something we can give minimaxbox t
         //distance from detectives (tickets away)
         //available moves
         int distance = cumulativeDistance(board, getMrX(board), getDetectives(board));
+        System.out.println("Distance: " + distance);
         int countMoves = board.getAvailableMoves().stream().filter(x -> x.commencedBy() == Piece.MrX.MRX).toList().size();
 
         return distance + countMoves;//distance;
