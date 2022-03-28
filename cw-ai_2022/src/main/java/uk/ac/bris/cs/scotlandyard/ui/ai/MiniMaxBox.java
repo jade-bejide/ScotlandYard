@@ -33,7 +33,7 @@ public class MiniMaxBox {
         return instance;
     }
 
-    //  returns a list of moves which are best for for player(s) in the starting round
+    //  returns a list of moves which are best for player(s) in the starting round
     private Pair<Integer, List<Move>> minimax(List<Turn> order, int depth, Board.GameState board){
         //we've reached ample recursion depth
         if(depth == 0) { return new Pair<Integer, List<Move>>(evaluator.score(board), new ArrayList<Move>()); }
@@ -41,8 +41,9 @@ public class MiniMaxBox {
         Piece inPlay = order.get(order.size() - depth).playedBy(); //0th, 1st, 2nd... turn in the tree-level order
         //stream decides which moves were done by the player moving this round
         List<Move> moves = board.getAvailableMoves().stream().filter(x -> x.commencedBy().equals(inPlay)).toList();
+
         //someone has won
-        if(moves.size() == 0) { return new Pair<Integer, List<Move>>(evaluator.score(board), new ArrayList<Move>());  }
+        if(moves.size() == 0) { minimax(order,depth - 1, board);  }
 
 
         List<Move> newPath = new ArrayList<Move>(); //keeps compiler smiling (choice is always initialised)
