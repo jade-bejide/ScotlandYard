@@ -208,7 +208,8 @@ public class Djikstra implements Evaluator{ //something we can give minimaxbox t
         //distance from detectives (tickets away)
         //available moves
         int distance = cumulativeDistance(board, getMrX(board), getDetectives(board));
+        int countMoves = board.getAvailableMoves().stream().filter(x -> x.commencedBy() == Piece.MrX.MRX).toList().size();
 
-        return distance;//distance;
+        return distance + countMoves;//distance;
     }
 }
