@@ -122,26 +122,11 @@ public class MiniMaxBox {
      //@Overloading
     public Move minimax(int depth, Board.GameState board){
         List<Turn> order = makeTurnSequence(depth, board);
-        //System.out.println(order.stream().map(Turn::playedBy).toList());
-//        Piece myTurn = order.get(0).playedBy();
-//        System.out.println(myTurn.toString() + ", " + getBoardRemaining(board));
-//        Move preComputedMove = null;
-//        if(optimalMoves != null && optimalMoves.stream().anyMatch(x -> x.commencedBy().equals(myTurn))){
-//            preComputedMove = optimalMoves //if we have already computer this players move in the tree
-//                    .stream()
-//                    .filter(x -> x.commencedBy().equals(myTurn))
-//                    .toList()
-//                    .get(0);
-//        } concluded that this compromised the AIs ability
-//
-//        if(preComputedMove != null) {
-//            System.out.println(optimalMoves);
-//            System.out.println("saved time!");
-//            return preComputedMove;
-//        }
+
         optimalMoves = minimax(order, depth, board).right(); //start on the first piece in remaining
         //System.out.println(optimalMoves);
         //System.out.println("calculated move.");
         return optimalMoves.get(0);
+
     }
 }

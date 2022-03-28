@@ -28,7 +28,7 @@ public class NdTypes<T, U, V> {
 
     }
 
-    private static class Triple<T, U, V> extends Tuple<T, U>{
+    static class Triple<T, U, V> extends Tuple<T, U>{
         private final V c;
 
         Triple(T a, U b, V c){
@@ -42,15 +42,15 @@ public class NdTypes<T, U, V> {
     }
 
 
-    public Id<T> getNewID(T t) {
-        return new Id<T>(t);
-    }
-
-    public Tuple<T, U> getNewTuple(T t, U u) {
-        return new Tuple<T, U>(t, u);
-    }
-
-    public Triple<T, U, V> getNewTriple(T t, U u, V v) {
-        return new Triple<T, U, V>(t, u, v);
-    }
+//    public Id<T> getNewID(T t) {
+//        return new Id<T>(t);
+//    }
+//
+//    public Tuple<T, U> getNewTuple(T t, U u) {
+//        return new Tuple<T, U>(t, u);
+//    }
+//
+//    public Triple<T, U, V> getNewTriple(T t, U u, V v) {
+//        return new Triple<T, U, V>(t, u, v);
+//    }
 }
