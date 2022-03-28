@@ -122,7 +122,7 @@ public class MiniMaxBox {
      //@Overloading
     public Move minimax(int depth, Board.GameState board){
         List<Turn> order = makeTurnSequence(depth, board);
-        System.out.println(order.stream().map(Turn::playedBy).toList());
+        //System.out.println(order.stream().map(Turn::playedBy).toList());
 //        Piece myTurn = order.get(0).playedBy();
 //        System.out.println(myTurn.toString() + ", " + getBoardRemaining(board));
 //        Move preComputedMove = null;

@@ -14,6 +14,9 @@ import java.util.function.Predicate;
 import static uk.ac.bris.cs.scotlandyard.model.ScotlandYard.Ticket.*;
 import static uk.ac.bris.cs.scotlandyard.model.ScotlandYard.Transport.FERRY;
 
+import static uk.ac.bris.cs.scotlandyard.model.ScotlandYard.defaultDetectiveTickets;
+import static uk.ac.bris.cs.scotlandyard.model.ScotlandYard.defaultMrXTickets;
+
 public class Djikstra implements Evaluator{ //something we can give minimaxbox to score a game state
 
     private void populate(Dictionary<Integer, ArrayList<Integer>> nodeDict,
