@@ -6,10 +6,14 @@ import com.google.common.graph.ImmutableValueGraph;
 import com.google.common.io.Resources;
 import io.atlassian.fugue.Pair;
 import uk.ac.bris.cs.scotlandyard.model.*;
+import uk.ac.bris.cs.scotlandyard.ui.ai.Dijkstra;
+import uk.ac.bris.cs.scotlandyard.ui.ai.Evaluator;
 import uk.ac.bris.cs.scotlandyard.ui.ai.MyAi;
+import uk.ac.bris.cs.scotlandyard.ui.ai.NdTypes;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -43,6 +47,10 @@ public class ShortestPath {
         MyAi ai = new MyAi();
         long end = System.nanoTime();
         //ai.score(game);
+
+        Dijkstra dijk = new Dijkstra();
+        //var dijks = dijk.shortestPathFromSourceToDestination(defaultGraph, 1, 155, blue, game).getFirst();
+        //System.out.println(dijks);
         System.out.println("Approximate Time Taken: " + (end-start));
     }
 }

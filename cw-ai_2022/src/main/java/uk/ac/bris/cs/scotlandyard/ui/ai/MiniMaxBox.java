@@ -37,7 +37,7 @@ public class MiniMaxBox {
         return new Pair<Integer, List<Move>>(turn.evaluator().score(board), new ArrayList<Move>());
     }
 
-    //  returns a list of moves which are best for for player(s) in the starting round
+    //  returns a list of moves which are best for player(s) in the starting round
     private Pair<Integer, List<Move>> minimax(List<Turn> order, int depth, Board.GameState board){
         Turn thisTurn = order.get(Math.min(order.size() - depth, order.size() - 1)); //this turn is last turn on depth = 0
         //we've reached ample recursion depth
