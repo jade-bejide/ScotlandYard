@@ -1,17 +1,11 @@
 package uk.ac.bris.cs.scotlandyard.ui.ai;
-
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.graph.ImmutableValueGraph;
 import uk.ac.bris.cs.scotlandyard.model.*;
 
-import javax.annotation.Nonnull;
 import java.util.*;
 import java.util.function.Predicate;
 
-import static java.util.Collections.min;
-import static uk.ac.bris.cs.scotlandyard.model.ScotlandYard.Ticket.*;
 import static uk.ac.bris.cs.scotlandyard.model.ScotlandYard.Transport.FERRY;
 import static uk.ac.bris.cs.scotlandyard.ui.ai.BoardHelper.*;
 
