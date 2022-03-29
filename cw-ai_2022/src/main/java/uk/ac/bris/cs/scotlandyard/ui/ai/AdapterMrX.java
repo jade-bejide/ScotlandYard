@@ -78,7 +78,7 @@ public class AdapterMrX implements Evaluator{
         //distance from detectives (tickets away)
         //available moves
         int distance = cumulativeDistance(board, getMrX(board), getDetectives(board));
-        System.out.println(distance);
+        //System.out.println(distance);
         int countMoves = board.getAvailableMoves().stream().filter(x -> x.commencedBy().equals(Piece.MrX.MRX)).toList().size();
 
         if (countMoves == 0) return distance;
