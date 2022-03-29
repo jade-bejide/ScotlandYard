@@ -235,7 +235,7 @@ public class Dijkstra implements Evaluator{ //something we can give minimaxbox t
         //distance from detectives (tickets away)
         //available moves
         int distance = cumulativeDistance(board, getMrX(board), getDetectives(board));
-        System.out.println(distance);
+        //System.out.println(distance);
         int countMoves = board.getAvailableMoves().stream().filter(x -> x.commencedBy().equals(Piece.MrX.MRX)).toList().size();
 
         return distance + countMoves;//current score evaluation based on evaluation on distance and moves available
