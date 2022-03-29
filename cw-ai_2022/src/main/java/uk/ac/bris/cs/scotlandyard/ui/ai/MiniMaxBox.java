@@ -35,21 +35,7 @@ public class MiniMaxBox {
         return new Pair<Integer, List<Move>>(turn.evaluator().score(board), new ArrayList<Move>());
     }
 
-//    private int getNodeValue(int alphaOrBeta,
-//                             List<Move> moves,
-//                             int evaluation,
-//                             Comparator<Integer> compare){ //generates our branches
-//        //System.out.println(inPlay);
-//        for(Move move : moves){ //for all mrx's moves
-//            //copy variables we pass to the next recursion level (pass by-ref messed whosLeft up)
-//            Pair<Integer, List<Move>> child = minimax(order, depth - 1, board.advance(move)); //board.advance is causing issues that may be solved by deep copying gamestate
-//            if(evaluation <= child.left()){ //child's children's min
-//                evaluation = child.left();
-//                newPath = child.right(); //sets the movement path in the gametree for a respective good route
-//                newPath.add(0, move); //prepend this move to the path
-//            }
-//        }
-//    }
+
 
     //  returns a list of moves which are best for player(s) in the starting round
     private Pair<Integer, List<Move>> minimax(List<Turn> order, int depth, int alpha, int beta, Board.GameState board){

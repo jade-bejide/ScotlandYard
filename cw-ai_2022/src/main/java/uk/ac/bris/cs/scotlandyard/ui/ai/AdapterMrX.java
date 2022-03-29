@@ -25,7 +25,7 @@ public class AdapterMrX implements Evaluator{
     //analyses the distances such that Mr X hyperfocuses on the closest detectives to him
     private Integer calcDistanceScore(List<Integer> distances) {
         //compute mean
-        int totalSum = distances.stream().mapToInt(x -> x.intValue()).sum();
+        int totalSum = distances.stream().mapToInt(x -> x).sum();
         int n = distances.size();
         int mean = Math.floorDiv(totalSum, n);
         int sumofSqr = 0;
@@ -33,7 +33,7 @@ public class AdapterMrX implements Evaluator{
             sumofSqr += (int)Math.pow((distance - mean), 2);
         }
 
-        int sd = (int)Math.floorDiv(sumofSqr, (n-1)); //standard deviation
+        int sd = Math.floorDiv(sumofSqr, (n-1)); //standard deviation
 
         Integer closestLocation = min(distances); //get distance of closest detective
         List<Integer> noOutlierDist = new ArrayList<>();
@@ -46,16 +46,15 @@ public class AdapterMrX implements Evaluator{
         }
 
         //compute the mean of these values
-        int goodSum = noOutlierDist.stream().mapToInt(x -> x.intValue()).sum();
+        int goodSum = noOutlierDist.stream().mapToInt(x -> x).sum();
         int goodN = noOutlierDist.size();
 
 
 
-        return (int)Math.floorDiv(goodSum, goodN);
+        return Math.floorDiv(goodSum, goodN);
     }
 
     private int cumulativeDistance(Board.GameState board, Player mrX, List<Player> detectives) {
-        int min = Integer.MAX_VALUE;
         Integer mrXLocation = mrX.location();
         List<Integer> distancePath = new ArrayList<>();
         for (Player detective : detectives) {
