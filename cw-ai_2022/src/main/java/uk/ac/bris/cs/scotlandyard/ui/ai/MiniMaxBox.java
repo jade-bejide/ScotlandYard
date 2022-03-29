@@ -60,6 +60,7 @@ public class MiniMaxBox {
         if(depth == 0) { return evaluate(thisTurn, board); }
 
         Piece inPlay = thisTurn.playedBy(); //0th, 1st, 2nd... turn in the tree-level order
+        System.out.println("Who's playing? " + inPlay);
         //stream decides which moves were done by the player moving this round
         List<Move> moves = board.getAvailableMoves().stream().filter(x -> x.commencedBy().equals(inPlay)).toList();
         //System.out.println(moves);
