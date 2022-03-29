@@ -33,15 +33,31 @@ public class MiniMaxBox {
         return instance;
     }
 
-    private Pair<Integer, List<Move>> endTheGame(Turn turn, Board.GameState board){
+    private Pair<Integer, List<Move>> evaluate(Turn turn, Board.GameState board){
         return new Pair<Integer, List<Move>>(turn.evaluator().score(board), new ArrayList<Move>());
     }
 
+//    private int getNodeValue(int alphaOrBeta,
+//                             List<Move> moves,
+//                             int evaluation,
+//                             Comparator<Integer> compare){ //generates our branches
+//        //System.out.println(inPlay);
+//        for(Move move : moves){ //for all mrx's moves
+//            //copy variables we pass to the next recursion level (pass by-ref messed whosLeft up)
+//            Pair<Integer, List<Move>> child = minimax(order, depth - 1, board.advance(move)); //board.advance is causing issues that may be solved by deep copying gamestate
+//            if(evaluation <= child.left()){ //child's children's min
+//                evaluation = child.left();
+//                newPath = child.right(); //sets the movement path in the gametree for a respective good route
+//                newPath.add(0, move); //prepend this move to the path
+//            }
+//        }
+//    }
+
     //  returns a list of moves which are best for player(s) in the starting round
-    private Pair<Integer, List<Move>> minimax(List<Turn> order, int depth, Board.GameState board){
+    private Pair<Integer, List<Move>> minimax(List<Turn> order, int depth, int alpha, int beta, Board.GameState board){
         Turn thisTurn = order.get(Math.min(order.size() - depth, order.size() - 1)); //this turn is last turn on depth = 0
         //we've reached ample recursion depth
-        if(depth == 0) { return endTheGame(thisTurn, board); }
+        if(depth == 0) { return evaluate(thisTurn, board); }
 
         Piece inPlay = thisTurn.playedBy(); //0th, 1st, 2nd... turn in the tree-level order
         //stream decides which moves were done by the player moving this round
@@ -50,43 +66,54 @@ public class MiniMaxBox {
         if(moves.size() == 0) { //this player cant move?
             if (inPlay.isDetective()) { //are we in a detective round?
                 if (board.getAvailableMoves().stream().noneMatch(x -> x.commencedBy().isDetective())){ //are all detective stuck?
-                    return endTheGame(thisTurn, board);
+                    return evaluate(thisTurn, board);
                 }
                 //if theyre not and one can move,
-                return minimax(order, depth - 1, board); //if we can move some detectives then the game isnt over
+                return minimax(order, depth - 1, alpha, beta, board); //if we can move some detectives then the game isnt over
             }
-            if (inPlay.isMrX()) return endTheGame(thisTurn, board);
+            if (inPlay.isMrX()) return evaluate(thisTurn, board);
         }
 
         List<Move> newPath = new ArrayList<Move>(); //keeps compiler smiling (choice is always initialised)
         int evaluation;
 
-        //maximising player
+        //maximising player which sets alpha
         if(inPlay.isMrX()) {
             evaluation = Integer.MIN_VALUE;
-            //System.out.println(inPlay);
-            for(Move move : moves){ //for all mrx's moves
-                //copy variables we pass to the next recursion level (pass by-ref messed whosLeft up)
-                Pair<Integer, List<Move>> child = minimax(order, depth - 1, board.advance(move)); //board.advance is causing issues that may be solved by deep copying gamestate
-                if(evaluation <= child.left()){ //child's children's min
-                    evaluation = child.left();
+            for(int i = 0; i < moves.size(); i++){ //for all mrx's moves
+                Move move = moves.get(i);
+                //alpha and beta just get passed down the tree at first
+                Pair<Integer, List<Move>> child = minimax(order, depth - 1, alpha, beta, board.advance(move)); //board.advance is causing issues that may be solved by deep copying gamestate
+                int moveValue = child.left();
+                // passing back up the tree occurs on the line below
+                alpha = Math.max(alpha, moveValue); //sets alpha progressively so that pruning can occur
+                if(evaluation < moveValue){ //max
+                    evaluation = moveValue;
                     newPath = child.right(); //sets the movement path in the gametree for a respective good route
                     newPath.add(0, move); //prepend this move to the path
                 }
+                if(beta < alpha) i = moves.size(); //break out of the loop
             }
             return new Pair<Integer, List<Move>>(evaluation, newPath);
         }
         //minimising player
         else /*if(toMove.isDetective())*/ {
             evaluation = Integer.MAX_VALUE;
-            //System.out.println(inPlay);
-            for (Move move : moves) { //for all mrx's moves
-                Pair<Integer, List<Move>> child = minimax(order,depth - 1, board.advance(move));
-                if (evaluation >= child.left()) { //child's children's max
-                    evaluation = child.left();
+            for(int i = 0; i < moves.size(); i++){ //for all mrx's moves
+                Move move = moves.get(i);
+                //alpha and beta just get passed down the tree at first
+                Pair<Integer, List<Move>> child = minimax(order, depth - 1, alpha, beta, board.advance(move)); //board.advance is causing issues that may be solved by deep copying gamestate
+                int moveValue = child.left();
+                beta = Math.min(beta, moveValue); //sets beta progressively so that pruning can occur
+                if(evaluation > moveValue){ //min
+                    evaluation = moveValue;
                     newPath = child.right(); //sets the movement path in the gametree for a respective good route
                     newPath.add(0, move); //prepend this move to the path
                 }
+                if(beta < alpha) {
+                    //System.out.println("");
+                    i = moves.size();
+                }//break out of the loop
             }
             return new Pair<Integer, List<Move>>(evaluation, newPath);
         }
@@ -139,7 +166,7 @@ public class MiniMaxBox {
     public Move minimax(int depth, Board.GameState board){
         List<Turn> order = makeTurnSequence(depth, board);
         Evaluator evaluator = order.get(0).playedBy().isMrX() ? eMrX : eDetectives;
-        List<Move> optimalMoves = minimax(order, depth, board).right(); //start on the first piece in remaining
+        List<Move> optimalMoves = minimax(order, depth, Integer.MIN_VALUE, Integer.MAX_VALUE, board).right(); //start on the first piece in remaining
         System.out.println(optimalMoves);
         return optimalMoves.get(0);
     }
