@@ -42,15 +42,4 @@ public class NdTypes<T, U, V> {
     }
 
 
-//    public Id<T> getNewID(T t) {
-//        return new Id<T>(t);
-//    }
-//
-//    public Tuple<T, U> getNewTuple(T t, U u) {
-//        return new Tuple<T, U>(t, u);
-//    }
-//
-//    public Triple<T, U, V> getNewTriple(T t, U u, V v) {
-//        return new Triple<T, U, V>(t, u, v);
-//    }
 }

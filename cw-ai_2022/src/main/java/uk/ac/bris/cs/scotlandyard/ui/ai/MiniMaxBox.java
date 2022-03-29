@@ -1,9 +1,7 @@
 package uk.ac.bris.cs.scotlandyard.ui.ai;
 
 import io.atlassian.fugue.Pair;
-import uk.ac.bris.cs.scotlandyard.model.Board;
-import uk.ac.bris.cs.scotlandyard.model.Move;
-import uk.ac.bris.cs.scotlandyard.model.Piece;
+import uk.ac.bris.cs.scotlandyard.model.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
