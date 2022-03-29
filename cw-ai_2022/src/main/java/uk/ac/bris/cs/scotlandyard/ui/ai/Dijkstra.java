@@ -68,9 +68,6 @@ public class Dijkstra implements Evaluator{ //something we can give minimaxbox t
                         //all endpoints can be distinct
                         if(!endPoints.contains((Integer) node)) { endPoints.add((Integer) node); } //add this node to the endpoints list
                     }
-
-
-
                 }
             }
 
@@ -195,7 +192,8 @@ public class Dijkstra implements Evaluator{ //something we can give minimaxbox t
         for (Player detective : detectives) {
             Integer detectiveLocation = detective.location();
             var path = shortestPathFromSourceToDestination(board.getSetup().graph, detectiveLocation, mrXLocation, detective, board);
-            Integer distance = path.getFirst();
+            int distance = path.getFirst();
+            //System.out.println(distance);
             distancePath.add(distance);
             totalDistance += distance;
             List<Integer> nodes = path.getMiddle(); //may want to use for whatever reason
@@ -215,7 +213,6 @@ public class Dijkstra implements Evaluator{ //something we can give minimaxbox t
         //distance from detectives (tickets away)
         //available moves
         int distance = cumulativeDistance(board, getMrX(board), getDetectives(board));
-        //System.out.println(distance);
         int countMoves = board.getAvailableMoves().stream().filter(x -> x.commencedBy().equals(Piece.MrX.MRX)).toList().size();
 
         return distance + countMoves;//current score evaluation based on evaluation on distance and moves available
