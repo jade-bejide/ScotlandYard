@@ -1,9 +1,6 @@
 package uk.ac.bris.cs.scotlandyard.ui.ai;
 
-import uk.ac.bris.cs.scotlandyard.model.Board;
-import uk.ac.bris.cs.scotlandyard.model.Piece;
-import uk.ac.bris.cs.scotlandyard.model.Player;
-import uk.ac.bris.cs.scotlandyard.model.ScotlandYard;
+import uk.ac.bris.cs.scotlandyard.model.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +22,7 @@ public class AdapterMrX implements Evaluator{
         return mrXS.get(0);
     }
 
+    //analyses the distances such that Mr X hyperfocuses on the closest detectives to him
     private Integer calcDistanceScore(List<Integer> distances) {
         //compute mean
         int totalSum = distances.stream().mapToInt(x -> x.intValue()).sum();
@@ -60,20 +58,16 @@ public class AdapterMrX implements Evaluator{
         int min = Integer.MAX_VALUE;
         Integer mrXLocation = mrX.location();
         List<Integer> distancePath = new ArrayList<>();
-        int totalDistance = 0;
         for (Player detective : detectives) {
             Integer detectiveLocation = detective.location();
             var path = d.shortestPathFromSourceToDestination(board.getSetup().graph, detectiveLocation, mrXLocation, detective, board);
             int distance = path.getFirst();
             //System.out.println(distance);
             distancePath.add(distance);
-            totalDistance += (int)Math.sqrt(distance);
             List<Integer> nodes = path.getMiddle(); //may want to use for whatever reason
             List<ScotlandYard.Ticket> ticketUsed = path.getLast(); //for testing, assert that detective had enough tickets to travel that path
 
         }
-
-        //distancePath.sort((x, y) -> x - y);
 
         return calcDistanceScore(distancePath);
     }
@@ -88,7 +82,8 @@ public class AdapterMrX implements Evaluator{
         System.out.println(distance);
         int countMoves = board.getAvailableMoves().stream().filter(x -> x.commencedBy().equals(Piece.MrX.MRX)).toList().size();
 
-        return (int)Math.floor(0.7 * distance + 0.3 * countMoves);//current score evaluation based on evaluation on distance and moves available
+        if (countMoves == 0) return distance;
+        else return (int)Math.floor(0.7 * distance + 0.3 * countMoves);//current score evaluation based on evaluation on distance and moves available
     }
 }
 

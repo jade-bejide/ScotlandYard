@@ -13,7 +13,7 @@ import java.util.function.Predicate;
 import static java.util.Collections.min;
 import static uk.ac.bris.cs.scotlandyard.model.ScotlandYard.Ticket.*;
 import static uk.ac.bris.cs.scotlandyard.model.ScotlandYard.Transport.FERRY;
-import static uk.ac.bris.cs.scotlandyard.ui.ai.BoardHelper.*;
+import static uk.ac.bris.cs.scotlandyard.ui.ai.BoardHelper.getPlayerTickets;
 
 public class Dijkstra{ //something we can give minimaxbox to score a game state
 
@@ -55,7 +55,7 @@ public class Dijkstra{ //something we can give minimaxbox to score a game state
             //getting successors
             Object[] succ = graph.successors(currentNode).toArray();
             for (Object node : succ) {
-                if(graph.edgeValue((Integer) node, currentNode).isPresent() && !searchList(visitedNodes, (Integer)node) && (Integer)node != source) {
+                if(graph.edgeValue((Integer) node, currentNode).isPresent() && !searchList(visitedNodes, (Integer)node) && !(node.equals(source))) {
                     //each edge value is worth one (working version)
                     ScotlandYard.Ticket ticketNeeded = graph.edgeValue((Integer) node, currentNode).get().stream().toList().get(0).requiredTicket();
                     Integer distance = 0;
@@ -107,8 +107,6 @@ public class Dijkstra{ //something we can give minimaxbox to score a game state
             path.add(0, currentNode);
         }
 
-        //System.out.println(detective.piece() + " " + nodeDict.get(destination).get(0));
-        System.out.println("Total Distance: " + nodeDict.get(destination).get(0) + " Based on: " + detective.piece());
         return new NdTypes.Triple<Integer, List<Integer>, List<ScotlandYard.Ticket>>(nodeDict.get(destination).get(0), path, ticketsUsed);//needs to include source
     }
 }
