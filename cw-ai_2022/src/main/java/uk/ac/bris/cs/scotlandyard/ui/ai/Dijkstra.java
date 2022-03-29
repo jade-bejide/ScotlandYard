@@ -14,7 +14,7 @@ import static java.util.Collections.min;
 import static uk.ac.bris.cs.scotlandyard.model.ScotlandYard.Ticket.*;
 import static uk.ac.bris.cs.scotlandyard.model.ScotlandYard.Transport.FERRY;
 
-public class Dijkstra implements Evaluator{ //something we can give minimaxbox to score a game state
+public class Dijkstra{ //something we can give minimaxbox to score a game state
 
     private void populate(Dictionary<Integer, ArrayList<Integer>> nodeDict,
                                                             ImmutableValueGraph<Integer, ImmutableSet<ScotlandYard.Transport>> graph, Integer source){
