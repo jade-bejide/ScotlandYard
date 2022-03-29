@@ -237,14 +237,4 @@ public class Dijkstra{ //something we can give minimaxbox to score a game state
     }
 
 
-    public int score(Board.GameState board) {
-        //after calling minimax, for static evaluation we need to score elements:
-        //distance from detectives (tickets away)
-        //available moves
-        int distance = cumulativeDistance(board, getMrX(board), getDetectives(board));
-        int countMoves = board.getAvailableMoves().stream().filter(x -> x.commencedBy().equals(Piece.MrX.MRX)).toList().size();
-
-        return distance;
-//        return (int)Math.floor(0.7 * distance + 0.3 * countMoves);//current score evaluation based on evaluation on distance and moves available
-    }
 }
