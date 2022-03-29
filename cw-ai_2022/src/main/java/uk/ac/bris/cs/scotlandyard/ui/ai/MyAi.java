@@ -364,9 +364,10 @@ public class MyAi implements Ai {
 
 //		var moves = board.getAvailableMoves().asList();
 //		return moves.get(new Random().nextInt(moves.size()));
-		Evaluator shortestPathMrX = new Dijkstra();
+		Evaluator mrXBrain = new AdapterMrX(Arrays.asList(1, 2));
+		Evaluator detectiveBrain = new AdapterDetective(Arrays.asList(1, 2));
 		//Evaluator findMrXforDetectives =
-		MiniMaxBox miniMaxBox = MiniMaxBox.getInstance(shortestPathMrX, shortestPathMrX);
+		MiniMaxBox miniMaxBox = MiniMaxBox.getInstance(mrXBrain, mrXBrain);
 
 		return miniMaxBox.minimax(3, (Board.GameState) board);
 
