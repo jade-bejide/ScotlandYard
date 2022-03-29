@@ -187,6 +187,24 @@ public class Dijkstra implements Evaluator{ //something we can give minimaxbox t
         return mrXS.get(0);
     }
 
+    //we want to exclude values that are very far
+    private Integer calcDistanceScore(List<Integer> distances) {
+        //compute mean
+        int totalSum = distances.stream().mapToInt(x -> x.intValue()).sum();
+        int n = distances.size();
+        int mean = Math.floorDiv(totalSum, n);
+        int sumofSqr = 0;
+        for (Integer distance : distances) {
+            sumofSqr += (int)Math.pow((distance - mean), 2);
+        }
+
+        int sd = (int)Math.floorDiv(sumofSqr, (n-1)); //standard deviation
+
+
+
+        return -1;
+    }
+
     private int cumulativeDistance(Board.GameState board, Player mrX, List<Player> detectives) {
         int min = Integer.MAX_VALUE;
         Integer mrXLocation = mrX.location();
@@ -197,7 +215,7 @@ public class Dijkstra implements Evaluator{ //something we can give minimaxbox t
             var path = shortestPathFromSourceToDestination(board.getSetup().graph, detectiveLocation, mrXLocation, detective, board);
             Integer distance = path.getFirst();
             distancePath.add(distance);
-            totalDistance += distance;
+            totalDistance += (int)Math.sqrt(distance);
             List<Integer> nodes = path.getMiddle(); //may want to use for whatever reason
             List<ScotlandYard.Ticket> ticketUsed = path.getLast(); //for testing, assert that detective had enough tickets to travel that path
 
@@ -209,6 +227,8 @@ public class Dijkstra implements Evaluator{ //something we can give minimaxbox t
 
         return totalDistance;
     }
+
+
 
     public int score(Board.GameState board) {
         //after calling minimax, for static evaluation we need to score elements:
