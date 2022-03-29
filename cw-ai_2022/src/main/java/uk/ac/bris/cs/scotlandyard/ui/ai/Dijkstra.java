@@ -10,6 +10,7 @@ import javax.annotation.Nonnull;
 import java.util.*;
 import java.util.function.Predicate;
 
+import static java.util.Collections.min;
 import static uk.ac.bris.cs.scotlandyard.model.ScotlandYard.Ticket.*;
 import static uk.ac.bris.cs.scotlandyard.model.ScotlandYard.Transport.FERRY;
 
@@ -18,9 +19,9 @@ public class Dijkstra implements Evaluator{ //something we can give minimaxbox t
     private void populate(Dictionary<Integer, ArrayList<Integer>> nodeDict,
                                                             ImmutableValueGraph<Integer, ImmutableSet<ScotlandYard.Transport>> graph, Integer source){
         nodeDict.put(source, new ArrayList<Integer>(Arrays.asList(0, null)));
-        for(Object n : graph.nodes()){
-            if((Integer) n != source) {
-                nodeDict.put((Integer) n, new ArrayList<Integer>(Arrays.asList(Integer.MAX_VALUE, null)));
+        for(Integer n : graph.nodes()){
+            if( !n.equals(source)) {
+                nodeDict.put(n, new ArrayList<Integer>(Arrays.asList(Integer.MAX_VALUE, null)));
             }
         }
     }
@@ -106,7 +107,7 @@ public class Dijkstra implements Evaluator{ //something we can give minimaxbox t
         }
 
         //System.out.println(detective.piece() + " " + nodeDict.get(destination).get(0));
-
+        System.out.println("Total Distance: " + nodeDict.get(destination).get(0) + " Based on: " + detective.piece());
         return new NdTypes.Triple<Integer, List<Integer>, List<ScotlandYard.Ticket>>(nodeDict.get(destination).get(0), path, ticketsUsed);//needs to include source
     }
 
@@ -184,6 +185,38 @@ public class Dijkstra implements Evaluator{ //something we can give minimaxbox t
         return mrXS.get(0);
     }
 
+    //we want to exclude values that are very far
+    private Integer calcDistanceScore(List<Integer> distances) {
+        //compute mean
+        int totalSum = distances.stream().mapToInt(x -> x.intValue()).sum();
+        int n = distances.size();
+        int mean = Math.floorDiv(totalSum, n);
+        int sumofSqr = 0;
+        for (Integer distance : distances) {
+            sumofSqr += (int)Math.pow((distance - mean), 2);
+        }
+
+        int sd = (int)Math.floorDiv(sumofSqr, (n-1)); //standard deviation
+
+        Integer closestLocation = min(distances); //get distance of closest detective
+        List<Integer> noOutlierDist = new ArrayList<>();
+        noOutlierDist.add(closestLocation);
+        distances.remove(closestLocation);
+
+        //only consider statistically close distances (1sd)
+        for (Integer distance : distances) {
+            if (distance <= closestLocation + sd) noOutlierDist.add(distance);
+        }
+
+        //compute the mean of these values
+        int goodSum = noOutlierDist.stream().mapToInt(x -> x.intValue()).sum();
+        int goodN = noOutlierDist.size();
+
+
+
+        return (int)Math.floorDiv(goodSum, goodN);
+    }
+
     private int cumulativeDistance(Board.GameState board, Player mrX, List<Player> detectives) {
         int min = Integer.MAX_VALUE;
         Integer mrXLocation = mrX.location();
@@ -195,26 +228,29 @@ public class Dijkstra implements Evaluator{ //something we can give minimaxbox t
             int distance = path.getFirst();
             //System.out.println(distance);
             distancePath.add(distance);
-            totalDistance += distance;
+            totalDistance += (int)Math.sqrt(distance);
             List<Integer> nodes = path.getMiddle(); //may want to use for whatever reason
             List<ScotlandYard.Ticket> ticketUsed = path.getLast(); //for testing, assert that detective had enough tickets to travel that path
 
         }
 
-        distancePath.sort((x, y) -> x - y);
+        //distancePath.sort((x, y) -> x - y);
 
 
 
-        return totalDistance;
+        return calcDistanceScore(distancePath);
     }
+
+
 
     public int score(Board.GameState board) {
         //after calling minimax, for static evaluation we need to score elements:
         //distance from detectives (tickets away)
         //available moves
         int distance = cumulativeDistance(board, getMrX(board), getDetectives(board));
+        System.out.println(distance);
         int countMoves = board.getAvailableMoves().stream().filter(x -> x.commencedBy().equals(Piece.MrX.MRX)).toList().size();
 
-        return distance + countMoves;//current score evaluation based on evaluation on distance and moves available
+        return (int)Math.floor(0.7 * distance + 0.3 * countMoves);//current score evaluation based on evaluation on distance and moves available
     }
 }
