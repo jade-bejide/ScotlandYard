@@ -54,7 +54,7 @@ public class Dijkstra implements Evaluator{ //something we can give minimaxbox t
             //getting successors
             Object[] succ = graph.successors(currentNode).toArray();
             for (Object node : succ) {
-                if(graph.edgeValue((Integer) node, currentNode).isPresent() && !searchList(visitedNodes, (Integer)node) && (Integer)node != source) {
+                if(graph.edgeValue((Integer) node, currentNode).isPresent() && !searchList(visitedNodes, (Integer)node) && !(node.equals(source))) {
                     //each edge value is worth one (working version)
                     ScotlandYard.Ticket ticketNeeded = graph.edgeValue((Integer) node, currentNode).get().stream().toList().get(0).requiredTicket();
                     Integer distance = 0;
@@ -106,8 +106,6 @@ public class Dijkstra implements Evaluator{ //something we can give minimaxbox t
             path.add(0, currentNode);
         }
 
-        //System.out.println(detective.piece() + " " + nodeDict.get(destination).get(0));
-        System.out.println("Total Distance: " + nodeDict.get(destination).get(0) + " Based on: " + detective.piece());
         return new NdTypes.Triple<Integer, List<Integer>, List<ScotlandYard.Ticket>>(nodeDict.get(destination).get(0), path, ticketsUsed);//needs to include source
     }
 
@@ -218,17 +216,14 @@ public class Dijkstra implements Evaluator{ //something we can give minimaxbox t
     }
 
     private int cumulativeDistance(Board.GameState board, Player mrX, List<Player> detectives) {
-        int min = Integer.MAX_VALUE;
         Integer mrXLocation = mrX.location();
         List<Integer> distancePath = new ArrayList<>();
-        int totalDistance = 0;
         for (Player detective : detectives) {
             Integer detectiveLocation = detective.location();
             var path = shortestPathFromSourceToDestination(board.getSetup().graph, detectiveLocation, mrXLocation, detective, board);
             int distance = path.getFirst();
             //System.out.println(distance);
             distancePath.add(distance);
-            totalDistance += (int)Math.sqrt(distance);
             List<Integer> nodes = path.getMiddle(); //may want to use for whatever reason
             List<ScotlandYard.Ticket> ticketUsed = path.getLast(); //for testing, assert that detective had enough tickets to travel that path
 
@@ -242,15 +237,14 @@ public class Dijkstra implements Evaluator{ //something we can give minimaxbox t
     }
 
 
-
     public int score(Board.GameState board) {
         //after calling minimax, for static evaluation we need to score elements:
         //distance from detectives (tickets away)
         //available moves
         int distance = cumulativeDistance(board, getMrX(board), getDetectives(board));
-        System.out.println(distance);
         int countMoves = board.getAvailableMoves().stream().filter(x -> x.commencedBy().equals(Piece.MrX.MRX)).toList().size();
 
-        return (int)Math.floor(0.7 * distance + 0.3 * countMoves);//current score evaluation based on evaluation on distance and moves available
+        return distance;
+//        return (int)Math.floor(0.7 * distance + 0.3 * countMoves);//current score evaluation based on evaluation on distance and moves available
     }
 }

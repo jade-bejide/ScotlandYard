@@ -60,7 +60,7 @@ public class MiniMaxBox {
         if(depth == 0) { return evaluate(thisTurn, board); }
 
         Piece inPlay = thisTurn.playedBy(); //0th, 1st, 2nd... turn in the tree-level order
-        System.out.println("Who's playing? " + inPlay);
+
         //stream decides which moves were done by the player moving this round
         List<Move> moves = board.getAvailableMoves().stream().filter(x -> x.commencedBy().equals(inPlay)).toList();
         //System.out.println(moves);
@@ -173,7 +173,6 @@ public class MiniMaxBox {
         List<Turn> order = makeTurnSequence(depth, board);
         Evaluator evaluator = order.get(0).playedBy().isMrX() ? eMrX : eDetectives;
         List<Move> optimalMoves = minimax(order, depth, Integer.MIN_VALUE, Integer.MAX_VALUE, board).right(); //start on the first piece in remaining
-        System.out.println(optimalMoves);
         return optimalMoves.get(0);
     }
 }
