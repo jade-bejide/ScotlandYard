@@ -56,7 +56,7 @@ public class Dijkstra implements Evaluator{ //something we can give minimaxbox t
                 if(graph.edgeValue((Integer) node, currentNode).isPresent() && !searchList(visitedNodes, (Integer)node) && (Integer)node != source) {
                     //each edge value is worth one (working version)
                     ScotlandYard.Ticket ticketNeeded = graph.edgeValue((Integer) node, currentNode).get().stream().toList().get(0).requiredTicket();
-                    int distance = 0;
+                    Integer distance = 0;
 //					!needsFerry && ticketsCpy.get(ticketNeeded) > 0
                     boolean needsFerry = graph.edgeValue((Integer) node, currentNode).get().stream().toList().get(0) == FERRY;
                     if (!needsFerry) {
