@@ -4,6 +4,8 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Nonnull;
+
+import com.google.common.collect.ImmutableSet;
 import io.atlassian.fugue.Pair;
 import uk.ac.bris.cs.scotlandyard.model.*;
 
@@ -21,6 +23,7 @@ public class Cy implements Ai {
 		Evaluator detectiveBrain = new DetectiveEvaluator(Arrays.asList(0.5, 0.5));
 		//Evaluator findMrXforDetectives =
 		MiniMaxBox miniMaxBox = MiniMaxBox.getInstance(mrXBrain, detectiveBrain);
+
 
 		return miniMaxBox.minimax(3, (Board.GameState) board);
 

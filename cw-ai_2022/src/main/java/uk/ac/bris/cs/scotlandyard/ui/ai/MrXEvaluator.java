@@ -1,5 +1,6 @@
 package uk.ac.bris.cs.scotlandyard.ui.ai;
 
+import com.google.common.collect.ImmutableSet;
 import uk.ac.bris.cs.scotlandyard.model.*;
 
 import java.util.ArrayList;
@@ -79,8 +80,7 @@ public class MrXEvaluator implements Evaluator{
         int distance = cumulativeDistance(board, getMrX(board), getDetectives(board));
         int countMoves = moves.size();//board.getAvailableMoves().stream().filter(x -> x.commencedBy().equals(Piece.MrX.MRX)).toList().size();
 //
-        System.out.println(distance + " and also u-uh uhm " + moves);
-
+        //System.out.println(distance + " and also u-uh uhm " + moves);
         if (countMoves == 0) {
             System.out.println("MrX Eval: " + distance);
             return distance;

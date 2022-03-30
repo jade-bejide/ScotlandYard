@@ -84,7 +84,7 @@ public class MiniMaxBox {
         }
         //minimising player
         else /*if(toMove.isDetective())*/ {
-            evaluation = Integer.MAX_VALUE;
+            evaluation = Double.MAX_VALUE;
             for(int i = 0; i < moves.size(); i++){ //for all mrx's moves
                 Move move = moves.get(i);
                 //alpha and beta just get passed down the tree at first

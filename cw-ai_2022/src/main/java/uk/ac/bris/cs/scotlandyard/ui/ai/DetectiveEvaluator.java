@@ -1,6 +1,7 @@
 package uk.ac.bris.cs.scotlandyard.ui.ai;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import uk.ac.bris.cs.scotlandyard.model.*;
 
 import java.util.HashSet;
@@ -70,7 +71,7 @@ public class DetectiveEvaluator implements Evaluator{
         isRevealed(board);
         int distance = getDistanceToMrX(inPlay, board); /*some distance function*/;
         int countMoves = moves.size();
-        System.out.println(distance + " and also u-uh uhm " + countMoves);
+        //System.out.println(distance + " and also u-uh uhm " + countMoves);
 
         return (weights.get(0) * distance) - (weights.get(1) * countMoves);
     }
