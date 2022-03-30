@@ -75,7 +75,9 @@ public class DetectiveEvaluator implements Evaluator{
                 .toList()
                 .size();
 
-        return (weights.get(0) * distance) - (weights.get(1) * moveCount);
+        System.out.println("Detective Eval: " + distance);
+//        return (int)Math.floor(((weights.get(0)/100) * distance) - ((weights.get(1)/100) * moveCount));
+        return distance;
     }
 
 }

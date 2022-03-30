@@ -17,8 +17,8 @@ public class Cy implements Ai {
 
 //		var moves = board.getAvailableMoves().asList();
 //		return moves.get(new Random().nextInt(moves.size()));
-		Evaluator mrXBrain = new MrXEvaluator(Arrays.asList(7, 3));
-		Evaluator detectiveBrain = new DetectiveEvaluator(Arrays.asList(1, 1));
+		Evaluator mrXBrain = new MrXEvaluator(Arrays.asList(70, 30));
+		Evaluator detectiveBrain = new DetectiveEvaluator(Arrays.asList(50, 50));
 		//Evaluator findMrXforDetectives =
 		MiniMaxBox miniMaxBox = MiniMaxBox.getInstance(mrXBrain, detectiveBrain);
 
