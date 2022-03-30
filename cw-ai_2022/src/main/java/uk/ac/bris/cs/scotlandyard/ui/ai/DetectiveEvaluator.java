@@ -1,5 +1,6 @@
 package uk.ac.bris.cs.scotlandyard.ui.ai;
 
+import com.google.common.collect.ImmutableList;
 import uk.ac.bris.cs.scotlandyard.model.*;
 
 import java.util.HashSet;
@@ -19,9 +20,8 @@ public class DetectiveEvaluator implements Evaluator{
     }
 
     //get and set boundaries
-    public void setMrXBoundary(Move.SingleMove revealedMove, Board.GameState board) {
-        int revealedLocation = revealedMove.destination;
 
+    public void setMrXBoundary(Integer revealedLocation, Board.GameState board) {
         Set<Integer> boundary = new HashSet<Integer>(board.getSetup().graph.successors(revealedLocation));
 
         for (Integer node : boundary) {
@@ -31,20 +31,19 @@ public class DetectiveEvaluator implements Evaluator{
         possibleMrXLocations = boundary;
     }
 
-    public void setMrXBoundary(Move.DoubleMove revealedMove, Board.GameState board) {
-        Integer revealedLocation = revealedMove.destination2;
+//    public Set<Integer> getMrXBoundary() {
+//        return possibleMrXLocations;
+//    }
 
-        Set<Integer> boundary = new HashSet<Integer>(board.getSetup().graph.successors(revealedLocation));
+    //checks if Mr X's location has been revealed and update Mr X boundary as appropriate
+    private void isRevealed(Board.GameState board) {
+        ImmutableList<LogEntry> log = board.getMrXTravelLog();
+        int n = log.size();
 
-        for (Integer node : boundary) {
-            boundary.addAll(board.getSetup().graph.successors(node));
+        LogEntry currentLog = log.get(n-1);
+        if (currentLog.location().isPresent()) {
+            if (!log.get(n-1).location().isEmpty()) setMrXBoundary(currentLog.location().get(), board);
         }
-
-        possibleMrXLocations = boundary;
-    }
-
-    public Set<Integer> getMrXBoundary() {
-        return possibleMrXLocations;
     }
 
     private int getDistanceToMrX(Piece inPlay, Board.GameState board){
@@ -59,6 +58,7 @@ public class DetectiveEvaluator implements Evaluator{
 
     @Override
     public int score(Piece inPlay, Board.GameState board) {
+        isRevealed(board);
         int distance = getDistanceToMrX(inPlay, board); /*some distance function*/;
         int moveCount = board.getAvailableMoves()
                 .stream()
@@ -66,7 +66,7 @@ public class DetectiveEvaluator implements Evaluator{
                 .toList()
                 .size();
 
-        return 0;
+        return distance - moveCount;
     }
 
 }
