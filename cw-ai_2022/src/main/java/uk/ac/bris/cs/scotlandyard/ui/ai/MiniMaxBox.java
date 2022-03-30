@@ -32,7 +32,7 @@ public class MiniMaxBox {
     }
 
     private Pair<Integer, List<Move>> evaluate(Turn turn, Board.GameState board){
-        return new Pair<Integer, List<Move>>(turn.evaluator().score(board), new ArrayList<Move>());
+        return new Pair<Integer, List<Move>>(turn.evaluator().score(turn.playedBy(), board), new ArrayList<Move>());
     }
 
 

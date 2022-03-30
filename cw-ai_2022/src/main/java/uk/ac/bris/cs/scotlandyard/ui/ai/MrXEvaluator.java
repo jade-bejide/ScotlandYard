@@ -73,7 +73,7 @@ public class MrXEvaluator implements Evaluator{
 
 
 
-    public int score(Board.GameState board) {
+    public int score(Piece inPlay, Board.GameState board) {
         //after calling minimax, for static evaluation we need to score elements:
         //distance from detectives (tickets away)
         //available moves

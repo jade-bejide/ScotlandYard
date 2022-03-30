@@ -1,11 +1,13 @@
 package uk.ac.bris.cs.scotlandyard.ui.ai;
 
-import uk.ac.bris.cs.scotlandyard.model.Board;
-import uk.ac.bris.cs.scotlandyard.model.Move;
+import uk.ac.bris.cs.scotlandyard.model.*;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import uk.ac.bris.cs.scotlandyard.model.Piece;
+
+import java.util.*;
 
 public class DetectiveEvaluator implements Evaluator{
     private final Dijkstra d = new Dijkstra(); //what we're adapting
@@ -45,8 +47,25 @@ public class DetectiveEvaluator implements Evaluator{
         return possibleMrXLocations;
     }
 
+    private int getDistanceToMrX(Piece inPlay, Board.GameState board){
+        Random rand = new Random();
+        List<Integer> possibleMrXLocationsList = new ArrayList<Integer>(possibleMrXLocations);
+        Integer targetNode = possibleMrXLocationsList.get(rand.nextInt(possibleMrXLocations.size()));
+        Player detective = BoardHelper.getDetectiveOnPiece(board, inPlay);
+        return d.shortestPathFromSourceToDestination(board.getSetup().graph, detective.location(), targetNode, detective, board)
+                .getFirst(); //for refactoring in reference to passing board in
+
+    }
+
     @Override
-    public int score(Board.GameState board) {
+    public int score(Piece inPlay, Board.GameState board) {
+        int distance = getDistanceToMrX(inPlay, board); /*some distance function*/;
+        int moveCount = board.getAvailableMoves()
+                .stream()
+                .filter(x -> x.commencedBy().equals(inPlay))
+                .toList()
+                .size();
+
         return 0;
     }
 
