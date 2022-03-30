@@ -18,6 +18,7 @@ public class MiniMaxBox {
 
     private final Evaluator eMrX;
     private final Evaluator eDetectives;
+    private int nodesExplored, nodesPruned; //debug property
 
     private MiniMaxBox(Evaluator eMrX, Evaluator eDetectives){
         this.eMrX = eMrX;
@@ -38,14 +39,15 @@ public class MiniMaxBox {
     //  returns a list of moves which are best for player(s) in the starting round
     private Pair<Double, List<Move>> minimax(List<Turn> order, int depth, double alpha, double beta,
                                              List<Move> previousPiecesMoves, Board.GameState board){
+        nodesExplored++;
         Turn thisTurn = order.get(Math.min(order.size() - depth, order.size() - 1)); //this turn is last turn on depth = 0
         Piece inPlay = thisTurn.playedBy(); //0th, 1st, 2nd... turn in the tree-level order
         //stream decides which moves were done by the player moving this round
         List<Move> moves = board.getAvailableMoves().stream().filter(x -> x.commencedBy().equals(inPlay)).toList();
         //we've reached ample recursion depth
         if(depth == 0) {
-            System.out.println(inPlay + " has moves " + previousPiecesMoves +
-                    " even though remaining is " + BoardHelper.getRemaining(board));
+            //System.out.println(inPlay + " has moves " + previousPiecesMoves +
+            //        " even though remaining is " + BoardHelper.getRemaining(board));
             return evaluate(thisTurn, previousPiecesMoves, board);
         }
         //we pass in previous pieces moves, because its the previous piece's moves that are being evaluated
@@ -81,8 +83,7 @@ public class MiniMaxBox {
                     newPath.add(0, move); //prepend this move to the path
                 }
                 if(beta <= alpha) { //the right of the subtree will be lower than what we've got
-                    //System.out.println("pruned on maximising player, the best we could expect for mrX is <= " +
-                            //beta + " on the right subtree, whereas we already have " + alpha);
+                    nodesPruned++;
                     i = moves.size(); //break out of the loop
                 }
             }
@@ -103,8 +104,7 @@ public class MiniMaxBox {
                     newPath.add(0, move); //prepend this move to the path
                 }
                 if(beta <= alpha) { //the right of the subtree will be higher than what we've got
-                    //System.out.println("pruned on minimising player, the best we could expect for the detectives is <= " +
-                            //alpha + " on the right subtree, whereas we already have " + beta);
+                    nodesPruned++;
                     i = moves.size();
                 }//break out of the loop
             }
@@ -157,11 +157,16 @@ public class MiniMaxBox {
     }
      //@Overloading
     public Move minimax(int depth, Board.GameState board){
+        nodesExplored = 0; nodesPruned = 0; //debug to count the nodes in this minimax tree
+
         List<Turn> order = makeTurnSequence(depth, board);
         Evaluator evaluator = order.get(0).playedBy().isMrX() ? eMrX : eDetectives;
         List<Move> optimalMoves = minimax(order, depth, Integer.MIN_VALUE,
                 Integer.MAX_VALUE, new ArrayList<Move>(), board)
                 .right(); //rightmost part of return value is the list of moves on the "path of best play"
+        //System.out.println("I'm " + optimalMoves.get(depth).commencedBy() + " and im heading for node #" + optimalMoves.get);
+        System.out.println(nodesExplored + " nodes explored to decide " + optimalMoves.get(0).commencedBy() +
+                "'s turn, pruning " + nodesPruned + " nodes!");
         return optimalMoves.get(0);
     }
 }
