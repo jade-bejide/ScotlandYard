@@ -41,7 +41,7 @@ public class Dijkstra{ //something we can give minimaxbox to score a game state
         populate(nodeDict, graph, source);
 
         int pos = 0;
-        Integer[] visitedNodes = new Integer[200];
+        Integer[] visitedNodes = new Integer[201];
         Integer currentNode = source;
         ArrayList<Integer> endPoints = new ArrayList<>(); //places we know at least one distance to (we've calculated at least once)
         endPoints.add(source);
@@ -58,7 +58,6 @@ public class Dijkstra{ //something we can give minimaxbox to score a game state
                     //detectives cannot travel by ferry, thus we should ignore the paths that contain a ferry journey
                     boolean needsFerry = graph.edgeValue((Integer) node, currentNode).get().stream().toList().get(0) == FERRY;
                     if (!needsFerry) {
-                        System.out.println(ticketNeeded);
                         distance = nodeDict.get(currentNode).get(0) + 1;
                         //System.out.println("Detective: " + detective + " Ticket Needed: " + ticketNeeded + " Node: " + node);
                         //only update the distance if its shorter than our shortest to that node

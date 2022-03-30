@@ -81,11 +81,9 @@ public class MrXEvaluator implements Evaluator{
         int countMoves = board.getAvailableMoves().stream().filter(x -> x.commencedBy().equals(Piece.MrX.MRX)).toList().size();
 
         if (countMoves == 0) {
-            System.out.println("h");
             return distance;
         }
         else {
-            System.out.println("i");
             return (int)Math.floor(0.7 * distance + 0.3 * countMoves);//current score evaluation based on evaluation on distance and moves available
    
         }
