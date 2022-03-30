@@ -59,7 +59,7 @@ public class MrXEvaluator implements Evaluator{
         List<Integer> distancePath = new ArrayList<>();
         for (Player detective : detectives) {
             Integer detectiveLocation = detective.location();
-            System.out.println(detectiveLocation + " " +  mrXLocation);
+            //System.out.println(detectiveLocation + " " +  mrXLocation);
             var path = d.shortestPathFromSourceToDestination(board.getSetup().graph, detectiveLocation, mrXLocation, detective, board);
             int distance = path.getFirst();
             //System.out.println(distance);
@@ -72,21 +72,21 @@ public class MrXEvaluator implements Evaluator{
         return calcDistanceScore(distancePath);
     }
 
-    public double score(Piece inPlay, Board.GameState board) {
+    @Override
+    public double score(Piece inPlay, List<Move> moves, Board.GameState board) {
         //after calling minimax, for static evaluation we need to score elements:
         //distance from detectives (tickets away)
         //available moves
         int distance = cumulativeDistance(board, getMrX(board), getDetectives(board));
-        int countMoves = board.getAvailableMoves().stream().filter(x -> x.commencedBy().equals(Piece.MrX.MRX)).toList().size();
+        int countMoves = moves.size();//board.getAvailableMoves().stream().filter(x -> x.commencedBy().equals(Piece.MrX.MRX)).toList().size();
 //
-//        if (countMoves == 0) {
-//            return distance;
-//        }
-//        else {
-        return (weights.get(0) * distance) + (weights.get(1) * countMoves);//current score evaluation based on evaluation on distance and moves available
-   
-   //     }
-}
+        System.out.println(distance + " and also u-uh uhm " + moves);
 
+        if (countMoves == 0) {
+            return distance;
+        } else {
+            return (weights.get(0) * distance) + (weights.get(1) * countMoves);//current score evaluation based on evaluation on distance and moves available
+        }
+    }
 }
 
