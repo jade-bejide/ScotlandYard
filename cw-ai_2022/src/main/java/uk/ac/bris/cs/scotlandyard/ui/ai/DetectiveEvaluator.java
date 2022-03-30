@@ -8,6 +8,8 @@ import java.util.Set;
 import uk.ac.bris.cs.scotlandyard.model.Piece;
 
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class DetectiveEvaluator implements Evaluator{
     private final Dijkstra d = new Dijkstra(); //what we're adapting
@@ -16,6 +18,9 @@ public class DetectiveEvaluator implements Evaluator{
 
     DetectiveEvaluator(List<Integer> weights){
         this.weights = weights;
+        for(int i = 0; i < 200; i++) {
+            this.possibleMrXLocations.add(i);
+        }
     }
 
     //get and set boundaries
@@ -57,6 +62,8 @@ public class DetectiveEvaluator implements Evaluator{
 
     }
 
+
+
     @Override
     public int score(Piece inPlay, Board.GameState board) {
         int distance = getDistanceToMrX(inPlay, board); /*some distance function*/;
@@ -66,7 +73,7 @@ public class DetectiveEvaluator implements Evaluator{
                 .toList()
                 .size();
 
-        return 0;
+        return distance - moveCount;
     }
 
 }
