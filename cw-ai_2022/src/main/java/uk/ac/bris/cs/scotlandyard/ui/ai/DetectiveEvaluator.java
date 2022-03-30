@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Set;
 import uk.ac.bris.cs.scotlandyard.model.Piece;
 
+import javax.print.attribute.IntegerSyntax;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -29,7 +30,8 @@ public class DetectiveEvaluator implements Evaluator{
     public void setMrXBoundary(Integer revealedLocation, Board.GameState board) {
         Set<Integer> boundary = new HashSet<Integer>(board.getSetup().graph.successors(revealedLocation));
 
-        for (Integer node : boundary) {
+        Set<Integer> boundaryCpy = Set.copyOf(boundary);
+        for (Integer node : boundaryCpy) {
             boundary.addAll(board.getSetup().graph.successors(node));
         }
 
@@ -56,7 +58,6 @@ public class DetectiveEvaluator implements Evaluator{
         List<Integer> possibleMrXLocationsList = new ArrayList<Integer>(possibleMrXLocations);
         Integer targetNode = possibleMrXLocationsList.get(rand.nextInt(possibleMrXLocations.size()));
         Player detective = BoardHelper.getDetectiveOnPiece(board, inPlay);
-        System.out.println(targetNode + " " + detective.location());
         return d.shortestPathFromSourceToDestination(board.getSetup().graph, detective.location(), targetNode, detective, board)
                 .getFirst(); //for refactoring in reference to passing board in
 
@@ -74,7 +75,7 @@ public class DetectiveEvaluator implements Evaluator{
                 .toList()
                 .size();
 
-        return distance - moveCount;
+        return (weights.get(0) * distance) - (weights.get(1) * moveCount);
     }
 
 }
