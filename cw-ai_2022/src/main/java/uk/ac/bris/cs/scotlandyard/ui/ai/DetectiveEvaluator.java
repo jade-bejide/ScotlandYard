@@ -17,9 +17,6 @@ public class DetectiveEvaluator implements Evaluator{
     }
 
     //get and set boundaries
-    private Set<Integer> setMrXBoundary() {
-        return null;
-    }
 
 
     public void setMrXBoundary(Move.SingleMove revealedMove, Board.GameState board) {
