@@ -71,7 +71,9 @@ public class DetectiveEvaluator implements Evaluator{
         int distance = getDistanceToMrX(inPlay, board); /*some distance function*/;
         int countMoves = moves.size();
 
-        //System.out.println(distance + " and also u-uh uhm " + countMoves);
+        //System.out.println(inPlay + " IS USING THE DETECTIVE EVALUATOR");
+        //System.out.println(inPlay + " detective has a distance of " + distance + " from MrX, with " +
+        //        countMoves + " moves they can make!");
 
         return (weights.get(0) * distance) - (weights.get(1) * countMoves);
     }
