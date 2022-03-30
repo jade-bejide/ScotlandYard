@@ -78,8 +78,8 @@ public class MiniMaxBox {
                     newPath.add(0, move); //prepend this move to the path
                 }
                 if(beta <= alpha) { //the right of the subtree will be lower than what we've got
-                    System.out.println("pruned on maximising player, the best we could expect for mrX is <= " +
-                            beta + " on the right subtree, whereas we already have " + alpha);
+                    //System.out.println("pruned on maximising player, the best we could expect for mrX is <= " +
+                            //beta + " on the right subtree, whereas we already have " + alpha);
                     i = moves.size(); //break out of the loop
                 }
             }
@@ -100,8 +100,8 @@ public class MiniMaxBox {
                     newPath.add(0, move); //prepend this move to the path
                 }
                 if(beta <= alpha) { //the right of the subtree will be higher than what we've got
-                    System.out.println("pruned on minimising player, the best we could expect for the detectives is <= " +
-                            alpha + " on the right subtree, whereas we already have " + beta);
+                    //System.out.println("pruned on minimising player, the best we could expect for the detectives is <= " +
+                            //alpha + " on the right subtree, whereas we already have " + beta);
                     i = moves.size();
                 }//break out of the loop
             }

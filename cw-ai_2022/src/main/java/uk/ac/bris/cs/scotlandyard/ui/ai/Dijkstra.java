@@ -7,7 +7,7 @@ import java.util.*;
 import java.util.function.Predicate;
 
 import static uk.ac.bris.cs.scotlandyard.model.ScotlandYard.Transport.FERRY;
-import static uk.ac.bris.cs.scotlandyard.ui.ai.BoardHelper.*;
+import static uk.ac.bris.cs.scotlandyard.ui.ai.BoardHelper.getPlayerTickets;
 
 public class Dijkstra{ //something we can give minimaxbox to score a game state
 
@@ -106,6 +106,4 @@ public class Dijkstra{ //something we can give minimaxbox to score a game state
 
         return new NdTypes.Triple<Integer, List<Integer>, List<ScotlandYard.Ticket>>(nodeDict.get(destination).get(0), path, ticketsUsed);//needs to include source
     }
-
-
 }

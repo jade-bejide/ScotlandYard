@@ -8,7 +8,7 @@ import io.atlassian.fugue.Pair;
 import uk.ac.bris.cs.scotlandyard.model.*;
 
 public class MyAi implements Ai {
-	@Nonnull @Override public String name() { return "Name me!"; }
+	@Nonnull @Override public String name() { return "Cy"; }
 
 	@Nonnull @Override public Move pickMove(
 			@Nonnull Board board,
