@@ -14,10 +14,10 @@ import java.util.stream.IntStream;
 
 public class DetectiveEvaluator implements Evaluator{
     private final Dijkstra d = new Dijkstra(); //what we're adapting
-    private final List<Integer> weights;
+    private final List<Double> weights;
     private Set<Integer> possibleMrXLocations = new HashSet<Integer>();
 
-    DetectiveEvaluator(List<Integer> weights){
+    DetectiveEvaluator(List<Double> weights){
         this.weights = weights;
         for(int i = 1; i < 200; i++) {
             this.possibleMrXLocations.add(i);
@@ -28,6 +28,7 @@ public class DetectiveEvaluator implements Evaluator{
 
     public void setMrXBoundary(Integer revealedLocation, Board.GameState board) {
         Set<Integer> boundary = new HashSet<Integer>(board.getSetup().graph.successors(revealedLocation));
+
 
         for (Integer node : boundary) {
             boundary.addAll(board.getSetup().graph.successors(node));
@@ -65,7 +66,7 @@ public class DetectiveEvaluator implements Evaluator{
 
 
     @Override
-    public int score(Piece inPlay, Board.GameState board) {
+    public double score(Piece inPlay, Board.GameState board) {
         isRevealed(board);
         int distance = getDistanceToMrX(inPlay, board); /*some distance function*/;
         int moveCount = board.getAvailableMoves()
@@ -74,7 +75,7 @@ public class DetectiveEvaluator implements Evaluator{
                 .toList()
                 .size();
 
-        return weights.get(0) * distance - weights.get(1) * moveCount;
+        return (weights.get(0) * distance) - (weights.get(1) * moveCount);
     }
 
 }

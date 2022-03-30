@@ -11,9 +11,9 @@ import static uk.ac.bris.cs.scotlandyard.ui.ai.BoardHelper.*;
 public class MrXEvaluator implements Evaluator{
     private final Dijkstra d = new Dijkstra(); //what we're adapting
 
-    private final List<Integer> weights;
+    private final List<Double> weights;
 
-    MrXEvaluator(List<Integer> weights){
+    MrXEvaluator(List<Double> weights){
         this.weights = weights;
     }
 
@@ -72,22 +72,20 @@ public class MrXEvaluator implements Evaluator{
         return calcDistanceScore(distancePath);
     }
 
-
-
-    public int score(Piece inPlay, Board.GameState board) {
+    public double score(Piece inPlay, Board.GameState board) {
         //after calling minimax, for static evaluation we need to score elements:
         //distance from detectives (tickets away)
         //available moves
         int distance = cumulativeDistance(board, getMrX(board), getDetectives(board));
         int countMoves = board.getAvailableMoves().stream().filter(x -> x.commencedBy().equals(Piece.MrX.MRX)).toList().size();
-
-        if (countMoves == 0) {
-            return distance;
-        }
-        else {
-            return (int)Math.floor(weights.get(0) * distance + weights.get(1) * countMoves);//current score evaluation based on evaluation on distance and moves available
+//
+//        if (countMoves == 0) {
+//            return distance;
+//        }
+//        else {
+        return (weights.get(0) * distance) + (weights.get(1) * countMoves);//current score evaluation based on evaluation on distance and moves available
    
-        }
+   //     }
 }
 
 }

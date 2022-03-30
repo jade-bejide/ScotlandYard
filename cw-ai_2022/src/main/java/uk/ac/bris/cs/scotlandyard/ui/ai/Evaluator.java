@@ -10,5 +10,5 @@ import uk.ac.bris.cs.scotlandyard.model.ScotlandYard;
 import java.util.List;
 
 public interface Evaluator { //for static evaluation anoymous classes and strategy pattern
-    public int score(Piece inPlay, Board.GameState board);
+    public double score(Piece inPlay, Board.GameState board);
 }
