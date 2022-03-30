@@ -80,7 +80,7 @@ public class MrXEvaluator implements Evaluator{
         int distance = cumulativeDistance(board, getMrX(board), getDetectives(board));
         int countMoves = moves.size();//board.getAvailableMoves().stream().filter(x -> x.commencedBy().equals(Piece.MrX.MRX)).toList().size();
 //
-        System.out.println(distance + " and also u-uh uhm " + moves);
+        //System.out.println(distance + " and also u-uh uhm " + moves);
 
         if (countMoves == 0) {
             return distance;

@@ -37,10 +37,12 @@ public class MiniMaxBox {
 
     //  returns a list of moves which are best for player(s) in the starting round
     private Pair<Double, List<Move>> minimax(List<Turn> order, int depth, double alpha, double beta, Board.GameState board){
+        ImmutableBoard imBoard = new ImmutableBoard(board);
         Turn thisTurn = order.get(Math.min(order.size() - depth, order.size() - 1)); //this turn is last turn on depth = 0
         Piece inPlay = thisTurn.playedBy(); //0th, 1st, 2nd... turn in the tree-level order
         //stream decides which moves were done by the player moving this round
-        List<Move> moves = board.getAvailableMoves().stream().filter(x -> x.commencedBy().equals(inPlay)).toList();
+        List<Move> moves = imBoard.getAvailableMoves().stream().filter(x -> x.commencedBy().equals(inPlay)).toList();
+        System.out.println(inPlay + " has moves " + moves + " because remaining is " + BoardHelper.getRemaining(board));
         //we've reached ample recursion depth
         if(depth == 0) { return evaluate(thisTurn, moves, board); }
 
@@ -84,7 +86,7 @@ public class MiniMaxBox {
         }
         //minimising player
         else /*if(toMove.isDetective())*/ {
-            evaluation = Integer.MAX_VALUE;
+            evaluation = Double.MAX_VALUE;
             for(int i = 0; i < moves.size(); i++){ //for all mrx's moves
                 Move move = moves.get(i);
                 //alpha and beta just get passed down the tree at first
