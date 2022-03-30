@@ -85,7 +85,7 @@ public class MrXEvaluator implements Evaluator{
             return distance;
         }
         else {
-            return (int)Math.floor(0.7 * distance + 0.3 * countMoves);//current score evaluation based on evaluation on distance and moves available
+            return (int)Math.floor(weights.get(0) * distance + weights.get(1) * countMoves);//current score evaluation based on evaluation on distance and moves available
    
         }
 }
