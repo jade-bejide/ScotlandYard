@@ -10,12 +10,9 @@ import uk.ac.bris.cs.scotlandyard.ui.ai.*;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static uk.ac.bris.cs.scotlandyard.model.Piece.Detective.*;
-import static uk.ac.bris.cs.scotlandyard.model.Piece.MrX.MRX;
 import static uk.ac.bris.cs.scotlandyard.model.ScotlandYard.*;
 
 public class ShortestPath {
@@ -41,7 +38,7 @@ public class ShortestPath {
         Pair<Long, TimeUnit> time = new Pair<Long, TimeUnit>(15L, SECONDS);
 
         long start = System.nanoTime();
-        MyAi ai = new MyAi();
+        Cy ai = new Cy();
         long end = System.nanoTime();
         //ai.score(game);
 

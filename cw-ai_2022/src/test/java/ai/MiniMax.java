@@ -5,7 +5,7 @@ import com.google.common.graph.ImmutableValueGraph;
 import com.google.common.io.Resources;
 import io.atlassian.fugue.Pair;
 import uk.ac.bris.cs.scotlandyard.model.*;
-import uk.ac.bris.cs.scotlandyard.ui.ai.MyAi;
+import uk.ac.bris.cs.scotlandyard.ui.ai.Cy;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -35,7 +35,7 @@ public class MiniMax{
         Board.GameState state = new MyGameStateFactory().build(new GameSetup(defaultGraph, STANDARD24MOVES),
                 mrX, red, green, blue, white, yellow);
 
-        Ai ai = new MyAi();
+        Ai ai = new Cy();
 
         //testFromMrX(ai, state); //can we predict for mrX
         testMultipleMoves(ai, state);

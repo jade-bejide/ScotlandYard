@@ -8,12 +8,12 @@ import java.util.List;
 import static java.util.Collections.min;
 import static uk.ac.bris.cs.scotlandyard.ui.ai.BoardHelper.*;
 
-public class AdapterMrX implements Evaluator{
+public class MrXEvaluator implements Evaluator{
     private final Dijkstra d = new Dijkstra(); //what we're adapting
 
     private final List<Integer> weights;
 
-    AdapterMrX(List<Integer> weights){
+    MrXEvaluator(List<Integer> weights){
         this.weights = weights;
     }
 
