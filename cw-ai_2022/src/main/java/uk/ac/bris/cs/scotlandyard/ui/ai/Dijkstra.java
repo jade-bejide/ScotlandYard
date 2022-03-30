@@ -41,7 +41,7 @@ public class Dijkstra{ //something we can give minimaxbox to score a game state
         populate(nodeDict, graph, source);
 
         int pos = 0;
-        Integer[] visitedNodes = new Integer[201];
+        Integer[] visitedNodes = new Integer[200];
         Integer currentNode = source;
         ArrayList<Integer> endPoints = new ArrayList<>(); //places we know at least one distance to (we've calculated at least once)
         endPoints.add(source);

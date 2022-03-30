@@ -59,6 +59,7 @@ public class MrXEvaluator implements Evaluator{
         List<Integer> distancePath = new ArrayList<>();
         for (Player detective : detectives) {
             Integer detectiveLocation = detective.location();
+            System.out.println(detectiveLocation + " " +  mrXLocation);
             var path = d.shortestPathFromSourceToDestination(board.getSetup().graph, detectiveLocation, mrXLocation, detective, board);
             int distance = path.getFirst();
             //System.out.println(distance);
