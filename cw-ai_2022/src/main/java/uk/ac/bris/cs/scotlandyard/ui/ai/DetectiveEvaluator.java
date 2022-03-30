@@ -17,8 +17,6 @@ public class DetectiveEvaluator implements Evaluator{
     }
 
     //get and set boundaries
-
-
     public void setMrXBoundary(Move.SingleMove revealedMove, Board.GameState board) {
         int revealedLocation = revealedMove.destination;
 

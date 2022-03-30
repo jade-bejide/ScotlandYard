@@ -26,6 +26,7 @@ public class BoardHelper { //static methods/namespace which holds useful methods
         return ImmutableMap.copyOf(tickets);
     }
 
+    //gets all the players from the board
     @Nonnull
     public static List<Player> getPlayers(Board.GameState board) {
         List<Piece.Detective> detectives = board.getPlayers().stream().filter(Piece::isDetective).map(y -> (Piece.Detective)y).toList();
@@ -75,10 +76,17 @@ public class BoardHelper { //static methods/namespace which holds useful methods
         return players;
     }
 
+    //returns all detectives on the board, as a list of players
     public static List<Player> getDetectives(Board.GameState board) {
         return getPlayers(board).stream().filter(Player::isDetective).toList();
     }
 
+    //get a singular detective
+    public static Player getDetectiveOnPiece(Board.GameState board, Piece piece) {
+        return getDetectives(board).stream().filter(x -> x.piece().equals(piece)).toList().get(0);
+    }
+
+    //returns mr X from the board as a player
     public static Player getMrX(Board.GameState board) {
         List<Player> mrXS = getPlayers(board).stream().filter(Player::isMrX).toList();
         return mrXS.get(0);
