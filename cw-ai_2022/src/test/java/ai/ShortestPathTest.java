@@ -45,9 +45,19 @@ public class ShortestPathTest extends RenameMe {
     }
 
     //There are 199 nodes
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     public void testNodesPopulatedCorrectly() {
         Dijkstra dijk = new Dijkstra();
+
+        Player mrX = new Player(Piece.MrX.MRX, defaultMrXTickets(), 198);
+        Player blue = new Player(Piece.Detective.BLUE, defaultDetectiveTickets(), 32);
+        Player green = new Player(Piece.Detective.GREEN, defaultDetectiveTickets(), 199);
+        Player red = new Player (Piece.Detective.RED, defaultDetectiveTickets(), 54);
+        Player yellow = new Player(Piece.Detective.YELLOW, defaultDetectiveTickets(), 34);
+        Player white = new Player(Piece.Detective.WHITE, defaultDetectiveTickets(), 21);
+
+        Board.GameState game = new MyGameStateFactory().build(standard24MoveSetup(), mrX, green, red, yellow, white);
+//        dijk.shortestPathFromSourceToDestination(0, blue)
     }
 
 
