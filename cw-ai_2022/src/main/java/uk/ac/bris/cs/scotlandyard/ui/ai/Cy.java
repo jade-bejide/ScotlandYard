@@ -24,8 +24,7 @@ public class Cy implements Ai {
 		//Evaluator findMrXforDetectives =
 		MiniMaxBox miniMaxBox = MiniMaxBox.getInstance(mrXBrain, detectiveBrain);
 
-
-		return miniMaxBox.minimax(3, (Board.GameState) board);
+		return miniMaxBox.minimax(5, (Board.GameState) board);
 
 	}
 }

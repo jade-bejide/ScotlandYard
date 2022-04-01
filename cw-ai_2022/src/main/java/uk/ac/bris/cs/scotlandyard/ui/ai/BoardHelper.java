@@ -81,6 +81,14 @@ public class BoardHelper { //static methods/namespace which holds useful methods
         return getPlayers(board).stream().filter(Player::isDetective).toList();
     }
 
+    public static List<Piece> getRemaining(Board.GameState board) {
+        Set<Piece> players = new HashSet<Piece>();
+        for(Move move : board.getAvailableMoves()){
+            players.add(move.commencedBy());
+        }
+        return new ArrayList<Piece>(players);
+    }
+
     //get a singular detective
     public static Player getDetectiveOnPiece(Board.GameState board, Piece piece) {
         return getDetectives(board).stream().filter(x -> x.piece().equals(piece)).toList().get(0);

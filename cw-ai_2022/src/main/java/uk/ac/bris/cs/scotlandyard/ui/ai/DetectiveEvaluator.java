@@ -57,7 +57,7 @@ public class DetectiveEvaluator implements Evaluator{
     private int getDistanceToMrX(Piece inPlay, Board.GameState board){
         Random rand = new Random();
         List<Integer> possibleMrXLocationsList = new ArrayList<Integer>(possibleMrXLocations);
-        Integer targetNode = possibleMrXLocationsList.get(rand.nextInt(possibleMrXLocations.size()));
+        Integer targetNode = possibleMrXLocationsList.get(rand.nextInt(possibleMrXLocationsList.size()));
         Player detective = BoardHelper.getDetectiveOnPiece(board, inPlay);
         return d.shortestPathFromSourceToDestination(board.getSetup().graph, detective.location(), targetNode, detective, board)
                 .getFirst(); //for refactoring in reference to passing board in
@@ -71,7 +71,6 @@ public class DetectiveEvaluator implements Evaluator{
         isRevealed(board);
         int distance = getDistanceToMrX(inPlay, board); /*some distance function*/;
         int countMoves = moves.size();
-        //System.out.println(distance + " and also u-uh uhm " + countMoves);
 
         return (weights.get(0) * distance) - (weights.get(1) * countMoves);
     }

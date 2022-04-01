@@ -34,6 +34,7 @@ public class MrXEvaluator implements Evaluator{
             sumofSqr += (int)Math.pow((distance - mean), 2);
         }
 
+        //NOTE: Causes division by zero error when playing against 1 detective!
         int sd = Math.floorDiv(sumofSqr, (n-1)); //standard deviation
 
         Integer closestLocation = min(distances); //get distance of closest detective
@@ -69,7 +70,8 @@ public class MrXEvaluator implements Evaluator{
 
         }
 
-        return calcDistanceScore(distancePath);
+        if (detectives.size() > 1) return calcDistanceScore(distancePath);
+        else return distancePath.get(0);
     }
 
     @Override
@@ -78,9 +80,9 @@ public class MrXEvaluator implements Evaluator{
         //distance from detectives (tickets away)
         //available moves
         int distance = cumulativeDistance(board, getMrX(board), getDetectives(board));
+
         int countMoves = moves.size();//board.getAvailableMoves().stream().filter(x -> x.commencedBy().equals(Piece.MrX.MRX)).toList().size();
-//
-        //System.out.println(distance + " and also u-uh uhm " + moves);
+
         if (countMoves == 0) {
             System.out.println("MrX Eval: " + distance);
             return distance;
