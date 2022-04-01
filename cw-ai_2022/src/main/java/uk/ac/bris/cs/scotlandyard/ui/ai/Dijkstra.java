@@ -11,15 +11,20 @@ import static uk.ac.bris.cs.scotlandyard.ui.ai.BoardHelper.getPlayerTickets;
 
 public class Dijkstra{ //something we can give minimaxbox to score a game state
 
+    Dictionary<Integer, ArrayList<Integer>> nodeDict;
+
     //build the datastructures holding the nodes, their distance from source and their preceding node
-    private void populate(Dictionary<Integer, ArrayList<Integer>> nodeDict,
-                                                            ImmutableValueGraph<Integer, ImmutableSet<ScotlandYard.Transport>> graph, Integer source){
+    private void populate(ImmutableValueGraph<Integer, ImmutableSet<ScotlandYard.Transport>> graph, Integer source){
         nodeDict.put(source, new ArrayList<Integer>(Arrays.asList(0, null)));
         for(Integer n : graph.nodes()){
             if( !n.equals(source)) {
                 nodeDict.put(n, new ArrayList<Integer>(Arrays.asList(Integer.MAX_VALUE, null)));
             }
         }
+    }
+
+    public Dictionary<Integer, ArrayList<Integer>> getPopulatedDict() {
+        return nodeDict;
     }
 
     //checks if a list contains a particular node
@@ -36,11 +41,15 @@ public class Dijkstra{ //something we can give minimaxbox to score a game state
         //set up needed variables
         ImmutableValueGraph<Integer, ImmutableSet<ScotlandYard.Transport>> graph = board.getSetup().graph;
         Integer source = detective.location();
+
+        if (!graph.nodes().contains(source)) throw new IllegalArgumentException("Detective not on graph!");
+        if (!graph.nodes().contains(destination)) throw new IllegalArgumentException("Mr X not on graph!");
+
         //create a mutable copy of the player tickets to test if they can even move to certain nodes
         Map<ScotlandYard.Ticket, Integer> ticketsCpy = new HashMap<>(Map.copyOf(getPlayerTickets(board, detective.piece())));
         Dictionary<Integer, ArrayList<Integer>> nodeDict = new Hashtable<Integer, ArrayList<Integer>>();
         List<ScotlandYard.Ticket> ticketsUsed = new ArrayList<ScotlandYard.Ticket>();
-        populate(nodeDict, graph, source);
+        populate(graph, source);
 
         int pos = 0;
         Integer[] visitedNodes = new Integer[200];
