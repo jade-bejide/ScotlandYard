@@ -20,7 +20,6 @@ public class MiniMaxBox {
     private int nodesExplored, nodesPruned; //debug property
     //testing properties
 
-
     private MiniMaxBox(Evaluator eMrX, Evaluator eDetectives){
         this.mrXEvaluator = eMrX;
         this.detectiveEvaluator = eDetectives;
@@ -34,22 +33,20 @@ public class MiniMaxBox {
     }
 
     private Pair<Double, List<Move>> evaluate(Turn turn, List<Move> moves, Board.GameState board){
-        return new Pair<Double, List<Move>>(turn.evaluator().score(turn.playedBy(), moves, board), new ArrayList<Move>());
+        double evaluation = turn.evaluator().score(turn.playedBy(), moves, board);
+        return new Pair<Double, List<Move>>(evaluation, new ArrayList<Move>());
     }
 
     //  returns a list of moves which are best for player(s) in the starting round
     private Pair<Double, List<Move>> minimax(List<Turn> order, int depth, double alpha, double beta,
                                              List<Move> previousPiecesMoves, Board.GameState board){
-
-        nodesExplored++;
-        Turn thisTurn = order.get(Math.min(order.size() - depth, order.size() - 1)); //this turn is last turn on depth = 0
+        int recursions = order.size() - depth;
+        Turn thisTurn = order.get(Math.min(recursions, order.size() - 1)); //this turn is last turn on depth = 0
         Piece inPlay = thisTurn.playedBy(); //0th, 1st, 2nd... turn in the tree-level order
         //stream decides which moves were done by the player moving this round
         List<Move> moves = board.getAvailableMoves().stream().filter(x -> x.commencedBy().equals(inPlay)).toList();
         //we've reached ample recursion depth
         if(depth == 0) {
-            //System.out.println(inPlay + " has moves " + previousPiecesMoves +
-            //        " even though remaining is " + BoardHelper.getRemaining(board));
             return evaluate(thisTurn, previousPiecesMoves, board);
         }
         //we pass in previous pieces moves, because its the previous piece's moves that are being evaluated
