@@ -25,7 +25,7 @@ public class MiniMaxBox {
         this.eDetectives = eDetectives;
     }
 
-    static MiniMaxBox getInstance(Evaluator eMrX, Evaluator eDetectives){ //singleton
+    public static MiniMaxBox getInstance(Evaluator eMrX, Evaluator eDetectives){ //singleton
         //Evaluator evaluator = evaluators[0]; //if someone mistakenly passes lots of evaluators we only want the first
         //if(evaluators.length > 1) System.out.println("Warning: MiniMaxBox will take the first of " + evaluators.length + " evaluators.");
         if(instance == null) { instance = new MiniMaxBox(eMrX, eDetectives); }
@@ -162,17 +162,21 @@ public class MiniMaxBox {
         return sequence;
     }
      //@Overloading
-    public Move minimax(int depth, Board.GameState board){
+    public List<Move> minimax(int depth, Board.GameState board){
         nodesExplored = 0; nodesPruned = 0; //debug to count the nodes in this minimax tree
 
         List<Turn> order = makeTurnSequence(depth, board);
         Evaluator evaluator = order.get(0).playedBy().isMrX() ? eMrX : eDetectives;
         List<Move> optimalMoves = minimax(order, depth, Integer.MIN_VALUE,
                 Integer.MAX_VALUE, new ArrayList<Move>(), board)
-                .right(); //rightmost part of return value is the list of moves on the "path of best play"
-        //System.out.println("I'm " + optimalMoves.get(depth).commencedBy() + " and im heading for node #" + optimalMoves.get);
-        //System.out.println(nodesExplored + " nodes explored to decide " + optimalMoves.get(0).commencedBy() +
-               // "'s turn, pruning " + nodesPruned + " nodes!");
-        return optimalMoves.get(0);
+                .right();
+        System.out.println(nodesExplored + " nodes explored to decide " + optimalMoves.get(0).commencedBy() +
+                "'s turn, pruning " + nodesPruned + " nodes!");
+        return optimalMoves;
+    }
+
+    //pure and safe test methods
+    public List<Turn> getTurns(int depth, Board.GameState board){
+        return makeTurnSequence(depth, board);
     }
 }

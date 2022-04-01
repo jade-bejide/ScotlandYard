@@ -1,24 +1,35 @@
 package ai;
 
+import org.junit.Assert.*;
+import org.junit.Test;
+
 import com.google.common.collect.ImmutableSet;
 import com.google.common.graph.ImmutableValueGraph;
 import com.google.common.io.Resources;
 import io.atlassian.fugue.Pair;
 import uk.ac.bris.cs.scotlandyard.model.*;
-import uk.ac.bris.cs.scotlandyard.ui.ai.Cy;
+import uk.ac.bris.cs.scotlandyard.ui.ai.*;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static uk.ac.bris.cs.scotlandyard.model.Piece.Detective.*;
 import static uk.ac.bris.cs.scotlandyard.model.Piece.MrX.MRX;
 import static uk.ac.bris.cs.scotlandyard.model.ScotlandYard.*;
+public class MiniMaxBoxTest {
 
-public class MiniMax{
     private static ImmutableValueGraph<Integer, ImmutableSet<Transport>> defaultGraph;
+    private final MiniMaxBox minimax = MiniMaxBox.getInstance(
+            new MrXEvaluator(Arrays.asList(0.5, 0.5)),
+            new DetectiveEvaluator(Arrays.asList(0.5, 0.5))
+    );
 
-    public static void main(String[] args){
+    private Board getSetup(){
         try {
             defaultGraph = readGraph(Resources.toString(Resources.getResource(
                             "graph.txt"),
@@ -34,27 +45,12 @@ public class MiniMax{
         var mrX = new Player(MRX, defaultMrXTickets(), 106);
         Board.GameState state = new MyGameStateFactory().build(new GameSetup(defaultGraph, STANDARD24MOVES),
                 mrX, red, green, blue, white, yellow);
-
-        Ai ai = new Cy();
-
-        //testFromMrX(ai, state); //can we predict for mrX
-        //testMultipleMoves(ai, state);
+        return state;
     }
 
-//    private static void testFromMrX(Ai ai, Board.GameState state) {
-//        long time = System.nanoTime();
-//        System.out.println(ai.pickMove(state, new Pair<Long, TimeUnit>(15L, TimeUnit.MILLISECONDS)));
-//        System.out.println(((System.nanoTime() - time) / 1000000) + "ms");
-//    }
-//
-//    private static void testMultipleMoves(Ai ai, Board.GameState state) {
-//        final int turns = 4;
-//        for(int i = 0; i < turns; i++){
-//            long time = System.nanoTime();
-//            Move move = ai.pickMove(state, new Pair<Long, TimeUnit>(15L, TimeUnit.MILLISECONDS));
-//            System.out.println(move);
-//            state = state.advance(move);
-//            System.out.println(((System.nanoTime() - time) / 1000000) + "ms");
-//        }
-//    }
+    @Test public void testTurnsGenerateCorrectly(){
+        Board board = getSetup();
+        List<Turn> turns = minimax.getTurns(6, (Board.GameState) board); //does just over one loop
+        assertThat(turns);
+    }
 }

@@ -9,13 +9,13 @@ import java.util.List;
 import static java.util.Collections.min;
 import static uk.ac.bris.cs.scotlandyard.ui.ai.BoardHelper.*;
 
-public class MrXEvaluator implements Evaluator{
+public class MrXEvaluator extends Evaluator{
     private final Dijkstra d = new Dijkstra(); //what we're adapting
 
     private final List<Double> weights;
 
-    MrXEvaluator(List<Double> weights){
-        this.weights = weights;
+    public MrXEvaluator(List<Double> weights){
+        this.weights = flatten(weights);
     }
 
     private Player getMrX(Board.GameState board) {
