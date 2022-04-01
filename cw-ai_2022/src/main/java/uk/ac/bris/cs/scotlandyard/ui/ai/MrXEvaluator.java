@@ -35,33 +35,40 @@ public class MrXEvaluator implements Evaluator{
         }
 
         //NOTE: Causes division by zero error when playing against 1 detective!
-        int sd = Math.floorDiv(sumofSqr, (n-1)); //standard deviation
+        try {
+            int sd = Math.floorDiv(sumofSqr, (n-1)); //standard deviation
 
-        Integer closestLocation = min(distances); //get distance of closest detective
-        List<Integer> noOutlierDist = new ArrayList<>();
-        noOutlierDist.add(closestLocation);
-        distances.remove(closestLocation);
+            Integer closestLocation = min(distances); //get distance of closest detective
+            List<Integer> noOutlierDist = new ArrayList<>();
+            noOutlierDist.add(closestLocation);
+            distances.remove(closestLocation);
 
-        //only consider statistically close distances (1sd)
-        for (Integer distance : distances) {
-            if (distance <= closestLocation + sd) noOutlierDist.add(distance);
+            //only consider statistically close distances (1sd)
+            for (Integer distance : distances) {
+                if (distance <= closestLocation + sd) noOutlierDist.add(distance);
+            }
+
+            //compute the mean of these values
+            int goodSum = noOutlierDist.stream().mapToInt(x -> x).sum();
+            int goodN = noOutlierDist.size();
+
+            return Math.floorDiv(goodSum, goodN);
+        } catch (ArithmeticException e) {
+            return Math.floorDiv(totalSum, n);
         }
 
-        //compute the mean of these values
-        int goodSum = noOutlierDist.stream().mapToInt(x -> x).sum();
-        int goodN = noOutlierDist.size();
 
 
 
-        return Math.floorDiv(goodSum, goodN);
+
+
     }
 
     private int cumulativeDistance(Board.GameState board, Player mrX, List<Player> detectives) {
         Integer mrXLocation = mrX.location();
         List<Integer> distancePath = new ArrayList<>();
         for (Player detective : detectives) {
-            Integer detectiveLocation = detective.location();
-            var path = d.shortestPathFromSourceToDestination(board.getSetup().graph, detectiveLocation, mrXLocation, detective, board);
+            var path = d.shortestPathFromSourceToDestination(mrXLocation, detective, board);
             int distance = path.getFirst();
             //System.out.println(distance);
             distancePath.add(distance);
@@ -83,13 +90,7 @@ public class MrXEvaluator implements Evaluator{
 
         int countMoves = moves.size();//board.getAvailableMoves().stream().filter(x -> x.commencedBy().equals(Piece.MrX.MRX)).toList().size();
 
-        if (countMoves == 0) {
-            System.out.println("MrX Eval: " + distance);
-            return distance;
-        } else {
-            System.out.println("MrX Eval Moves: ");
-            return (weights.get(0) * distance) + (weights.get(1) * countMoves);//current score evaluation based on evaluation on distance and moves available
-        }
+        return (weights.get(0) * distance) + (weights.get(1) * countMoves);//current score evaluation based on evaluation on distance and moves available
     }
 
 

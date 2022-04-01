@@ -59,7 +59,7 @@ public class DetectiveEvaluator implements Evaluator{
         List<Integer> possibleMrXLocationsList = new ArrayList<Integer>(possibleMrXLocations);
         Integer targetNode = possibleMrXLocationsList.get(rand.nextInt(possibleMrXLocationsList.size()));
         Player detective = BoardHelper.getDetectiveOnPiece(board, inPlay);
-        return d.shortestPathFromSourceToDestination(board.getSetup().graph, detective.location(), targetNode, detective, board)
+        return d.shortestPathFromSourceToDestination(targetNode, detective, board)
                 .getFirst(); //for refactoring in reference to passing board in
 
     }

@@ -33,12 +33,14 @@ public class MiniMaxBox {
     }
 
     private Pair<Double, List<Move>> evaluate(Turn turn, List<Move> moves, Board.GameState board){
+
         return new Pair<Double, List<Move>>(turn.evaluator().score(turn.playedBy(), moves, board), new ArrayList<Move>());
     }
 
     //  returns a list of moves which are best for player(s) in the starting round
     private Pair<Double, List<Move>> minimax(List<Turn> order, int depth, double alpha, double beta,
                                              List<Move> previousPiecesMoves, Board.GameState board){
+
         nodesExplored++;
         Turn thisTurn = order.get(Math.min(order.size() - depth, order.size() - 1)); //this turn is last turn on depth = 0
         Piece inPlay = thisTurn.playedBy(); //0th, 1st, 2nd... turn in the tree-level order
@@ -149,9 +151,13 @@ public class MiniMaxBox {
         List<Piece> remaining = getBoardRemaining(board); //starts from where the game currently is
         for(int i = 0; i < depth; i++){ //as many as we require (may exceed game length)
             Turn nextTurn = getTurn(remaining, board);
+
+            System.out.println("Turn: " + nextTurn.playedBy());
             sequence.add(nextTurn);
             remaining = nextTurn.remaining(); //getter method
         }
+
+        System.out.println("");
 
         return sequence;
     }
@@ -165,8 +171,8 @@ public class MiniMaxBox {
                 Integer.MAX_VALUE, new ArrayList<Move>(), board)
                 .right(); //rightmost part of return value is the list of moves on the "path of best play"
         //System.out.println("I'm " + optimalMoves.get(depth).commencedBy() + " and im heading for node #" + optimalMoves.get);
-        System.out.println(nodesExplored + " nodes explored to decide " + optimalMoves.get(0).commencedBy() +
-                "'s turn, pruning " + nodesPruned + " nodes!");
+        //System.out.println(nodesExplored + " nodes explored to decide " + optimalMoves.get(0).commencedBy() +
+               // "'s turn, pruning " + nodesPruned + " nodes!");
         return optimalMoves.get(0);
     }
 }

@@ -5,19 +5,26 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.graph.ImmutableValueGraph;
 import com.google.common.io.Resources;
 import io.atlassian.fugue.Pair;
+import org.junit.Test;
 import uk.ac.bris.cs.scotlandyard.model.*;
 import uk.ac.bris.cs.scotlandyard.ui.ai.*;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static uk.ac.bris.cs.scotlandyard.model.ScotlandYard.*;
+import static uk.ac.bris.cs.scotlandyard.model.ScotlandYard.Ticket.*;
 
-public class ShortestPath {
+public class ShortestPathTest {
     private static ImmutableValueGraph<Integer, ImmutableSet<Transport>> defaultGraph;
-    public static void main(String[] args) {
+    @Test
+    public void testDetectivePathContainsNoIllegalTickets() {
 
         try {
             defaultGraph = readGraph(Resources.toString(Resources.getResource(
@@ -37,14 +44,14 @@ public class ShortestPath {
 
         Pair<Long, TimeUnit> time = new Pair<Long, TimeUnit>(15L, SECONDS);
 
-        long start = System.nanoTime();
-        Cy ai = new Cy();
-        long end = System.nanoTime();
-        //ai.score(game);
+        Dijkstra dijk = new Dijkstra();
+        List<Player> detectives = Arrays.asList(blue, green, red, yellow, white);
 
-//        Dijkstra dijk = new Dijkstra();
-        //var dijks = dijk.shortestPathFromSourceToDestination(defaultGraph, 1, 155, blue, game).getFirst();
-        //System.out.println(dijks);
-        System.out.println("Approximate Time Taken: " + (end-start));
+        for (Player detective : detectives) {
+            dijk.shortestPathFromSourceToDestination(mrX.location(), detective, game);
+            NdTypes.Triple<Integer, List<Integer>, List<ScotlandYard.Ticket>> dijks = dijk.shortestPathFromSourceToDestination(mrX.location(), detective, game);
+            assertFalse(dijks.getLast().stream().anyMatch(x -> x == SECRET || x == DOUBLE));
+        }
+
     }
 }

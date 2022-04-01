@@ -29,11 +29,13 @@ public class Dijkstra{ //something we can give minimaxbox to score a game state
 
     //pass in the detective so that we can track their tickets
     public NdTypes.Triple<Integer, List<Integer>, List<ScotlandYard.Ticket>> shortestPathFromSourceToDestination(
-            ImmutableValueGraph<Integer, ImmutableSet<ScotlandYard.Transport>> graph,
-            Integer source,
             Integer destination,
             Player detective,
             Board.GameState board) {
+
+        //set up needed variables
+        ImmutableValueGraph<Integer, ImmutableSet<ScotlandYard.Transport>> graph = board.getSetup().graph;
+        Integer source = detective.location();
         //create a mutable copy of the player tickets to test if they can even move to certain nodes
         Map<ScotlandYard.Ticket, Integer> ticketsCpy = new HashMap<>(Map.copyOf(getPlayerTickets(board, detective.piece())));
         Dictionary<Integer, ArrayList<Integer>> nodeDict = new Hashtable<Integer, ArrayList<Integer>>();
