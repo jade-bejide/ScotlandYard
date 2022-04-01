@@ -13,13 +13,13 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class DetectiveEvaluator implements Evaluator{
+public class DetectiveEvaluator extends Evaluator{
     private final Dijkstra d = new Dijkstra(); //what we're adapting
     private final List<Double> weights;
     private Set<Integer> possibleMrXLocations = new HashSet<Integer>();
 
-    DetectiveEvaluator(List<Double> weights){
-        this.weights = weights;
+    public DetectiveEvaluator(List<Double> weights){
+        this.weights = flatten(weights);
         for(int i = 1; i < 200; i++) {
             this.possibleMrXLocations.add(i);
         }
@@ -62,8 +62,6 @@ public class DetectiveEvaluator implements Evaluator{
                 .getFirst(); //for refactoring in reference to passing board in
 
     }
-
-
 
     @Override
     public double score(Piece inPlay, List<Move> moves, Board.GameState board) {

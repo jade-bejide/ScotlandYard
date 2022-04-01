@@ -25,7 +25,7 @@ public class MiniMaxBox {
         this.eDetectives = eDetectives;
     }
 
-    static MiniMaxBox getInstance(Evaluator eMrX, Evaluator eDetectives){ //singleton
+    public static MiniMaxBox getInstance(Evaluator eMrX, Evaluator eDetectives){ //singleton
         //Evaluator evaluator = evaluators[0]; //if someone mistakenly passes lots of evaluators we only want the first
         //if(evaluators.length > 1) System.out.println("Warning: MiniMaxBox will take the first of " + evaluators.length + " evaluators.");
         if(instance == null) { instance = new MiniMaxBox(eMrX, eDetectives); }
@@ -156,7 +156,7 @@ public class MiniMaxBox {
         return sequence;
     }
      //@Overloading
-    public Move minimax(int depth, Board.GameState board){
+    public List<Move> minimax(int depth, Board.GameState board){
         nodesExplored = 0; nodesPruned = 0; //debug to count the nodes in this minimax tree
 
         List<Turn> order = makeTurnSequence(depth, board);
@@ -167,6 +167,11 @@ public class MiniMaxBox {
         //System.out.println("I'm " + optimalMoves.get(depth).commencedBy() + " and im heading for node #" + optimalMoves.get);
         System.out.println(nodesExplored + " nodes explored to decide " + optimalMoves.get(0).commencedBy() +
                 "'s turn, pruning " + nodesPruned + " nodes!");
-        return optimalMoves.get(0);
+        return optimalMoves;
+    }
+
+    //pure and safe test methods
+    public List<Turn> getTurns(int depth, Board board){
+        return makeTurnSequence(depth, board);
     }
 }
