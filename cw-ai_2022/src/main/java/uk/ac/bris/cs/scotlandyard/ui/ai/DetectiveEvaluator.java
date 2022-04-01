@@ -1,6 +1,7 @@
 package uk.ac.bris.cs.scotlandyard.ui.ai;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import uk.ac.bris.cs.scotlandyard.model.*;
 
 import java.util.HashSet;
@@ -58,7 +59,7 @@ public class DetectiveEvaluator extends Evaluator{
         List<Integer> possibleMrXLocationsList = new ArrayList<Integer>(possibleMrXLocations);
         Integer targetNode = possibleMrXLocationsList.get(rand.nextInt(possibleMrXLocationsList.size()));
         Player detective = BoardHelper.getDetectiveOnPiece(board, inPlay);
-        return d.shortestPathFromSourceToDestination(board.getSetup().graph, detective.location(), targetNode, detective, board)
+        return d.shortestPathFromSourceToDestination(targetNode, detective, board)
                 .getFirst(); //for refactoring in reference to passing board in
 
     }
@@ -68,10 +69,6 @@ public class DetectiveEvaluator extends Evaluator{
         isRevealed(board);
         int distance = getDistanceToMrX(inPlay, board); /*some distance function*/;
         int countMoves = moves.size();
-
-        //System.out.println(inPlay + " IS USING THE DETECTIVE EVALUATOR");
-        //System.out.println(inPlay + " detective has a distance of " + distance + " from MrX, with " +
-        //        countMoves + " moves they can make!");
 
         return (weights.get(0) * distance) - (weights.get(1) * countMoves);
     }

@@ -50,7 +50,7 @@ public class MiniMaxBoxTest {
 
     @Test public void testTurnsGenerateCorrectly(){
         Board board = getSetup();
-        List<Turn> turns = minimax.getTurns(6, board); //does just over one loop
+        List<Turn> turns = minimax.getTurns(6, (Board.GameState) board); //does just over one loop
         assertThat(turns);
     }
 }

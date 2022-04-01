@@ -1,7 +1,7 @@
 package uk.ac.bris.cs.scotlandyard.ui.ai;
 
 public class NdTypes<T, U, V> {
-    private static class Id<T> {
+    public static class Id<T> {
         private final T a;
 
         Id(T a) {
@@ -14,7 +14,7 @@ public class NdTypes<T, U, V> {
     }
 
 
-    private static class Tuple<T, U> extends Id<T>{
+    public static class Tuple<T, U> extends Id<T>{
         private final U b;
 
         Tuple(T a, U b){
@@ -28,7 +28,7 @@ public class NdTypes<T, U, V> {
 
     }
 
-    static class Triple<T, U, V> extends Tuple<T, U>{
+    public static class Triple<T, U, V> extends Tuple<T, U>{
         private final V c;
 
         Triple(T a, U b, V c){
