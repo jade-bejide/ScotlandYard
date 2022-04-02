@@ -100,7 +100,7 @@ public class BoardHelper { //static methods/namespace which holds useful methods
 
     //get a singular detective
     public static Player getDetectiveOnPiece(Board.GameState board, Piece piece) {
-        System.out.println(getDetectives(board));
+        //System.out.println(getDetectives(board) + "\n and piece: " + piece);
         return getDetectives(board).stream().filter(x -> x.piece().equals(piece)).toList().get(0);
     }
 

@@ -17,9 +17,8 @@ public class MiniMaxBox {
 
     private final Evaluator mrXEvaluator;
     private final Evaluator detectiveEvaluator;
-    private Evaluator thisMoveEvaluator;
-    //private int nodesExplored, nodesPruned; //debug property
-    //testing properties
+    private Turn thisTurn; //// the turn that pickMove takes ////
+    private Evaluator thisTurnStrategy; //// which evaluator to use for this turn ////
 
     private MiniMaxBox(Evaluator eMrX, Evaluator eDetectives){
         this.mrXEvaluator = eMrX;
@@ -33,8 +32,8 @@ public class MiniMaxBox {
         return instance;
     }
 
-    private Pair<Double, List<Move>> evaluate(Turn turn, List<Move> moves, Board.GameState board){
-        double evaluation = thisMoveEvaluator.score(turn.playedBy(), moves, board);
+    private Pair<Double, List<Move>> evaluate(List<Move> moves, Board.GameState board){
+        double evaluation = thisTurnStrategy.score(thisTurn.playedBy(), moves, board);
         return new Pair<Double, List<Move>>(evaluation, new ArrayList<Move>());
     }
 
@@ -48,20 +47,19 @@ public class MiniMaxBox {
         List<Move> moves = board.getAvailableMoves().stream().filter(x -> x.commencedBy().equals(inPlay)).toList();
         //we've reached ample recursion depth
         if(depth == 0) {
-            return evaluate(thisTurn, previousPiecesMoves, board);
+            return evaluate(previousPiecesMoves, board);
         }
         //we pass in previous pieces moves, because its the previous piece's moves that are being evaluated
 
-        //System.out.println(moves);
         if(moves.size() == 0) { //this player cant move?
             if (inPlay.isDetective()) { //are we in a detective round?
                 if (board.getAvailableMoves().stream().noneMatch(x -> x.commencedBy().isDetective())){ //are all detective stuck?
-                    return evaluate(thisTurn, moves, board);
+                    return evaluate(moves, board);
                 }
                 //if theyre not and one can move,
                 return minimax(order, depth - 1, alpha, beta, moves, board); //if we can move some detectives then the game isnt over
             }
-            if (inPlay.isMrX()) return evaluate(thisTurn, moves, board);
+            if (inPlay.isMrX()) return evaluate(moves, board);
         }
 
         List<Move> newPath = new ArrayList<Move>(); //keeps compiler smiling (choice is always initialised)
@@ -156,11 +154,12 @@ public class MiniMaxBox {
      //@Overloading
     public List<Move> minimax(int depth, Board.GameState board){
         List<Turn> order = makeTurnSequence(depth, board);
-        thisMoveEvaluator = order.get(0).playedBy().isMrX() ? mrXEvaluator : detectiveEvaluator;
-        List<Move> optimalMoves = minimax(order, depth, Integer.MIN_VALUE,
+        thisTurn = order.get(0); // the turn taken by THIS call to pickMove
+        //how we score THIS turn (makes sure detectives only see what they should on their turn)
+        thisTurnStrategy = order.get(0).playedBy().isMrX() ? mrXEvaluator : detectiveEvaluator;
+        return minimax(order, depth, Integer.MIN_VALUE,
                 Integer.MAX_VALUE, new ArrayList<Move>(), board)
                 .right();
-        return optimalMoves;
     }
 
     //pure and safe test methods
