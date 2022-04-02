@@ -6,6 +6,7 @@ import java.util.List;
 public class DoubleTree {
     private final Node root;
     private List<Integer> location; // selects the branch to go down from root {branch #, branch #, ...}
+    private Node atLocation; // the node at location
 
     public DoubleTree(Node root) {
         this.root = root;
@@ -17,7 +18,7 @@ public class DoubleTree {
         this.location = new ArrayList<Integer>();
     }
 
-    private Node navigateTo(List<Integer> location){ //find node on this.location
+    private Node navigateTo(List<Integer> location){ //find node on location passed in
         Node current = root;
         for(Integer branchNum : location) {
             current = current.getBranches().get(branchNum);
@@ -26,10 +27,11 @@ public class DoubleTree {
     }
 
     public List<Integer> getLocation(){ return location; }
+    public Node getNodeOnLocation() { return atLocation; }
 
     public boolean setLocation(List<Integer> location){ //returns its success
         try{
-            navigateTo(location);
+            atLocation = navigateTo(location);
         }catch(IndexOutOfBoundsException e){
             System.err.println("Warning: no such node as " + location + " at depth " + location.size());
             return false;
@@ -38,13 +40,16 @@ public class DoubleTree {
         return true;
     }
 
-    public void addAsChildOfLocation(Node node){
+    public void add(Node node){ //add to node at location's branches
         if(location.isEmpty()) { root.addNode(node); } //add to root if location is default
-        else {
-            navigateTo(location).addNode(node); //adds node as a child of specified node
-        }
+        else { atLocation.addNode(node); } //adds node as a child of specified node
     }
 
+    public void setValue(double value){ atLocation.setValue(value); }
+
     public void show(){ root.show(); }
-    public void show(String depth, boolean terminal) { root.show(depth, terminal); }
+
+    public boolean equals(DoubleTree tree){
+        return true;
+    }
 }

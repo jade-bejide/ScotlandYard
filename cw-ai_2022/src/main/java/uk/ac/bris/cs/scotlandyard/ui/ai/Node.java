@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Node {
-    private final double value;
-    private List<Node> branches;
+    private double value;
+    private final List<Node> branches;
 
     public Node(double value, List<Node> branches) {
         this.value = value;
@@ -24,6 +24,7 @@ public class Node {
     public Double getValue() {
         return value;
     }
+    public void setValue(double value) { this.value = value; }
     //public void setBranches(List<Node> branches) { this.branches = branches; }
 
     public void addNode(Node node) {
@@ -35,7 +36,7 @@ public class Node {
         this.show("", true);
     }
 
-    public void show(String depth, boolean terminal) {
+    private void show(String depth, boolean terminal) {
         System.out.print(depth);
         if (depth.length() > 0) System.out.print(terminal ? "└" : "├");
         System.out.print("" + this.value + "\n");
