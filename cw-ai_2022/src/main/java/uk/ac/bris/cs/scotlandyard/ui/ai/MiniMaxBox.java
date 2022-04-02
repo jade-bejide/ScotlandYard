@@ -4,7 +4,6 @@ import io.atlassian.fugue.Pair;
 import uk.ac.bris.cs.scotlandyard.model.*;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class MiniMaxBox {
     /*minimax handler is a stateful singleton class
@@ -16,13 +15,15 @@ public class MiniMaxBox {
      */
     static private MiniMaxBox instance = null;
 
-    private final Evaluator eMrX;
-    private final Evaluator eDetectives;
+    private final Evaluator mrXEvaluator;
+    private final Evaluator detectiveEvaluator;
     private int nodesExplored, nodesPruned; //debug property
+    //testing properties
+
 
     private MiniMaxBox(Evaluator eMrX, Evaluator eDetectives){
-        this.eMrX = eMrX;
-        this.eDetectives = eDetectives;
+        this.mrXEvaluator = eMrX;
+        this.detectiveEvaluator = eDetectives;
     }
 
     public static MiniMaxBox getInstance(Evaluator eMrX, Evaluator eDetectives){ //singleton
@@ -33,7 +34,6 @@ public class MiniMaxBox {
     }
 
     private Pair<Double, List<Move>> evaluate(Turn turn, List<Move> moves, Board.GameState board){
-
         return new Pair<Double, List<Move>>(turn.evaluator().score(turn.playedBy(), moves, board), new ArrayList<Move>());
     }
 
@@ -135,15 +135,14 @@ public class MiniMaxBox {
         if(remaining.equals(List.of(Piece.MrX.MRX))) {
             remaining = new ArrayList<Piece>(board.getPlayers()); //now its all players
             remaining.remove(Piece.MrX.MRX); //remove whos currently played from whos left to play
-            evaluator = eMrX;
+            evaluator = mrXEvaluator;
         }else /*if detective*/{
             remaining.remove(inPlay);
             if(remaining.isEmpty()) { remaining.add(Piece.MrX.MRX); } //mrx's round
-            evaluator = eDetectives;
+            evaluator = detectiveEvaluator;
         }
 
         return new Turn(inPlay, remaining, evaluator);
-
     }
 
     private List<Turn> makeTurnSequence(int depth, Board.GameState board){
@@ -152,7 +151,7 @@ public class MiniMaxBox {
         for(int i = 0; i < depth; i++){ //as many as we require (may exceed game length)
             Turn nextTurn = getTurn(remaining, board);
 
-            System.out.println("Turn: " + nextTurn.playedBy());
+            //System.out.println("Turn: " + nextTurn.playedBy());
             sequence.add(nextTurn);
             remaining = nextTurn.remaining(); //getter method
         }
@@ -166,7 +165,7 @@ public class MiniMaxBox {
         nodesExplored = 0; nodesPruned = 0; //debug to count the nodes in this minimax tree
 
         List<Turn> order = makeTurnSequence(depth, board);
-        Evaluator evaluator = order.get(0).playedBy().isMrX() ? eMrX : eDetectives;
+        Evaluator evaluator = order.get(0).playedBy().isMrX() ? mrXEvaluator : detectiveEvaluator;
         List<Move> optimalMoves = minimax(order, depth, Integer.MIN_VALUE,
                 Integer.MAX_VALUE, new ArrayList<Move>(), board)
                 .right();
@@ -179,4 +178,6 @@ public class MiniMaxBox {
     public List<Turn> getTurns(int depth, Board.GameState board){
         return makeTurnSequence(depth, board);
     }
+    public Evaluator getMrXEvaluator(){ return mrXEvaluator; }
+    public Evaluator getDetectiveEvaluator() { return detectiveEvaluator; }
 }

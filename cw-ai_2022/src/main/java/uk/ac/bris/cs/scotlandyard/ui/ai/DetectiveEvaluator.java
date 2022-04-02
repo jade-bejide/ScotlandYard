@@ -73,4 +73,5 @@ public class DetectiveEvaluator extends Evaluator{
         return (weights.get(0) * distance) - (weights.get(1) * countMoves);
     }
 
+
 }
