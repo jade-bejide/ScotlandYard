@@ -70,7 +70,5 @@ public class MiniMaxBoxTest {
     @Test public void testMiniMaxChoice(){
         Board board = getSetup();
         minimax.minimax(4, (Board.GameState) board);
-        List<Turn> turns = minimax.getTurns(6, (Board.GameState) board); //does just over one loop
-//        assertThat(turns);
     }
 }
