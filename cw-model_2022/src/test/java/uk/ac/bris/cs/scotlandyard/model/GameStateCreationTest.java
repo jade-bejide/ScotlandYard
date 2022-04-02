@@ -71,7 +71,7 @@ public class GameStateCreationTest extends ParameterisedModelTestBase {
 				bluePlayer(),
 				blackPlayer());
 	}
-	////DONE////
+
 	@Test(expected = IllegalArgumentException.class)
 	public void testDuplicateDetectivesShouldThrow() {
 		gameStateFactory.build(standard24MoveSetup(),

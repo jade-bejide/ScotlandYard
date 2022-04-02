@@ -11,7 +11,7 @@ import static uk.ac.bris.cs.scotlandyard.ui.ai.BoardHelper.getPlayerTickets;
 
 public class Dijkstra{ //something we can give minimaxbox to score a game state
 
-    Dictionary<Integer, ArrayList<Integer>> nodeDict;
+    Dictionary<Integer, ArrayList<Integer>> nodeDict = new Hashtable<Integer, ArrayList<Integer>>();;
 
     //build the datastructures holding the nodes, their distance from source and their preceding node
     private void populate(ImmutableValueGraph<Integer, ImmutableSet<ScotlandYard.Transport>> graph, Integer source){
@@ -47,7 +47,6 @@ public class Dijkstra{ //something we can give minimaxbox to score a game state
 
         //create a mutable copy of the player tickets to test if they can even move to certain nodes
         Map<ScotlandYard.Ticket, Integer> ticketsCpy = new HashMap<>(Map.copyOf(getPlayerTickets(board, detective.piece())));
-        Dictionary<Integer, ArrayList<Integer>> nodeDict = new Hashtable<Integer, ArrayList<Integer>>();
         List<ScotlandYard.Ticket> ticketsUsed = new ArrayList<ScotlandYard.Ticket>();
         populate(graph, source);
 
@@ -73,7 +72,7 @@ public class Dijkstra{ //something we can give minimaxbox to score a game state
                         //System.out.println("Detective: " + detective + " Ticket Needed: " + ticketNeeded + " Node: " + node);
                         //only update the distance if its shorter than our shortest to that node
                         if(distance < nodeDict.get(node).get(0)) { nodeDict.put((Integer) node, new ArrayList<Integer>(Arrays.asList(distance, currentNode))); }
-                        ticketsUsed.add(ticketNeeded);
+
                         //all endpoints can be distinct
                         if(!endPoints.contains((Integer) node)) { endPoints.add((Integer) node); } //add this node to the endpoints list
                     }
@@ -84,7 +83,7 @@ public class Dijkstra{ //something we can give minimaxbox to score a game state
             Integer p = nodeDict.get(currentNode).get(1);
             if (p != null && graph.edgeValue(p, currentNode).isPresent()) {
 
-                ScotlandYard.Ticket transportTaken = graph.edgeValue(p, currentNode).get().stream().toList().get(0).requiredTicket();
+
                 visitedNodes[pos] = currentNode;
                 pos++;
 //                if (ticketsCpy.get(transportTaken) > 0) {
@@ -110,7 +109,9 @@ public class Dijkstra{ //something we can give minimaxbox to score a game state
         List<Integer> path = new ArrayList<Integer>();
         path.add(0, currentNode);
         while (!Objects.equals(currentNode, source)) {
+            ScotlandYard.Ticket transportTaken = graph.edgeValue(currentNode, nodeDict.get(currentNode).get(1)).get().stream().toList().get(0).requiredTicket();
             currentNode = nodeDict.get(currentNode).get(1);
+            ticketsUsed.add(transportTaken);
             path.add(0, currentNode);
         }
 

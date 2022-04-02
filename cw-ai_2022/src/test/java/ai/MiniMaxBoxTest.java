@@ -56,20 +56,21 @@ public class MiniMaxBoxTest {
                         .toList()
                         .containsAll(Arrays.asList(RED, GREEN, BLUE, WHITE, YELLOW)));
     }
-
-    @Test public void testEvaluatorsAssignCorrectly(){
-        Board board = getSetup();
-        List<Turn> turns = minimax.getTurns(6, (Board.GameState) board);
-        assertTrue(turns.get(0).evaluator().equals(minimax.getMrXEvaluator()) &&
-                turns.subList(1, turns.size())
-                        .stream()
-                        .map(Turn::evaluator)
-                        .allMatch(x -> x.equals(minimax.getDetectiveEvaluator())));
-    }
+//
+//    @Test public void testEvaluatorsAssignCorrectly(){
+//        Board board = getSetup();
+//        List<Turn> turns = minimax.getTurns(6, (Board.GameState) board);
+//        assertTrue(turns.get(0).evaluator().equals(minimax.getMrXEvaluator()) &&
+//                turns.subList(1, turns.size())
+//                        .stream()
+//                        .map(Turn::evaluator)
+//                        .allMatch(x -> x.equals(minimax.getDetectiveEvaluator())));
+//    }
 
     @Test public void testMiniMaxChoice(){
         Board board = getSetup();
         minimax.minimax(4, (Board.GameState) board);
-
+        List<Turn> turns = minimax.getTurns(6, (Board.GameState) board); //does just over one loop
+//        assertThat(turns);
     }
 }

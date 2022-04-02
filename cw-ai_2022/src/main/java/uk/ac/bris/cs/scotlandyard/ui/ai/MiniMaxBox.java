@@ -17,7 +17,8 @@ public class MiniMaxBox {
 
     private final Evaluator mrXEvaluator;
     private final Evaluator detectiveEvaluator;
-    private int nodesExplored, nodesPruned; //debug property
+    private Evaluator thisMoveEvaluator;
+    //private int nodesExplored, nodesPruned; //debug property
     //testing properties
 
     private MiniMaxBox(Evaluator eMrX, Evaluator eDetectives){
@@ -33,7 +34,7 @@ public class MiniMaxBox {
     }
 
     private Pair<Double, List<Move>> evaluate(Turn turn, List<Move> moves, Board.GameState board){
-        double evaluation = turn.evaluator().score(turn.playedBy(), moves, board);
+        double evaluation = thisMoveEvaluator.score(turn.playedBy(), moves, board);
         return new Pair<Double, List<Move>>(evaluation, new ArrayList<Move>());
     }
 
@@ -82,7 +83,6 @@ public class MiniMaxBox {
                     newPath.add(0, move); //prepend this move to the path
                 }
                 if(beta <= alpha) { //the right of the subtree will be lower than what we've got
-                    nodesPruned++;
                     i = moves.size(); //break out of the loop
                 }
             }
@@ -103,7 +103,6 @@ public class MiniMaxBox {
                     newPath.add(0, move); //prepend this move to the path
                 }
                 if(beta <= alpha) { //the right of the subtree will be higher than what we've got
-                    nodesPruned++;
                     i = moves.size();
                 }//break out of the loop
             }
@@ -128,18 +127,15 @@ public class MiniMaxBox {
 
     private Turn getTurn(List<Piece> remaining, Board.GameState board){
         Piece inPlay = getNextGo(remaining);
-        Evaluator evaluator;
         if(remaining.equals(List.of(Piece.MrX.MRX))) {
             remaining = new ArrayList<Piece>(board.getPlayers()); //now its all players
             remaining.remove(Piece.MrX.MRX); //remove whos currently played from whos left to play
-            evaluator = mrXEvaluator;
         }else /*if detective*/{
             remaining.remove(inPlay);
             if(remaining.isEmpty()) { remaining.add(Piece.MrX.MRX); } //mrx's round
-            evaluator = detectiveEvaluator;
         }
 
-        return new Turn(inPlay, remaining, evaluator);
+        return new Turn(inPlay, remaining);
     }
 
     private List<Turn> makeTurnSequence(int depth, Board.GameState board){
@@ -159,22 +155,16 @@ public class MiniMaxBox {
     }
      //@Overloading
     public List<Move> minimax(int depth, Board.GameState board){
-        nodesExplored = 0; nodesPruned = 0; //debug to count the nodes in this minimax tree
-
         List<Turn> order = makeTurnSequence(depth, board);
-        Evaluator evaluator = order.get(0).playedBy().isMrX() ? mrXEvaluator : detectiveEvaluator;
+        thisMoveEvaluator = order.get(0).playedBy().isMrX() ? mrXEvaluator : detectiveEvaluator;
         List<Move> optimalMoves = minimax(order, depth, Integer.MIN_VALUE,
                 Integer.MAX_VALUE, new ArrayList<Move>(), board)
                 .right();
-        System.out.println(nodesExplored + " nodes explored to decide " + optimalMoves.get(0).commencedBy() +
-                "'s turn, pruning " + nodesPruned + " nodes!");
         return optimalMoves;
     }
 
     //pure and safe test methods
-    public List<Turn> getTurns(int depth, Board.GameState board){
-        return makeTurnSequence(depth, board);
-    }
+    public List<Turn> getTurns(int depth, Board.GameState board){ return makeTurnSequence(depth, board); }
     public Evaluator getMrXEvaluator(){ return mrXEvaluator; }
     public Evaluator getDetectiveEvaluator() { return detectiveEvaluator; }
 }
