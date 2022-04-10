@@ -56,12 +56,6 @@ public class MrXEvaluator extends Evaluator{
         } catch (ArithmeticException e) {
             return Math.floorDiv(totalSum, n);
         }
-
-
-
-
-
-
     }
 
     private int cumulativeDistance(Board.GameState board, Player mrX, List<Player> detectives) {
