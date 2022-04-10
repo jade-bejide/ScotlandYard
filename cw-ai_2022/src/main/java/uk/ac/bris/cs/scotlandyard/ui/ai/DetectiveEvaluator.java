@@ -57,6 +57,7 @@ public class DetectiveEvaluator extends Evaluator{
     private int getDistanceToMrX(Piece inPlay, Board.GameState board){
         Random rand = new Random();
         List<Integer> possibleMrXLocationsList = new ArrayList<Integer>(possibleMrXLocations);
+        //here they all decide that mr X is potentially at different locations rather than having a common goal
         Integer targetNode = possibleMrXLocationsList.get(rand.nextInt(possibleMrXLocationsList.size()));
         Player detective = BoardHelper.getDetectiveOnPiece(board, inPlay);
         return d.shortestPathFromSourceToDestination(targetNode, detective, board)
