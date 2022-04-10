@@ -37,15 +37,15 @@ public class MiniMax{
 
         Ai ai = new Cy();
 
-        //testFromMrX(ai, state); //can we predict for mrX
+        testFromMrX(ai, state); //can we predict for mrX
         //testMultipleMoves(ai, state);
     }
 
-//    private static void testFromMrX(Ai ai, Board.GameState state) {
-//        long time = System.nanoTime();
-//        System.out.println(ai.pickMove(state, new Pair<Long, TimeUnit>(15L, TimeUnit.MILLISECONDS)));
-//        System.out.println(((System.nanoTime() - time) / 1000000) + "ms");
-//    }
+    private static void testFromMrX(Ai ai, Board.GameState state) {
+        long time = System.nanoTime();
+        System.out.println(ai.pickMove(state, new Pair<Long, TimeUnit>(15L, TimeUnit.MILLISECONDS)));
+        System.out.println(((System.nanoTime() - time) / 1000000) + "ms");
+    }
 //
 //    private static void testMultipleMoves(Ai ai, Board.GameState state) {
 //        final int turns = 4;

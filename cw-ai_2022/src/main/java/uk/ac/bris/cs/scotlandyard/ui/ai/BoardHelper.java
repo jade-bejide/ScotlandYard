@@ -89,8 +89,18 @@ public class BoardHelper { //static methods/namespace which holds useful methods
         return new ArrayList<Piece>(players);
     }
 
+//    public static Player getPlayerOnPiece(Board.GameState board, Piece piece) {
+//        List<Player> players = new ArrayList<Player>();
+//        try { players.add(getDetectiveOnPiece(board, piece)); }
+//        catch (IndexOutOfBoundsException e) { System.out.println("Warning: No detectives?, " + e); }
+//        try { players.add(getMrX(board)); }
+//        catch (IndexOutOfBoundsException e) { System.out.println("Warning: No MRX?, " + e); }
+//        return players.get(0);
+//    }
+
     //get a singular detective
     public static Player getDetectiveOnPiece(Board.GameState board, Piece piece) {
+        //System.out.println(getDetectives(board) + "\n and piece: " + piece);
         return getDetectives(board).stream().filter(x -> x.piece().equals(piece)).toList().get(0);
     }
 
