@@ -1,5 +1,6 @@
 package uk.ac.bris.cs.scotlandyard.ui.ai;
 
+//Generic datastructures to allow storage of up to three different pieces of data
 public class NdTypes<T, U, V> {
     public static class Id<T> {
         private final T a;

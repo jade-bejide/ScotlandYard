@@ -47,18 +47,22 @@ public final class MyGameStateFactory implements Factory<GameState> {
 		}
 
 		private void constructorTests() {
+			//Mr X Tests
 			if (!mrX.isMrX()) throw new IllegalArgumentException("Mr X is empty");
 			if (mrX.isDetective()) throw new IllegalArgumentException("Mr X has been swapped!");
 
+			//Board tests
 			if (setup.graph.nodes().size() == 0) throw new IllegalArgumentException("Graph is empty!");
 			if (setup.moves.isEmpty()) throw new IllegalArgumentException("Moves is empty!");
 			if (this.remaining == null) throw new NullPointerException("Remaining players is empty!");
 			if (this.detectives.isEmpty()) throw new NullPointerException("No detectives present!");
 
+			//Player tests
 			if (this.detectives.contains(null)) throw new NullPointerException("Null detective is not allowed!");
 			Player[] oneMrX = detectives.stream().filter(Player::isMrX).toArray(Player[]::new);
 			if (oneMrX.length > 0) throw new IllegalArgumentException("Only one Mr X allowed!");
 
+			//Correctness of detectives test
 			if (detectiveLoops.overlap(this.detectives)) throw new IllegalArgumentException("Overlap between detectives!");
 			if (detectiveLoops.samePiece(this.detectives)) throw new IllegalArgumentException("Duplicate detectives!");
 			if (detectiveLoops.secretTicket(this.detectives)) throw new IllegalArgumentException("Detective with secret ticket!");
@@ -94,15 +98,19 @@ public final class MyGameStateFactory implements Factory<GameState> {
 			}
 		}
 
+		//helper method which tests if mr X is trapped
 		private boolean canMrXMove() {
 			List<Integer> possibleLocations = setup.graph.adjacentNodes(mrX.location()).stream().toList();
 			List<Integer> finalPossibleLocations = possibleLocations;
+
+			//checks if the detectives are on one of Mr X's adjacent nodes and maps this to those locations
 			List<Integer> overlap = detectives.stream().filter(x -> finalPossibleLocations.contains(x.location())).map(Player::location).toList();
 
+			//possible locations now stores locations where the detectives nodes are not on
 			possibleLocations = possibleLocations.stream().filter(x -> !overlap.contains(x)).toList();
 
 
-
+			//checks if mr X can go to the remaining locations
 			for (Integer possibleLocation : possibleLocations) {
 				ImmutableSet<Transport> map = setup.graph.edgeValueOrDefault(mrX.location(), possibleLocation, ImmutableSet.of());
 				assert map != null; //since edgeValueOrDefault is nullable, we check the return value to quell a warning
@@ -119,34 +127,44 @@ public final class MyGameStateFactory implements Factory<GameState> {
 				}
 			}
 
+			//if not, mr X can't move
 			return false;
 		}
 
-
+		//helper function returns the winner is there is one or empty set if there isn't one
 		private ImmutableSet<Player> determineWinner() {
+			//mr X loses if a detective lands on his location
 			boolean caught = detectives.stream().anyMatch(x -> x.location() == mrX.location());
+
+			//mr X loses if he all his adjacent nodes are cornered
 			boolean cornered = detectives.stream().allMatch(x -> setup.graph.adjacentNodes(mrX.location()).contains(x.location()));
 			//if there are all detectives have no tickets left, mr x will win
 			boolean noTickets = detectives.stream().allMatch(x -> x.tickets().entrySet().stream().allMatch(y -> y.getValue() == 0));
-
+			//mr X wins if the log size is full (typically 24)
 			boolean noMovesLeft = setup.moves.size() == log.size();
 
 			if (noMovesLeft) return ImmutableSet.copyOf(Set.of(mrX));
 
+			//mr X is cornered but can still escape
 			if (cornered && canMrXMove()) {
 				return ImmutableSet.copyOf(Collections.emptySet());
 			}
 
+			//if mr X is fully cornered, the detectives win
 			if (cornered) return ImmutableSet.copyOf(detectives);
 
+			//if there are no moves left, the detectives win, Mr X cannot run anymore
 			if (getAvailableMoves().isEmpty())  {
 				return ImmutableSet.copyOf(detectives);
 			}
+
+			//if the detectives have no tickets left, mrX wins
 			if (noTickets) return ImmutableSet.copyOf(Set.of(mrX));
 
 
 			if (caught) return ImmutableSet.copyOf(detectives);
 
+			//else there is no winner
 			return ImmutableSet.copyOf(Collections.emptySet());
 		}
 
@@ -189,7 +207,6 @@ public final class MyGameStateFactory implements Factory<GameState> {
 			//thinking about logic which will skip a turn if the "next" player
 			Set<Piece> copyOfRemaining = new HashSet<Piece>(remaining);
 			boolean cornered = detectives.stream().allMatch(x -> setup.graph.adjacentNodes(mrX.location()).contains(x.location()));
-			//boolean detectivesNoTickets = remaining.stream().anyMatch(x -> x.isDetective()) && remaining.stream().map(this::getPlayerOnPiece).allMatch(x -> x.tickets().entrySet().stream().allMatch(y -> y.getValue() == 0));
 
 			//swap to Mr X's go
 			if (cornered && canMrXMove()) {
@@ -274,6 +291,7 @@ public final class MyGameStateFactory implements Factory<GameState> {
 					List<Ticket> ticketsUsed = new ArrayList<>();
 					move.tickets().forEach(ticketsUsed::add);
 
+					//makes a mutable copy of Mr X's tickets to make sure a double move is possible
 					Map<Ticket, Integer>  newTicketSet = new HashMap<Ticket,Integer>();
 					newTicketSet.putAll(mrX.tickets());
 
@@ -288,6 +306,7 @@ public final class MyGameStateFactory implements Factory<GameState> {
 						if (i == 0) destination = move.destination1;
 						if (i == 1) destination = move.destination2;
 
+						//check if we should hide the location or reveal it
 						boolean isHidden = !setup.moves.get(log.size() + i);
 						if (isHidden) newLog.add(LogEntry.hidden(ticket));
 						else newLog.add(LogEntry.reveal(ticket, destination));
@@ -295,6 +314,7 @@ public final class MyGameStateFactory implements Factory<GameState> {
 						newLocation = destination;
 					}
 
+					//if the ticket has been used, remove it from the mutable copy
 					for(HashMap.Entry<Ticket, Integer> ticketEntry : newTicketSet.entrySet()) {
 						if (ticketsUsed.contains(ticketEntry.getKey())) newTicketSet.put(ticketEntry.getKey(), ticketEntry.getValue() - 1);
 					}
@@ -345,7 +365,8 @@ public final class MyGameStateFactory implements Factory<GameState> {
 		public ImmutableList<LogEntry> getMrXTravelLog() { return log; }
 
 
-
+		//get available moves helper functions compiles all single moves possible for a particular player based on their
+		//current location
 		private static Set<Move.SingleMove> makeSingleMoves(GameSetup setup, List<Player> detectives, Player player, int source) {
 			Set<SingleMove> possibleMoves = new HashSet<SingleMove>();
 			for (int destination : setup.graph.adjacentNodes(source)) {
@@ -370,6 +391,8 @@ public final class MyGameStateFactory implements Factory<GameState> {
 			return possibleMoves;
 		}
 
+		//get available moves helper functions compiles all double moves possible for Mr X based on their
+		//current location
 		private static Set<Move.DoubleMove> makeDoubleMoves(GameSetup setup, List<Player> detectives, Player player, int source1) {
 
 			//if (player.isDetective()) throw new IllegalArgumentException("Detectives can't make double moves");
@@ -379,12 +402,13 @@ public final class MyGameStateFactory implements Factory<GameState> {
 			if (player.tickets().get(DOUBLE) == 0) return possibleDoubleMoves;
 			Set<SingleMove> possibleSingleMoves = makeSingleMoves(setup, detectives, player, source1);
 
-			//if (player.isDetective()) System.out.println("Uh oh!");
 			if (player.isMrX()) {
 				for (SingleMove single : possibleSingleMoves) {
 
 					for (int destination : setup.graph.adjacentNodes(single.destination)) {
+						//used to check if the double move is possible based on the tickets left
 						Map<Ticket, Integer> ticketTracker = new HashMap<Ticket, Integer>();
+						//done by making a temporary mutable copy of the player's tickets
 						ticketTracker.putAll(player.tickets());
 
 						ticketTracker.put(single.ticket, ticketTracker.get(single.ticket) - 1);
@@ -421,6 +445,8 @@ public final class MyGameStateFactory implements Factory<GameState> {
 		@Nonnull
 		@Override
 		public ImmutableSet<Move> getAvailableMoves() {
+			//gets available moves from the remaining players, granted that the game is not over (a winner has been
+			//found)
 			Set<Move> allMoves = new HashSet<Move>();
 			List<Player> remainingPlayers = new ArrayList<>();
 			remainingPlayers.addAll(detectives);
