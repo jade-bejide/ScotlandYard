@@ -18,6 +18,10 @@ public class MrXEvaluator extends Evaluator{
         this.weights = flatten(weights);
     }
 
+    public List<Double> getWeights() {
+        return weights;
+    }
+
     private Player getMrX(Board.GameState board) {
         List<Player> mrXS = getPlayers(board).stream().filter(Player::isMrX).toList();
         return mrXS.get(0);
@@ -36,7 +40,8 @@ public class MrXEvaluator extends Evaluator{
 
         //NOTE: Causes division by zero error when playing against 1 detective!
         try {
-            int sd = Math.floorDiv(sumofSqr, (n-1)); //standard deviation
+            int sd = Math.floorDiv(sumofSqr, (n-1)); //variance
+            sd = (int)Math.floor(Math.sqrt(sd));
 
             Integer closestLocation = min(distances); //get distance of closest detective
             List<Integer> noOutlierDist = new ArrayList<>();
@@ -51,7 +56,6 @@ public class MrXEvaluator extends Evaluator{
             //compute the mean of these values
             int goodSum = noOutlierDist.stream().mapToInt(x -> x).sum();
             int goodN = noOutlierDist.size();
-
             return Math.floorDiv(goodSum, goodN);
         } catch (ArithmeticException e) {
             return Math.floorDiv(totalSum, n);
@@ -64,7 +68,6 @@ public class MrXEvaluator extends Evaluator{
         for (Player detective : detectives) {
             var path = d.shortestPathFromSourceToDestination(mrXLocation, detective, board);
             int distance = path.getFirst();
-            //System.out.println(distance);
             distancePath.add(distance);
             List<Integer> nodes = path.getMiddle(); //may want to use for whatever reason
             List<ScotlandYard.Ticket> ticketUsed = path.getLast(); //for testing, assert that detective had enough tickets to travel that path

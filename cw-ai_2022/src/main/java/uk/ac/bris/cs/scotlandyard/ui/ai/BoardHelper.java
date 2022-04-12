@@ -81,6 +81,7 @@ public class BoardHelper { //static methods/namespace which holds useful methods
         return getPlayers(board).stream().filter(Player::isDetective).toList();
     }
 
+    //returns the remaining pieces
     public static List<Piece> getRemaining(Board.GameState board) {
         Set<Piece> players = new HashSet<Piece>();
         for(Move move : board.getAvailableMoves()){

@@ -42,6 +42,7 @@ public class Dijkstra{ //something we can give minimaxbox to score a game state
         ImmutableValueGraph<Integer, ImmutableSet<ScotlandYard.Transport>> graph = board.getSetup().graph;
         Integer source = detective.location();
 
+        //throws necessary exceptions to ensure correctness, source and destination must be within the graph
         if (!graph.nodes().contains(source)) throw new IllegalArgumentException("Detective not on graph!");
         if (!graph.nodes().contains(destination)) throw new IllegalArgumentException("Mr X not on graph!");
 
@@ -62,7 +63,7 @@ public class Dijkstra{ //something we can give minimaxbox to score a game state
             Object[] succ = graph.successors(currentNode).toArray();
             for (Object node : succ) {
                 if(graph.edgeValue((Integer) node, currentNode).isPresent() && !searchList(visitedNodes, (Integer)node) && !(node.equals(source))) {
-                    //each edge value is worth one (working version)
+                    //each edge value is worth one
                     ScotlandYard.Ticket ticketNeeded = graph.edgeValue((Integer) node, currentNode).get().stream().toList().get(0).requiredTicket();
                     Integer distance = 0;
                     //detectives cannot travel by ferry, thus we should ignore the paths that contain a ferry journey
@@ -86,11 +87,6 @@ public class Dijkstra{ //something we can give minimaxbox to score a game state
 
                 visitedNodes[pos] = currentNode;
                 pos++;
-//                if (ticketsCpy.get(transportTaken) > 0) {
-//
-//
-////					ticketsCpy.put(transportTaken, ticketsCpy.get(transportTaken) -1);
-//                }
 
             }
 
@@ -106,12 +102,17 @@ public class Dijkstra{ //something we can give minimaxbox to score a game state
 
         }
 
+        //builds the shortest path
         List<Integer> path = new ArrayList<Integer>();
         path.add(0, currentNode);
         while (!Objects.equals(currentNode, source)) {
-            ScotlandYard.Ticket transportTaken = graph.edgeValue(currentNode, nodeDict.get(currentNode).get(1)).get().stream().toList().get(0).requiredTicket();
+            if (graph.edgeValue(currentNode, nodeDict.get(currentNode).get(1)).isPresent() && graph.edgeValue(currentNode, nodeDict.get(currentNode).get(1)).get().stream().toList() != null) {
+                ScotlandYard.Ticket transportTaken = graph.edgeValue(currentNode, nodeDict.get(currentNode).get(1)).get().stream().toList().get(0).requiredTicket();
+                ticketsUsed.add(transportTaken);
+            }
+
             currentNode = nodeDict.get(currentNode).get(1);
-            ticketsUsed.add(transportTaken);
+
             path.add(0, currentNode);
         }
 

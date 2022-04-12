@@ -14,6 +14,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static uk.ac.bris.cs.scotlandyard.model.ScotlandYard.Transport.TAXI;
+
 public class DetectiveEvaluator extends Evaluator{
     private final Dijkstra d = new Dijkstra(); //what we're adapting
     private final List<Double> weights;
@@ -28,20 +30,42 @@ public class DetectiveEvaluator extends Evaluator{
 
     //get and set boundaries
 
+    private Set<Integer> filterBoundary(Board.GameState board, Set<Integer> boundary, Integer revealedLocation) {
+        var mrXTickets = board.getPlayerTickets(Piece.MrX.MRX).get();
+        boundary = boundary.stream().filter(x -> {
+            var neededTickets = board.getSetup().graph.edgeValueOrDefault(x, revealedLocation, ImmutableSet.of(TAXI));
+
+            for (ScotlandYard.Transport transport : neededTickets) {
+                if (mrXTickets.getCount(transport.requiredTicket()) < 0) return false;
+            }
+
+            return true;
+
+        }).collect(Collectors.toSet());
+
+        return boundary;
+    }
+
+    //refocuses mr X's bounary each time he reveals himself
     public void setMrXBoundary(Integer revealedLocation, Board.GameState board) {
+        if (revealedLocation < 1 || revealedLocation > 199) throw new IllegalArgumentException("Not a valid location");
         Set<Integer> boundary = new HashSet<Integer>(board.getSetup().graph.successors(revealedLocation));
 
+        //may remove but this currently filters the boundary to tickets mr X has
+        boundary = filterBoundary(board, boundary, revealedLocation);
         Set<Integer> boundaryCpy = Set.copyOf(boundary);
         for (Integer node : boundaryCpy) {
             boundary.addAll(board.getSetup().graph.successors(node));
         }
-
+//
+        boundary = filterBoundary(board, boundary, revealedLocation);
         possibleMrXLocations = boundary;
     }
 
-//    public Set<Integer> getMrXBoundary() {
-//        return possibleMrXLocations;
-//    }
+    //needed for testing
+    public Set<Integer> getMrXBoundary() {
+        return possibleMrXLocations;
+    }
 
     //checks if Mr X's location has been revealed and update Mr X boundary as appropriate
     private void isRevealed(Board.GameState board) {
@@ -54,6 +78,7 @@ public class DetectiveEvaluator extends Evaluator{
         }
     }
 
+    //for static evaluation, calculate distance to mr X
     private int getDistanceToMrX(Piece inPlay, Board.GameState board){
         Random rand = new Random();
         List<Integer> possibleMrXLocationsList = new ArrayList<Integer>(possibleMrXLocations);
@@ -71,6 +96,8 @@ public class DetectiveEvaluator extends Evaluator{
         int distance = getDistanceToMrX(inPlay, board); /*some distance function*/;
         int countMoves = moves.size();
 
+        //just a test NEED TO DISCUSS
+//        if (distance < 3) return distance;
         return (weights.get(0) * distance) - (weights.get(1) * countMoves);
     }
 
