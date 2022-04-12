@@ -55,4 +55,9 @@ public class TreeTest {
         )));
         assert(tree1.equals(tree2));
     }
+
+//    @Test public void testAddToTreeSanity(){
+//        DoubleTree tree = new DoubleTree(new Node(1));
+//        tree.show();
+//    }
 }

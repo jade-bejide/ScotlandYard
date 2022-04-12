@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DoubleTree {
-    private final Node root; //only node values can be changed
+    private final Node root;
     //for mutating:
     private List<Integer> location; // selects the branch to go down from root {branch #, branch #, ...}
     private Node atLocation; // the node at location
@@ -36,10 +36,22 @@ public class DoubleTree {
         try{
             atLocation = navigateTo(location);
         }catch(IndexOutOfBoundsException e){
-            System.err.println("Warning: no such node as " + location + " at depth " + location.size());
+            System.err.println("Warning: no such child at location " + location + " (at depth " + location.size() + ")");
             throw new IndexOutOfBoundsException();
         }
         this.location = location;
+    }
+
+    //faster but please avoid using (unchecked)
+    public void unsafeSetLocation(List<Integer> location) { this.location = location; }
+
+    public void setLocationOnDepthAndID(int depth, int ID){
+        if(depth > 0) {
+            List<Integer> newLocation = location.subList(0, depth - 1);
+            newLocation.add(ID);
+            setLocation(newLocation);
+            //System.out.println("Depth " + depth + " ID " + ID + " => new location: " + location);
+        } else { setLocation(new ArrayList<Integer>()); }
     }
 
     public void addNodeOnLocation(Node node){ //add to node at location's branches
@@ -47,7 +59,10 @@ public class DoubleTree {
         else { atLocation.addNode(node); } //adds node as a child of specified node
     }
 
-    public void setValue(double value){ atLocation.setValue(value); }
+    public void setValueOnLocation(double value){
+        System.out.println("Set value of node at location " + this.location + " to " + value);
+        atLocation.setValue(value);
+    }
 
     public void show(){ root.show(); }
 

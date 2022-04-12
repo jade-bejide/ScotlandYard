@@ -45,6 +45,22 @@ public class MiniMaxBoxTest {
         return state;
     }
 
+    private Board getSmallSetup(){
+        try {
+            defaultGraph = readGraph(Resources.toString(Resources.getResource(
+                            "graph.txt"),
+                    StandardCharsets.UTF_8));
+        } catch (
+                IOException e) { throw new RuntimeException("Unable to read game graph", e); }
+
+        var red = new Player(RED, defaultDetectiveTickets(), 91);
+        var mrX = new Player(MRX, defaultMrXTickets(), 92);
+        var green = new Player(GREEN, defaultDetectiveTickets(), 93);
+        Board.GameState state = new MyGameStateFactory().build(RenameMe.standard24MoveSetup(),
+                mrX, red, green);
+        return state;
+    }
+
     @Test public void testTurnsGenerateCorrectly(){
         Board board = getSetup();
         List<Turn> turns = minimax.getTurns(7, (Board.GameState) board); //does just over one loop
@@ -73,7 +89,10 @@ public class MiniMaxBoxTest {
 //    }
 //
     @Test public void testMiniMaxRecursionToTree(){
-        Board board = getSetup();
-
+        Board.GameState board = (Board.GameState) getSmallSetup();
+        List<Move> moves = minimax.minimax(2, board);
+        board = board.advance(moves.get(0));
+        minimax.minimax(2, board);
+        minimax.getTree().show();
     }
 }
