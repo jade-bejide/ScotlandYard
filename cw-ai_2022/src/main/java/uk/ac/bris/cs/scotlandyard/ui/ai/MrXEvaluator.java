@@ -18,6 +18,10 @@ public class MrXEvaluator extends Evaluator{
         this.weights = flatten(weights);
     }
 
+    public List<Double> getWeights() {
+        return weights;
+    }
+
     private Player getMrX(Board.GameState board) {
         List<Player> mrXS = getPlayers(board).stream().filter(Player::isMrX).toList();
         return mrXS.get(0);
@@ -37,7 +41,6 @@ public class MrXEvaluator extends Evaluator{
         //NOTE: Causes division by zero error when playing against 1 detective!
         try {
             int sd = Math.floorDiv(sumofSqr, (n-1)); //variance
-            System.out.println(sd);
             sd = (int)Math.floor(Math.sqrt(sd));
 
             Integer closestLocation = min(distances); //get distance of closest detective

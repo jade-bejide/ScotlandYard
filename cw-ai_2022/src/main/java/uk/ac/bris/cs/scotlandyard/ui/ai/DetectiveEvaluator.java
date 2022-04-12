@@ -48,6 +48,7 @@ public class DetectiveEvaluator extends Evaluator{
 
     //refocuses mr X's bounary each time he reveals himself
     public void setMrXBoundary(Integer revealedLocation, Board.GameState board) {
+        if (revealedLocation < 1 || revealedLocation > 199) throw new IllegalArgumentException("Not a valid location");
         Set<Integer> boundary = new HashSet<Integer>(board.getSetup().graph.successors(revealedLocation));
 
         //may remove but this currently filters the boundary to tickets mr X has
@@ -96,7 +97,7 @@ public class DetectiveEvaluator extends Evaluator{
         int countMoves = moves.size();
 
         //just a test NEED TO DISCUSS
-        if (distance < 3) return distance;
+//        if (distance < 3) return distance;
         return (weights.get(0) * distance) - (weights.get(1) * countMoves);
     }
 
