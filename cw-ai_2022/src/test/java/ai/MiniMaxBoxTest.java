@@ -67,8 +67,13 @@ public class MiniMaxBoxTest {
 //                        .allMatch(x -> x.equals(minimax.getDetectiveEvaluator())));
 //    }
 
-    @Test public void testMiniMaxChoice(){
+//    @Test public void testMiniMaxChoice(){
+//        Board board = getSetup();
+//        minimax.minimax(4, (Board.GameState) board);
+//    }
+//
+    @Test public void testMiniMaxRecursionToTree(){
         Board board = getSetup();
-        minimax.minimax(4, (Board.GameState) board);
+
     }
 }

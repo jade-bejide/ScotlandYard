@@ -11,39 +11,48 @@ import static org.junit.Assert.*;
 
 public class TreeTest {
 
-    @Test public void testPrintTree(){
-        DoubleTree tree = new DoubleTree(new Node(0));
-        tree.show();
-        tree.setLocation(new ArrayList<Integer>(Arrays.asList(0))); //should fail until we add nodes
-        tree.add(new Node(1));
-        tree.add(new Node(2));
+    @Test (expected = IndexOutOfBoundsException.class)
+    public void testIllegalSetLocation(){ //trying to index children that dont exist
+        DoubleTree tree = new DoubleTree();
         tree.setLocation(new ArrayList<Integer>(Arrays.asList(0)));
-        tree.add(new Node(3));
-        //tree.setLocation(new ArrayList<Integer>(Arrays.asList(0, 0)));
-        tree.add(new Node(4));
-        tree.setLocation(new ArrayList<Integer>(Arrays.asList(1)));
-        tree.add(new Node(10));
-        tree.add(new Node(10));
-        tree.show();
-        Node n = tree.getNodeOnLocation();
-        n.show();
-        tree.setLocation(new ArrayList<Integer>(Arrays.asList(0, 1)));
-        n = tree.getNodeOnLocation();
-        n.show();
-        //assertNotEquals(tree, new DoubleTree(new Node(0)));
+    }
+
+    @Test
+    public void testTreesAreEqual(){
+        DoubleTree tree1 = new DoubleTree();
+        DoubleTree tree2 = new DoubleTree();
+        assert(tree1.equals(tree2));
+    }
+
+    @Test
+    public void testTreesArentEqual(){
+        DoubleTree tree1 = new DoubleTree(new Node(0,
+                new ArrayList<Node>(Arrays.asList(new Node(-1,
+                        new ArrayList<Node>(Arrays.asList(new Node(-3), new Node(-2)))),
+                new Node(1,
+                        new ArrayList<Node>(Arrays.asList(new Node(2), new Node(3))))))
+        ));
+        DoubleTree tree2 = new DoubleTree(new Node(0,
+                new ArrayList<Node>(Arrays.asList(new Node(-1,
+                                new ArrayList<Node>(Arrays.asList(new Node(-4), new Node(-2)))),
+                        new Node(1,
+                                new ArrayList<Node>(Arrays.asList(new Node(2))))))
+        ));
+        assertFalse(tree1.equals(tree2));
     }
 
     @Test public void testDefaultTree(){
-        DoubleTree tree = new DoubleTree(new Node(-1));
-        assertTrue(tree.equals(new DoubleTree(new Node(-1))));
+        DoubleTree tree = new DoubleTree();
+        assert(tree.equals(new DoubleTree(new Node(-1))));
     }
 
     @Test public void testAddToTree(){
-        DoubleTree tree = new DoubleTree();
-        tree.add(new Node(1));
-        tree.add(new Node(2));
-        assertEquals(tree, new DoubleTree(new Node(-1, new ArrayList<Node>(
-                Arrays.asList(new Node(1), new Node(2))
-        ))));
+        DoubleTree tree1 = new DoubleTree(new Node(1));
+        tree1.addNodeOnLocation(new Node(1));
+        tree1.addNodeOnLocation(new Node(2));
+        DoubleTree tree2 = new DoubleTree(new Node(1,
+                new ArrayList<Node>(Arrays.asList(new Node(1), new Node(2))
+        )));
+        assert(tree1.equals(tree2));
     }
 }

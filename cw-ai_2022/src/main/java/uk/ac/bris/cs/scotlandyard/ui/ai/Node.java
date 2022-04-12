@@ -31,6 +31,18 @@ public class Node {
         branches.add(node);
     }
 
+    public boolean equals(Node otherTree){ //tries to return as soon as possible to save computation
+        if(otherTree.getValue() != value) return false;
+        List<Node> otherBranches = otherTree.getBranches();
+        if(branches.size() != otherBranches.size()) return false;
+        for(int i = 0; i < branches.size(); i++){
+            Node thisBranch = branches.get(i);
+            Node otherBranch = otherBranches.get(i);
+            if(!thisBranch.equals(otherBranch)) { return false; }
+        }
+        return true;
+    }
+
     // pretty printer
     public void show() {
         this.show("", true);
@@ -39,11 +51,11 @@ public class Node {
     private void show(String depth, boolean terminal) {
         System.out.print(depth);
         if (depth.length() > 0) System.out.print(terminal ? "└" : "├");
-        System.out.print("" + this.value + "\n");
-        depth += " ";
-        if (depth.length() > 1) {
+        System.out.print("[" + this.value + "]\n");
+        depth += "  ";
+        if (depth.length() > 2) {
             char[] chars = (depth + " ").toCharArray();
-            chars[depth.length() - 1] = terminal ? ' ' : '│';
+            chars[depth.length() - 2] = terminal ? ' ' : '│';
             depth = String.valueOf(chars);
         }
         for (int i = 0; i < branches.size(); i++) {
