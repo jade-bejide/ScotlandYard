@@ -48,8 +48,9 @@ public class DoubleTree {
         }
         this.location = location;
     }
-
-    // // // specific overloading methods for the minimax tree // // //
+        // // // // // // // // // // // // // // // // // // //
+      // // //  specific methods for the minimax tree // // //
+    // // // // // // // // // // // // // // // // // // //
     public void setLocation(int depth, int branchNumber){ //switches branch number at depth
         //System.out.println("Trying to set location to " + newLocation + " on depth " + depth + " and branch number " + branchNumber);
         setLocation(getLocation(depth, branchNumber));
@@ -90,20 +91,12 @@ public class DoubleTree {
         setLocation(recursions, branchID);
         setValueOnLocation(evaluation);
     }
-
-    // // //
+        // // // // // // // // // // // // // // // // // // //
+      // // // // // // // // // // // // // // // // // // //
+    // // // // // // // // // // // // // // // // // // //
 
     //faster but please avoid using (unchecked)
     private void unsafeSetLocation(List<Integer> location) { this.location = location; }
-
-//    public void setLocationOnDepthAndID(int depth, int ID){
-//        if(depth > 0) {
-//            List<Integer> newLocation = location.subList(0, depth - 1);
-//            newLocation.add(ID);
-//            setLocation(newLocation);
-//            //System.out.println("Depth " + depth + " ID " + ID + " => new location: " + location);
-//        } else { setLocation(new ArrayList<Integer>()); }
-//    }
 
     public void addNodeOnLocation(Node node){ //add to node at location's branches
         if(location.isEmpty()) { root.addNode(node); } //add to root if location is default
