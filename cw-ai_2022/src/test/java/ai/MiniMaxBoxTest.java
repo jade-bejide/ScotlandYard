@@ -21,10 +21,6 @@ import static uk.ac.bris.cs.scotlandyard.model.ScotlandYard.*;
 public class MiniMaxBoxTest {
 
     private static ImmutableValueGraph<Integer, ImmutableSet<Transport>> defaultGraph;
-    private final MiniMaxBox minimax = MiniMaxBox.getInstance(
-            new MrXEvaluator(Arrays.asList(0.5, 0.5)),
-            new DetectiveEvaluator(Arrays.asList(0.5, 0.5))
-    );
 
     private Board getSetup(){
         try {
@@ -61,8 +57,13 @@ public class MiniMaxBoxTest {
         return state;
     }
 
-    @Test public void testTurnsGenerateCorrectly(){
+    @Test
+    public void testTurnsGenerateCorrectly(){
         Board board = getSetup();
+        MiniMaxBox minimax = MiniMaxBox.getInstance(
+                new MrXEvaluator(Arrays.asList(0.5, 0.5)),
+                new DetectiveEvaluator(Arrays.asList(0.5, 0.5))
+        );
         List<Turn> turns = minimax.getTurns(7, (Board.GameState) board); //does just over one loop
         assertTrue(turns.get(0).playedBy().equals(MRX) &&
                 turns.get(turns.size() - 1).playedBy().equals(MRX) &&
@@ -88,7 +89,23 @@ public class MiniMaxBoxTest {
 //        minimax.minimax(4, (Board.GameState) board);
 //    }
 //
-    @Test public void testMiniMaxRecursionToTree(){
+
+    @Test (expected = AssertionError.class)
+    public void testMiniMaxTooManyTreesShouldThrow(){
+        MiniMaxBox minimax = MiniMaxBox.getInstance(
+                new MrXEvaluator(Arrays.asList(0.5, 0.5)),
+                new DetectiveEvaluator(Arrays.asList(0.5, 0.5)),
+                new DoubleTree(), new DoubleTree()
+        );
+    }
+
+    @Test
+    public void testMiniMaxRecursionToTree(){
+        MiniMaxBox minimax = MiniMaxBox.getInstance(
+                new MrXEvaluator(Arrays.asList(0.5, 0.5)),
+                new DetectiveEvaluator(Arrays.asList(0.5, 0.5)),
+                new DoubleTree()
+        );
         Board.GameState board = (Board.GameState) getSmallSetup();
         List<Move> moves = minimax.minimax(2, board);
         board = board.advance(moves.get(0));

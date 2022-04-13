@@ -30,6 +30,7 @@ public class Node {
     public void addNode(Node node) {
         branches.add(node);
     }
+    public void pruneAllChildren(){ branches.clear(); }
 
     public boolean equals(Node otherTree){ //tries to return as soon as possible to save computation
         if(otherTree.getValue() != value) return false;
