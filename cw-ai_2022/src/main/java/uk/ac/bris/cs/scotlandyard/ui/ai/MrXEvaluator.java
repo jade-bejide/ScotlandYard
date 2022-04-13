@@ -3,10 +3,15 @@ package uk.ac.bris.cs.scotlandyard.ui.ai;
 import com.google.common.collect.ImmutableSet;
 import uk.ac.bris.cs.scotlandyard.model.*;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import static java.util.Collections.min;
+import static uk.ac.bris.cs.scotlandyard.model.ScotlandYard.Ticket.*;
 import static uk.ac.bris.cs.scotlandyard.ui.ai.BoardHelper.*;
 
 public class MrXEvaluator extends Evaluator{
@@ -78,6 +83,50 @@ public class MrXEvaluator extends Evaluator{
         else return distancePath.get(0);
     }
 
+    private List<Double> calculateTicketWeight(Board.GameState board) {
+        ImmutableSet<Move> mrXMoves = board.getAvailableMoves();
+        List<ScotlandYard.Ticket> mrXMoveTickets = new ArrayList<>();
+        for (Move move : mrXMoves) {
+            List<ScotlandYard.Ticket> tickets = StreamSupport.stream(move.tickets().spliterator(), false).toList();
+            mrXMoveTickets.addAll(tickets);
+        }
+
+        int total = mrXMoveTickets.size();
+        int taxis = (int) mrXMoveTickets.stream().filter(x -> x == TAXI).count();
+        int buses = (int) mrXMoveTickets.stream().filter(x -> x == BUS).count();
+        int unders = (int) mrXMoveTickets.stream().filter(x -> x == UNDERGROUND).count();
+        int secrets = (int) mrXMoveTickets.stream().filter(x -> x == SECRET).count();
+
+        List<Double> weights = new ArrayList<>();
+
+        weights.add((double) taxis/total);
+        weights.add((double) buses/total);
+        weights.add((double) unders/total);
+        weights.add((double) secrets/total);
+        return weights;
+    }
+
+    private double ticketHeuristic(Board.GameState board) {
+        double ticketScore = 0;
+
+        List<Double> ticketWeights = calculateTicketWeight(board);
+
+        List<ScotlandYard.Ticket> posTickets = Arrays.asList(TAXI, BUS, UNDERGROUND, SECRET);
+
+        if (board.getPlayerTickets(Piece.MrX.MRX).isPresent()) {
+            Board.TicketBoard mrXTickets = board.getPlayerTickets(Piece.MrX.MRX).get();
+            for (ScotlandYard.Ticket ticket : posTickets) {
+                    if (ticket == TAXI) ticketScore += (1 - ticketWeights.get(0)) * mrXTickets.getCount(TAXI);
+                    if (ticket == BUS) ticketScore += (1 - ticketWeights.get(1)) * mrXTickets.getCount(BUS);
+                    if (ticket == UNDERGROUND) ticketScore += (1 - ticketWeights.get(2)) * mrXTickets.getCount(UNDERGROUND);
+                    if (ticket == SECRET) ticketScore += (1 - ticketWeights.get(3)) * mrXTickets.getCount(SECRET);
+            }
+
+            return ticketScore;
+        }
+        return 0.0;
+    }
+
     @Override
     public double score(Piece inPlay, List<Move> moves, Board.GameState board) {
         //after calling minimax, for static evaluation we need to score elements:
@@ -86,7 +135,7 @@ public class MrXEvaluator extends Evaluator{
         int distance = cumulativeDistance(board, getMrX(board), getDetectives(board));
 
         int countMoves = moves.size();//board.getAvailableMoves().stream().filter(x -> x.commencedBy().equals(Piece.MrX.MRX)).toList().size();
-
+        //double ticketScore = ticketHeuristic(board);
         return (weights.get(0) * distance) + (weights.get(1) * countMoves);//current score evaluation based on evaluation on distance and moves available
     }
 

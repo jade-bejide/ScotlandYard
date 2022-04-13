@@ -173,7 +173,7 @@ public class MiniMaxBox {
             remaining = nextTurn.remaining(); //getter method
         }
 
-        System.out.println("");
+//        System.out.println("");
 
         return sequence;
     }

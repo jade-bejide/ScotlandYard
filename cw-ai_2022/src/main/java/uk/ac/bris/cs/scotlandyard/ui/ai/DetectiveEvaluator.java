@@ -14,6 +14,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static uk.ac.bris.cs.scotlandyard.model.Piece.Detective.GREEN;
 import static uk.ac.bris.cs.scotlandyard.model.ScotlandYard.Transport.TAXI;
 
 public class DetectiveEvaluator extends Evaluator{
@@ -33,10 +34,12 @@ public class DetectiveEvaluator extends Evaluator{
     private Set<Integer> filterBoundary(Board.GameState board, Set<Integer> boundary, Integer revealedLocation) {
         var mrXTickets = board.getPlayerTickets(Piece.MrX.MRX).get();
         boundary = boundary.stream().filter(x -> {
-            var neededTickets = board.getSetup().graph.edgeValueOrDefault(x, revealedLocation, ImmutableSet.of(TAXI));
+            ImmutableSet<ScotlandYard.Transport> neededTickets = board.getSetup().graph.edgeValueOrDefault(x, revealedLocation, ImmutableSet.of(TAXI));
 
-            for (ScotlandYard.Transport transport : neededTickets) {
-                if (mrXTickets.getCount(transport.requiredTicket()) < 0) return false;
+            if (neededTickets != null) {
+                for (ScotlandYard.Transport transport : neededTickets) {
+                    if (mrXTickets.getCount(transport.requiredTicket()) < 1) return false;
+                }
             }
 
             return true;
@@ -47,18 +50,17 @@ public class DetectiveEvaluator extends Evaluator{
     }
 
     //refocuses mr X's bounary each time he reveals himself
-    public void setMrXBoundary(Integer revealedLocation, Board.GameState board) {
+    public void setMrXBoundary(Integer revealedLocation, Board.GameState board, boolean isFiltering) {
         if (revealedLocation < 1 || revealedLocation > 199) throw new IllegalArgumentException("Not a valid location");
         Set<Integer> boundary = new HashSet<Integer>(board.getSetup().graph.successors(revealedLocation));
 
         //may remove but this currently filters the boundary to tickets mr X has
-        boundary = filterBoundary(board, boundary, revealedLocation);
+        if (isFiltering) boundary = filterBoundary(board, boundary, revealedLocation);
         Set<Integer> boundaryCpy = Set.copyOf(boundary);
         for (Integer node : boundaryCpy) {
             boundary.addAll(board.getSetup().graph.successors(node));
         }
-//
-        boundary = filterBoundary(board, boundary, revealedLocation);
+        if (isFiltering) boundary = filterBoundary(board, boundary, revealedLocation);
         possibleMrXLocations = boundary;
     }
 
@@ -71,10 +73,9 @@ public class DetectiveEvaluator extends Evaluator{
     private void isRevealed(Board.GameState board) {
         ImmutableList<LogEntry> log = board.getMrXTravelLog();
         int n = log.size();
-
         LogEntry currentLog = log.get(n-1);
         if (currentLog.location().isPresent()) {
-            if (!log.get(n-1).location().isEmpty()) setMrXBoundary(currentLog.location().get(), board);
+            if (!log.get(n-1).location().isEmpty()) setMrXBoundary(currentLog.location().get(), board, true);
         }
     }
 
@@ -94,11 +95,18 @@ public class DetectiveEvaluator extends Evaluator{
     public double score(Piece inPlay, List<Move> moves, Board.GameState board) {
         isRevealed(board);
         int distance = getDistanceToMrX(inPlay, board); /*some distance function*/;
+
+        //default is a detective
+        Piece piece = GREEN;
+        if (moves.size() > 0) piece = moves.get(0).commencedBy();
         int countMoves = moves.size();
 
         //just a test NEED TO DISCUSS
 //        if (distance < 3) return distance;
-        return (weights.get(0) * distance) - (weights.get(1) * countMoves);
+        if (piece.isDetective()) return (weights.get(0) * distance) - (weights.get(1) * countMoves);
+        else {
+            return (weights.get(0) * distance) + (weights.get(1) * countMoves);
+        }
     }
 
 
