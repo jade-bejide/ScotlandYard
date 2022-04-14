@@ -35,7 +35,12 @@ public class MrXEvaluator extends Evaluator{
     //analyses the distances such that Mr X hyperfocuses on the closest detectives to him
     private Integer calcDistanceScore(List<Integer> distances) {
         //compute mean
-        int totalSum = distances.stream().mapToInt(x -> x).sum();
+        int totalSum = 0;
+
+        for (Integer distance : distances) {
+            totalSum += distance;
+        }
+
         int n = distances.size();
         int mean = Math.floorDiv(totalSum, n);
         int sumofSqr = 0;
@@ -59,7 +64,11 @@ public class MrXEvaluator extends Evaluator{
             }
 
             //compute the mean of these values
-            int goodSum = noOutlierDist.stream().mapToInt(x -> x).sum();
+            int goodSum = 0;
+
+            for (Integer distance : noOutlierDist) {
+                goodSum += distance;
+            }
             int goodN = noOutlierDist.size();
             return Math.floorDiv(goodSum, goodN);
         } catch (ArithmeticException e) {
