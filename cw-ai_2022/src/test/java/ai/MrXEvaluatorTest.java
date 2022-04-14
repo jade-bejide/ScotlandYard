@@ -31,12 +31,14 @@ public class MrXEvaluatorTest extends RenameMe {
         int mrXMovesSize = mrXMoves.size();
 
         //shortest paths are 1,5,6,7,7
-        //mean is 5, sd = 1 (floored of sqrt(2))
+        //mean is 5, sd = 2 (floored of sqrt(6))
+
+        //2sds so reduced shortest path is [1,5] mean is 3
 
         //init mr X evaluator
         MrXEvaluator mrXE = new MrXEvaluator(Arrays.asList(1.0, 1.0));
         //weight of 1 which is flattened to 0.5
-        assert(mrXE.score(BLUE, mrXMoves, game) == (1*0.5) + (mrXMovesSize* 0.5));
+        assert(mrXE.score(BLUE, mrXMoves, game) == (3*0.5) + (mrXMovesSize* 0.5));
     }
 
     @Test public void testCumulativeDistanceOnePlayer() {
@@ -75,8 +77,6 @@ public class MrXEvaluatorTest extends RenameMe {
 
         //init mr X evaluator
         MrXEvaluator mrXE = new MrXEvaluator(Arrays.asList(1.0, 1.0));
-        //weight of 1 which is flattened to 0.5
-        //sd - 1 new list [5 6 6] -> final mean is 5, 2.5 using the weighted value
         var score =  mrXE.score(GREEN, mrXMoves, game);
         score -= (mrXMovesSize*0.5);
         assert (score == (distanceMeans*0.5));

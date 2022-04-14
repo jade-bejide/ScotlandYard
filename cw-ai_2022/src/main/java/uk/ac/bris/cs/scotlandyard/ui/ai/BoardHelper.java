@@ -29,16 +29,9 @@ public class BoardHelper { //static methods/namespace which holds useful methods
     //gets all the players from the board
     @Nonnull
     public static List<Player> getPlayers(Board.GameState board) {
-        List<Piece.Detective> detectives = board.getPlayers().stream().filter(Piece::isDetective).map(y -> (Piece.Detective)y).toList();
-        List<Piece.MrX> mrXSingle = board.getPlayers().stream().filter(Piece::isMrX).map(y -> (Piece.MrX)y).limit(1).toList();
-
-        List<Piece> pieces = new ArrayList<Piece>();
-        pieces.add(mrXSingle.get(0));
-        pieces.addAll(detectives);
-
         List<Player> players = new ArrayList<Player>();
 
-        for (Piece piece : pieces) {
+        for (Piece piece : board.getPlayers()) {
             if (piece.isDetective()) {
                 boolean hasLocation = board.getDetectiveLocation((Piece.Detective)piece).isPresent();
                 if (hasLocation) {
@@ -61,8 +54,7 @@ public class BoardHelper { //static methods/namespace which holds useful methods
                         location = lastLog.location().get();
                     }
                 } else if (mrXRound) {
-                    List<Move> grabMoves = board.getAvailableMoves().stream().limit(1).toList();
-                    Move grabMove = grabMoves.get(0);
+                    Move grabMove = board.getAvailableMoves().asList().get(0);
                     location = grabMove.source();
                 }
 
@@ -78,7 +70,8 @@ public class BoardHelper { //static methods/namespace which holds useful methods
 
     //returns all detectives on the board, as a list of players
     public static List<Player> getDetectives(Board.GameState board) {
-        return getPlayers(board).stream().filter(Player::isDetective).toList();
+        int noPlayers = getPlayers(board).size();
+        return getPlayers(board).subList(1, noPlayers);
     }
 
     //returns the remaining pieces
@@ -102,12 +95,15 @@ public class BoardHelper { //static methods/namespace which holds useful methods
     //get a singular detective
     public static Player getDetectiveOnPiece(Board.GameState board, Piece piece) {
         //System.out.println(getDetectives(board) + "\n and piece: " + piece);
-        return getDetectives(board).stream().filter(x -> x.piece().equals(piece)).toList().get(0);
+        for (Player detective : getDetectives(board)) {
+            if (detective.piece() == piece) return detective;
+        }
+
+        throw new IllegalArgumentException("Method wasn't handed a detective!");
     }
 
     //returns mr X from the board as a player
     public static Player getMrX(Board.GameState board) {
-        List<Player> mrXS = getPlayers(board).stream().filter(Player::isMrX).toList();
-        return mrXS.get(0);
+        return getPlayers(board).get(0);
     }
 }

@@ -27,11 +27,6 @@ public class MrXEvaluator extends Evaluator{
         return weights;
     }
 
-    private Player getMrX(Board.GameState board) {
-        List<Player> mrXS = getPlayers(board).stream().filter(Player::isMrX).toList();
-        return mrXS.get(0);
-    }
-
     //analyses the distances such that Mr X hyperfocuses on the closest detectives to him
     private Integer calcDistanceScore(List<Integer> distances) {
         //compute mean
@@ -60,18 +55,19 @@ public class MrXEvaluator extends Evaluator{
 
             //only consider statistically close distances (1sd)
             for (Integer distance : distances) {
-                if (distance <= closestLocation + sd) noOutlierDist.add(distance);
+                if (distance <= closestLocation + (2*sd)) noOutlierDist.add(distance);
             }
-
             //compute the mean of these values
             int goodSum = 0;
 
             for (Integer distance : noOutlierDist) {
                 goodSum += distance;
             }
+
             int goodN = noOutlierDist.size();
             return Math.floorDiv(goodSum, goodN);
         } catch (ArithmeticException e) {
+            System.out.println("Went wrong here");
             return Math.floorDiv(totalSum, n);
         }
     }
@@ -125,10 +121,10 @@ public class MrXEvaluator extends Evaluator{
         if (board.getPlayerTickets(Piece.MrX.MRX).isPresent()) {
             Board.TicketBoard mrXTickets = board.getPlayerTickets(Piece.MrX.MRX).get();
             for (ScotlandYard.Ticket ticket : posTickets) {
-                    if (ticket == TAXI) ticketScore += (1 - ticketWeights.get(0)) * mrXTickets.getCount(TAXI);
-                    if (ticket == BUS) ticketScore += (1 - ticketWeights.get(1)) * mrXTickets.getCount(BUS);
-                    if (ticket == UNDERGROUND) ticketScore += (1 - ticketWeights.get(2)) * mrXTickets.getCount(UNDERGROUND);
-                    if (ticket == SECRET) ticketScore += (1 - ticketWeights.get(3)) * mrXTickets.getCount(SECRET);
+                    if (ticket == TAXI) ticketScore += (1-ticketWeights.get(0)) * mrXTickets.getCount(TAXI);
+                    if (ticket == BUS) ticketScore += (1-ticketWeights.get(1)) * mrXTickets.getCount(BUS);
+                    if (ticket == UNDERGROUND) ticketScore += (1-ticketWeights.get(2)) * mrXTickets.getCount(UNDERGROUND);
+                    if (ticket == SECRET) ticketScore += (1-ticketWeights.get(3)) * mrXTickets.getCount(SECRET);
             }
 
             return ticketScore;
@@ -144,8 +140,22 @@ public class MrXEvaluator extends Evaluator{
         int distance = cumulativeDistance(board, getMrX(board), getDetectives(board));
 
         int countMoves = moves.size();//board.getAvailableMoves().stream().filter(x -> x.commencedBy().equals(Piece.MrX.MRX)).toList().size();
-        //double ticketScore = ticketHeuristic(board);
-        return (weights.get(0) * distance) + (weights.get(1) * countMoves);//current score evaluation based on evaluation on distance and moves available
+        double ticketScore = ticketHeuristic(board);
+
+        //or just deduct points for using double and secret tickets
+        double score = (weights.get(0) * distance) + (weights.get(1) * countMoves);
+
+        if (board.getPlayerTickets(Piece.MrX.MRX).isPresent()) {
+            Board.TicketBoard  mrXTickets = board.getPlayerTickets(Piece.MrX.MRX).get();
+            int doubleCount = mrXTickets.getCount(DOUBLE);
+            int secretCount = mrXTickets.getCount(SECRET);
+            int busCount = mrXTickets.getCount(BUS);
+            int trainCount = mrXTickets.getCount(UNDERGROUND);
+
+            // if (secretCount < 3) score -= 2;
+        }
+
+        return score;//current score evaluation based on evaluation on distance and moves available
     }
 
 

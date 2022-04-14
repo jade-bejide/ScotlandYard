@@ -125,6 +125,8 @@ public class ShortestPathTest extends RenameMe {
         assert(yellowPath.getMiddle().size()-1 == yellowPath.getFirst());
         assert(greenPath.getMiddle().size()-1 == greenPath.getFirst());
 
+
+
         //Assert the number of nodes travelled is equal to the number of tickets used
         assert(redPath.getMiddle().size()-1 == redPath.getLast().size());
         assert(yellowPath.getMiddle().size()-1 == yellowPath.getLast().size());
@@ -153,8 +155,6 @@ public class ShortestPathTest extends RenameMe {
     private boolean assertThatPathMatchesTickets(List<Integer> path, List<ScotlandYard.Ticket> ticketsUsed, Board.GameState board) {
         int i = 0;
 
-        //tickets are added from dest to source so list needs to be reversed
-        Collections.reverse(ticketsUsed);
         while (i < path.size()-1) {
             if (board.getSetup().graph.edgeValue(path.get(i), path.get(i+1)).isPresent()) {
                 Ticket ticket1 = board.getSetup().graph.edgeValue(path.get(i), path.get(i+1)).get().stream().toList().get(0).requiredTicket();

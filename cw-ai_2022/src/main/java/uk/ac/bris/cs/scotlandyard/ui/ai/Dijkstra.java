@@ -83,8 +83,6 @@ public class Dijkstra{ //something we can give minimaxbox to score a game state
 
             Integer p = nodeDict.get(currentNode).get(1);
             if (p != null && graph.edgeValue(p, currentNode).isPresent()) {
-
-
                 visitedNodes[pos] = currentNode;
                 pos++;
 
@@ -106,14 +104,18 @@ public class Dijkstra{ //something we can give minimaxbox to score a game state
         List<Integer> path = new ArrayList<Integer>();
         path.add(0, currentNode);
         while (!Objects.equals(currentNode, source)) {
-            if (graph.edgeValue(currentNode, nodeDict.get(currentNode).get(1)).isPresent() && graph.edgeValue(currentNode, nodeDict.get(currentNode).get(1)).get().stream().toList() != null) {
-                ScotlandYard.Ticket transportTaken = graph.edgeValue(currentNode, nodeDict.get(currentNode).get(1)).get().stream().toList().get(0).requiredTicket();
-                ticketsUsed.add(transportTaken);
-            }
+
 
             currentNode = nodeDict.get(currentNode).get(1);
 
             path.add(0, currentNode);
+        }
+
+        for (int i = 0; i < path.size()-1; i++) {
+            if (graph.edgeValue(path.get(i), path.get(i+1)).isPresent() &&  !(graph.edgeValue(path.get(i), path.get(i+1)).isEmpty())) {
+                ScotlandYard.Ticket transportTaken = graph.edgeValue(path.get(i), path.get(i+1)).get().stream().toList().get(0).requiredTicket();
+                ticketsUsed.add(transportTaken);
+            }
         }
 
         return new NdTypes.Triple<Integer, List<Integer>, List<ScotlandYard.Ticket>>(nodeDict.get(destination).get(0), path, ticketsUsed);//needs to include source

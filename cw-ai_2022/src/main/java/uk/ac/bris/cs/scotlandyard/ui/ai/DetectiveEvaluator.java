@@ -75,7 +75,7 @@ public class DetectiveEvaluator extends Evaluator{
         int n = log.size();
         LogEntry currentLog = log.get(n-1);
         if (currentLog.location().isPresent()) {
-            if (!log.get(n-1).location().isEmpty()) setMrXBoundary(currentLog.location().get(), board, true);
+            if (!log.get(n-1).location().isEmpty()) setMrXBoundary(currentLog.location().get(), board, false);
         }
     }
 
@@ -98,6 +98,7 @@ public class DetectiveEvaluator extends Evaluator{
 
         //default is a detective
         Piece piece = GREEN;
+        if (inPlay.isMrX()) throw new IllegalArgumentException("Mr X shouldn't be minimising!");
         if (moves.size() > 0) piece = moves.get(0).commencedBy();
         int countMoves = moves.size();
 
