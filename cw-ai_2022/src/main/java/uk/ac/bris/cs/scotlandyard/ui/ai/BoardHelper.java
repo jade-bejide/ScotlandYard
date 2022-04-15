@@ -70,8 +70,7 @@ public class BoardHelper { //static methods/namespace which holds useful methods
 
     //returns all detectives on the board, as a list of players
     public static List<Player> getDetectives(Board.GameState board) {
-        int noPlayers = getPlayers(board).size();
-        return getPlayers(board).subList(1, noPlayers);
+        return getPlayers(board).stream().filter(Player::isDetective).toList();
     }
 
     //returns the remaining pieces

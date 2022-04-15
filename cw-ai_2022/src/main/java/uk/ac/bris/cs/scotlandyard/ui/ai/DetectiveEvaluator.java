@@ -93,12 +93,13 @@ public class DetectiveEvaluator extends Evaluator{
 
     @Override
     public double score(Piece inPlay, List<Move> moves, Board.GameState board) {
+        if (inPlay.isMrX()) throw new IllegalArgumentException("Mr X shouldn't be minimising!");
         isRevealed(board);
         int distance = getDistanceToMrX(inPlay, board); /*some distance function*/;
 
         //default is a detective
         Piece piece = GREEN;
-        if (inPlay.isMrX()) throw new IllegalArgumentException("Mr X shouldn't be minimising!");
+
         if (moves.size() > 0) piece = moves.get(0).commencedBy();
         int countMoves = moves.size();
 
