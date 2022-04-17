@@ -63,6 +63,19 @@ public class ShortestPathTest extends RenameMe {
         }
     }
 
+    @Test
+    public void testNodeDictionaryNeverNull() {
+        Player mrX = new Player(Piece.MrX.MRX, defaultMrXTickets(), 198);
+        Player green = new Player(Piece.Detective.GREEN, defaultDetectiveTickets(), 199);
+
+
+        Board.GameState game = new MyGameStateFactory().build(standard24MoveSetup(), mrX, green);
+
+        Dijkstra dijk = new Dijkstra();
+
+        assertNotNull(dijk.getPopulatedDict());
+    }
+
     @Test(expected = IllegalArgumentException.class)
     public void testDijkstraDoesntAttemptIllegalNodes() {
         Dijkstra dijk = new Dijkstra();
