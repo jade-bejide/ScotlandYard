@@ -113,7 +113,7 @@ public class MiniMaxBoxTest {
         Board.GameState board = (Board.GameState) getSmallSetup();
         List<Move> moves = minimax.minimax(4, board);
         board = board.advance(moves.get(0));
-        minimax.minimax(2, board);
+        //minimax.minimax(2, board);
         DoubleTree tree = minimax.getTree();
         tree.show();
         assertFalse(tree.equals(new DoubleTree())); //check that it has changed
