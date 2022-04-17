@@ -233,6 +233,7 @@ public final class MyGameStateFactory implements Factory<GameState> {
 
 			Player player = getPlayerOnPiece(move.commencedBy());
 			Piece piece = player.piece();
+			System.out.println("Advancing " + player + " according to " + move); //??
 
 			return move.accept(new Visitor<GameState>(){ //our gamestate-making visitor
 				public GameState visit(SingleMove move){

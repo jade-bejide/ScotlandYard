@@ -119,6 +119,7 @@ public class MrXEvaluator extends Evaluator{
         //after calling minimax, for static evaluation we need to score elements:
         //distance from detectives (tickets away)
         //available moves
+
         int distance = cumulativeDistance(board, getMrX(board), getDetectives(board));
 
         int countMoves = moves.size();//board.getAvailableMoves().stream().filter(x -> x.commencedBy().equals(Piece.MrX.MRX)).toList().size();
