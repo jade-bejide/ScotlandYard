@@ -83,45 +83,32 @@ public class MrXEvaluator extends Evaluator{
         else return distancePath.get(0);
     }
 
-    private List<Double> calculateTicketWeight(Board.GameState board) {
-        ImmutableSet<Move> mrXMoves = board.getAvailableMoves();
-        List<ScotlandYard.Ticket> mrXMoveTickets = new ArrayList<>();
-        for (Move move : mrXMoves) {
-            List<ScotlandYard.Ticket> tickets = StreamSupport.stream(move.tickets().spliterator(), false).toList();
-            mrXMoveTickets.addAll(tickets);
-        }
-
-        int total = mrXMoveTickets.size();
-        int taxis = (int) mrXMoveTickets.stream().filter(x -> x == TAXI).count();
-        int buses = (int) mrXMoveTickets.stream().filter(x -> x == BUS).count();
-        int unders = (int) mrXMoveTickets.stream().filter(x -> x == UNDERGROUND).count();
-        int secrets = (int) mrXMoveTickets.stream().filter(x -> x == SECRET).count();
-
-        List<Double> weights = new ArrayList<>();
-
-        weights.add((double) taxis/total);
-        weights.add((double) buses/total);
-        weights.add((double) unders/total);
-        weights.add((double) secrets/total);
-        return weights;
-    }
-
     private double ticketHeuristic(Board.GameState board) {
-        double ticketScore = 0;
-
-        List<Double> ticketWeights = calculateTicketWeight(board);
-
-        List<ScotlandYard.Ticket> posTickets = Arrays.asList(TAXI, BUS, UNDERGROUND, SECRET);
+        double ticketScore = 0.0;
 
         if (board.getPlayerTickets(Piece.MrX.MRX).isPresent()) {
-            Board.TicketBoard mrXTickets = board.getPlayerTickets(Piece.MrX.MRX).get();
-            for (ScotlandYard.Ticket ticket : posTickets) {
-                    if (ticket == TAXI) ticketScore += (1-ticketWeights.get(0)) * mrXTickets.getCount(TAXI);
-                    if (ticket == BUS) ticketScore += (1-ticketWeights.get(1)) * mrXTickets.getCount(BUS);
-                    if (ticket == UNDERGROUND) ticketScore += (1-ticketWeights.get(2)) * mrXTickets.getCount(UNDERGROUND);
-                    if (ticket == SECRET) ticketScore += (1-ticketWeights.get(3)) * mrXTickets.getCount(SECRET);
-            }
+            Board.TicketBoard mrXBoard = board.getPlayerTickets(Piece.MrX.MRX).get();
 
+            int taxis = mrXBoard.getCount(TAXI);
+            int buses = mrXBoard.getCount(BUS);
+            int unders = mrXBoard.getCount(UNDERGROUND);
+            int secrets = mrXBoard.getCount(SECRET);
+            int doubles = mrXBoard.getCount(DOUBLE);
+            int total = taxis + buses + unders + secrets + doubles;
+
+            List<Double> weights = new ArrayList<>();
+
+            weights.add((double) taxis/total);
+            weights.add((double) buses/total);
+            weights.add((double) unders/total);
+            weights.add((double) secrets/total);
+            weights.add((double) doubles/total);
+
+            ticketScore += (1-weights.get(0)) * mrXBoard.getCount(TAXI);
+            ticketScore += (1-weights.get(1)) * mrXBoard.getCount(BUS);
+            ticketScore += (1-weights.get(2)) * mrXBoard.getCount(UNDERGROUND);
+            ticketScore += (1-weights.get(3)) * mrXBoard.getCount(SECRET);
+            ticketScore += (1-weights.get(4)) * mrXBoard.getCount(DOUBLE);
             return ticketScore;
         }
         return 0.0;
@@ -138,16 +125,7 @@ public class MrXEvaluator extends Evaluator{
 
         //or just deduct points for using double and secret tickets
         double score = (weights.get(0) * distance) + (weights.get(1) * countMoves);
-
-        if (board.getPlayerTickets(Piece.MrX.MRX).isPresent()) {
-            Board.TicketBoard  mrXTickets = board.getPlayerTickets(Piece.MrX.MRX).get();
-            int doubleCount = mrXTickets.getCount(DOUBLE);
-            int secretCount = mrXTickets.getCount(SECRET);
-            int busCount = mrXTickets.getCount(BUS);
-            int trainCount = mrXTickets.getCount(UNDERGROUND);
-
-            // if (secretCount < 3) score -= 2;
-        }
+        //double ticketScore = ticketHeuristic(board);
 
         return score;//current score evaluation based on evaluation on distance and moves available
     }

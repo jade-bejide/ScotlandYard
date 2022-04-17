@@ -8,7 +8,7 @@ import org.junit.runners.Suite;
         BoardHelperTest.class,
         ShortestPathTest.class,
         MrXEvaluatorTest.class,
-        DetectivesEvaluatorTest.class,
+        DetectivesEvaluatorTest.class
         MiniMaxBoxTest.class,
         TreeTest.class
 })
