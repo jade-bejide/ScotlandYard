@@ -14,6 +14,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static uk.ac.bris.cs.scotlandyard.model.Piece.Detective.*;
 import static uk.ac.bris.cs.scotlandyard.model.Piece.MrX.MRX;
@@ -73,9 +74,14 @@ public class MiniMaxBoxTest {
                         .toList()
                         .containsAll(Arrays.asList(RED, GREEN, BLUE, WHITE, YELLOW)));
     }
-//
+
 //    @Test public void testEvaluatorsAssignCorrectly(){
 //        Board board = getSetup();
+//        MiniMaxBox minimax = MiniMaxBox.getInstance(
+//                new MrXEvaluator(Arrays.asList(0.5, 0.5)),
+//                new DetectiveEvaluator(Arrays.asList(0.5, 0.5)),
+//                new DoubleTree(), new DoubleTree()
+//        );
 //        List<Turn> turns = minimax.getTurns(6, (Board.GameState) board);
 //        assertTrue(turns.get(0).evaluator().equals(minimax.getMrXEvaluator()) &&
 //                turns.subList(1, turns.size())
@@ -110,6 +116,10 @@ public class MiniMaxBoxTest {
         List<Move> moves = minimax.minimax(2, board);
         board = board.advance(moves.get(0));
         minimax.minimax(2, board);
-        minimax.getTree().show();
+        DoubleTree tree = minimax.getTree();
+        tree.show();
+        assertFalse(tree.equals(new DoubleTree())); //check that it has changed
     }
+
+
 }

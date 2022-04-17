@@ -23,22 +23,19 @@ public class MiniMaxBox {
     // unit test minimax tree
     private final DoubleTree tree;
 
-    private MiniMaxBox(Evaluator eMrX, Evaluator eDetectives, DoubleTree... possibleTestTree){
+    private MiniMaxBox(Evaluator eMrX, Evaluator eDetectives, DoubleTree possibleTestTree){
         this.mrXEvaluator = eMrX;
         this.detectiveEvaluator = eDetectives;
-        this.tree = possibleTestTree.length > 0 ? possibleTestTree[0] : null;
-        if(possibleTestTree.length > 1) throw new AssertionError("You're passing in too many test trees to MiniMaxBox");
-    }
+        this.tree = possibleTestTree;
+}
 
     public static MiniMaxBox getInstance(Evaluator eMrX, Evaluator eDetectives, DoubleTree... possibleTestTree){ //singleton
+        if(possibleTestTree.length > 1) throw new AssertionError("You're passing in too many test trees to MiniMaxBox");
         //Evaluator evaluator = evaluators[0]; //if someone mistakenly passes lots of evaluators we only want the first
         //if(evaluators.length > 1) System.out.println("Warning: MiniMaxBox will take the first of " + evaluators.length + " evaluators.");
-        if(instance == null) { instance = new MiniMaxBox(eMrX, eDetectives, possibleTestTree); }
+        if(instance == null) { instance = new MiniMaxBox(eMrX, eDetectives, possibleTestTree[0]); }
         return instance;
     }
-
-    //unit test minimax tree
-    public DoubleTree getTree(){ return tree; }
 
     private Pair<Double, List<Move>> evaluate(List<Move> moves, Board.GameState board){
         double evaluation = thisTurnStrategy.score(thisTurn.playedBy(), moves, board);
@@ -195,6 +192,7 @@ public class MiniMaxBox {
     }
 
     //pure and safe test methods
+    public DoubleTree getTree(){ return tree; }
     public List<Turn> getTurns(int depth, Board.GameState board){ return makeTurnSequence(depth, board); }
     public Evaluator getMrXEvaluator(){ return mrXEvaluator; }
     public Evaluator getDetectiveEvaluator() { return detectiveEvaluator; }
