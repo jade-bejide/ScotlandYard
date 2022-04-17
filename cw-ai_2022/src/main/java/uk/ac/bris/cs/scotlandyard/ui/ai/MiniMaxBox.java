@@ -69,7 +69,7 @@ public class MiniMaxBox {
             if (inPlay.isMrX()) return evaluate(currentlyAvailableMoves, board);
         }
 
-        List<Move> newPath = new ArrayList<Move>(); //keeps compiler smiling (choice is always initialised)
+        List<Move> newPath = new ArrayList<Move>();
         double evaluation;
 
         //maximising player which sets alpha

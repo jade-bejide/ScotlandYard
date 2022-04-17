@@ -72,6 +72,7 @@ public class MrXEvaluator extends Evaluator{
 
     private int cumulativeDistance(Board.GameState board, Player mrX, List<Player> detectives) {
         Integer mrXLocation = mrX.location();
+
         List<Integer> distancePath = new ArrayList<>();
         for (Player detective : detectives) {
             var path = d.shortestPathFromSourceToDestination(mrXLocation, detective, board);
@@ -119,6 +120,7 @@ public class MrXEvaluator extends Evaluator{
         //after calling minimax, for static evaluation we need to score elements:
         //distance from detectives (tickets away)
         //available moves
+        //System.out.println("MrXEvaluator thinks MrX looks like " + BoardHelper.getMrX(board));
 
         int distance = cumulativeDistance(board, getMrX(board), getDetectives(board));
 

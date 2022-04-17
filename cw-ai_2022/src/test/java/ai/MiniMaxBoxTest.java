@@ -38,7 +38,7 @@ public class MiniMaxBoxTest {
 
     private Board getSmallSetup(){
         var red = new Player(RED, defaultDetectiveTickets(), 91);
-        var mrX = new Player(MRX, defaultMrXTickets(), 92);
+        var mrX = new Player(MRX, defaultMrXTickets(), 2);
         var green = new Player(GREEN, defaultDetectiveTickets(), 93);
         Board.GameState state = new MyGameStateFactory().build(RenameMe.standard24MoveSetup(),
                 mrX, red, green);
@@ -99,21 +99,29 @@ public class MiniMaxBoxTest {
 
     @Test
     public void testMiniMaxRecursionToTree(){
-        Evaluator simpleMrXEvaluator = new Evaluator() {
+//        Evaluator simpleMrXEvaluator = new Evaluator() {
+//            @Override
+//            public double score(Piece inPlay, List<Move> moves, Board.GameState board) {
+//                return BoardHelper.getMrX(board);
+//            }
+//        };
+        Evaluator simpleDetectiveEvaluator = new Evaluator() {
             @Override
             public double score(Piece inPlay, List<Move> moves, Board.GameState board) {
-                return BoardHelper.getMrX(board).location();
+                return BoardHelper.getDetectives(board).stream()
+                        .filter(x -> x.piece().equals(inPlay))
+                        .toList().get(0).location();
             }
         };
         MiniMaxBox minimax = MiniMaxBox.getInstance(
-                simpleMrXEvaluator,
-                new DetectiveEvaluator(Arrays.asList(0.5, 0.5)),
+                new MrXEvaluator(Arrays.asList(0.5, 0.5)),
+                simpleDetectiveEvaluator,
                 new DoubleTree()
         );
         Board.GameState board = (Board.GameState) getSmallSetup();
-        List<Move> moves = minimax.minimax(4, board);
+        List<Move> moves = minimax.minimax(3, board);
         board = board.advance(moves.get(0));
-        //minimax.minimax(2, board);
+        //minimax.minimax(1, board);
         DoubleTree tree = minimax.getTree();
         tree.show();
         assertFalse(tree.equals(new DoubleTree())); //check that it has changed
