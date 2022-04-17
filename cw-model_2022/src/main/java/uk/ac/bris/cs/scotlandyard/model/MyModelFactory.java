@@ -22,8 +22,7 @@ public final class MyModelFactory implements Factory<Model> {
 	                                      ImmutableList<Player> detectives) {
 		// TODO
 		return new Model() {
-
-			private List<Observer> characters = new ArrayList<>();
+			private final List<Observer> characters = new ArrayList<>();
 			private Board.GameState gs = new MyGameStateFactory().build(setup, mrX, detectives);
 
 			@Nonnull
@@ -32,6 +31,7 @@ public final class MyModelFactory implements Factory<Model> {
 				return gs;
 			}
 
+			//adds an observer to the list of observers if it is not already in the list
 			@Override
 			public void registerObserver(@Nonnull Observer observer) {
 				if (observer == null) throw new NullPointerException("No null observers!");
@@ -39,6 +39,8 @@ public final class MyModelFactory implements Factory<Model> {
 				characters.add(observer);
 			}
 
+			//removes an observer from the list of observers, given that the observer is in
+			//the list of observers
 			@Override
 			public void unregisterObserver(@Nonnull Observer observer) {
 				if (observer == null) throw new NullPointerException("No null observers!");
@@ -52,6 +54,7 @@ public final class MyModelFactory implements Factory<Model> {
 				return ImmutableSet.copyOf(characters);
 			}
 
+			//progresses game if the game is not over or ends the game
 			@Override
 			public void chooseMove(@Nonnull Move move) {
 				gs = gs.advance(move);

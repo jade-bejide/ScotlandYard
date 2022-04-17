@@ -5,9 +5,6 @@ import com.google.common.collect.*;
 import javax.annotation.Nonnull;
 
 import java.util.*;
-
-import com.google.common.graph.ImmutableValueGraph;
-import org.checkerframework.checker.nullness.qual.Nullable;
 import uk.ac.bris.cs.scotlandyard.model.Board.GameState;
 import uk.ac.bris.cs.scotlandyard.model.ScotlandYard.Factory;
 import uk.ac.bris.cs.scotlandyard.model.Move.*;
@@ -17,8 +14,7 @@ import uk.ac.bris.cs.scotlandyard.model.ScotlandYard.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import static uk.ac.bris.cs.scotlandyard.model.ScotlandYard.Ticket.DOUBLE;
-import static uk.ac.bris.cs.scotlandyard.model.ScotlandYard.Ticket.SECRET;
+import static uk.ac.bris.cs.scotlandyard.model.ScotlandYard.Ticket.*;
 
 /**
  * cw-model
@@ -41,6 +37,7 @@ public final class MyGameStateFactory implements Factory<GameState> {
 			this.log = log;
 			this.mrX = mrX;
 			this.detectives = detectives;
+			this.moves = getAvailableMoves();
 			this.winner = ImmutableSet.copyOf(determineWinner().stream().map(Player::piece).collect(Collectors.toSet()));
 			constructorTests();
 
@@ -189,11 +186,6 @@ public final class MyGameStateFactory implements Factory<GameState> {
 			return ImmutableSet.copyOf(players);
 		}
 
-//		public List<Player> getDetectivesForAI(){ //get players for the ai (the actual players)
-//			ImmutableSet<Piece> pieces = getPlayers();
-//			return pieces.stream().map(this::getPlayerOnPiece).filter(Player::isDetective).collect(Collectors.toList());
-//		}
-
 		private Player getPlayerOnPiece(Piece p){
 			List<Player> players = new ArrayList<Player>(detectives); players.add(mrX);
 			List<Player> filter = players
@@ -234,11 +226,6 @@ public final class MyGameStateFactory implements Factory<GameState> {
 			}
 			return ImmutableMap.copyOf(ticketsMutable);
 		}
-
-//		public static void showEntry(LogEntry l) {
-//			System.out.println("Log entry: ticket:" + l.ticket() + " location:" + l.location());
-//
-//		}
 
 		@Nonnull
 		@Override
