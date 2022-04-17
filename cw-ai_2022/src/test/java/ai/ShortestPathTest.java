@@ -31,7 +31,7 @@ public class ShortestPathTest extends RenameMe {
         Player red = new Player (Piece.Detective.RED, defaultDetectiveTickets(), 54);
         Player yellow = new Player(Piece.Detective.YELLOW, defaultDetectiveTickets(), 34);
         Player white = new Player(Piece.Detective.WHITE, defaultDetectiveTickets(), 21);
-        Board.GameState game = new MyGameStateFactory().build(standard24MoveSetup(), mrX, green, red, yellow, white);
+        Board.GameState game = new MyGameStateFactory().build(standard24MoveSetup(), mrX, green, blue, red, yellow, white);
 
 
         Dijkstra dijk = new Dijkstra();
@@ -59,7 +59,7 @@ public class ShortestPathTest extends RenameMe {
         //make proxy games enabling the dict to be populated
         dijk.shortestPathFromSourceToDestination(mrX.location(), green, game);
         for (Integer n : game.getSetup().graph.nodes()) {
-            assertTrue(dijk.getPopulatedDict().get(n) != null);
+            assertNotNull(dijk.getPopulatedDict().get(n));
         }
     }
 

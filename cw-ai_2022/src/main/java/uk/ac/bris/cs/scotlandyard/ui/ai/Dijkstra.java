@@ -11,7 +11,7 @@ import static uk.ac.bris.cs.scotlandyard.ui.ai.BoardHelper.getPlayerTickets;
 
 public class Dijkstra{ //something we can give minimaxbox to score a game state
 
-    Dictionary<Integer, ArrayList<Integer>> nodeDict = new Hashtable<Integer, ArrayList<Integer>>();;
+    Dictionary<Integer, ArrayList<Integer>> nodeDict = new Hashtable<Integer, ArrayList<Integer>>(0);
 
     //build the datastructures holding the nodes, their distance from source and their preceding node
     private void populate(ImmutableValueGraph<Integer, ImmutableSet<ScotlandYard.Transport>> graph, Integer source){

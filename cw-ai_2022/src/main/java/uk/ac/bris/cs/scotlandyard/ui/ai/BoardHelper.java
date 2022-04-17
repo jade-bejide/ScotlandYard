@@ -20,10 +20,26 @@ public class BoardHelper { //static methods/namespace which holds useful methods
         for (ScotlandYard.Ticket ticket : ticketTypes) {
             if (board.getPlayerTickets(piece).isPresent()) {
                 tickets.put(ticket, board.getPlayerTickets(piece).get().getCount(ticket));
+            } else {
+                tickets.put(ticket, 0);
             }
         }
 
         return ImmutableMap.copyOf(tickets);
+    }
+
+    private static boolean checkPlayersAlwaysContainsDetectiveOrMrX(List<Player> players, boolean ifMrX) {
+        boolean playerPredicate = false;
+        for (Player player : players) {
+            if (!ifMrX) {
+                if (player.isDetective()) return true;
+            }
+            else {
+                if (player.isMrX()) return true;
+            }
+        }
+
+        return playerPredicate;
     }
 
     //gets all the players from the board
@@ -65,6 +81,9 @@ public class BoardHelper { //static methods/namespace which holds useful methods
             }
         }
 
+
+        if (!checkPlayersAlwaysContainsDetectiveOrMrX(players, false)) throw new IllegalArgumentException("A game must always contain detectives!");
+        if (!checkPlayersAlwaysContainsDetectiveOrMrX(players, true)) throw new IllegalArgumentException("A game must always contains mr X!");
         return players;
     }
 

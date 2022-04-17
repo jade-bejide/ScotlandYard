@@ -3,11 +3,9 @@ package uk.ac.bris.cs.scotlandyard.ui.ai;
 import com.google.common.collect.ImmutableSet;
 import uk.ac.bris.cs.scotlandyard.model.*;
 
-import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import static java.util.Collections.min;
@@ -27,7 +25,7 @@ public class MrXEvaluator extends Evaluator{
         return weights;
     }
 
-    //analyses the distances such that Mr X hyperfocuses on the closest detectives to him
+    //analyses the distances such that Mr X hyper focuses on the closest detectives to him
     private Integer calcDistanceScore(List<Integer> distances) {
         //compute mean
         int totalSum = 0;
@@ -48,7 +46,7 @@ public class MrXEvaluator extends Evaluator{
             int sd = Math.floorDiv(sumofSqr, (n-1)); //variance
             sd = (int)Math.floor(Math.sqrt(sd));
 
-            Integer closestLocation = min(distances); //get distance of closest detective
+            Integer closestLocation = min(distances); //get distance of the closest detective
             List<Integer> noOutlierDist = new ArrayList<>();
             noOutlierDist.add(closestLocation);
             distances.remove(closestLocation);
@@ -79,9 +77,6 @@ public class MrXEvaluator extends Evaluator{
             var path = d.shortestPathFromSourceToDestination(mrXLocation, detective, board);
             int distance = path.getFirst();
             distancePath.add(distance);
-            List<Integer> nodes = path.getMiddle(); //may want to use for whatever reason
-            List<ScotlandYard.Ticket> ticketUsed = path.getLast(); //for testing, assert that detective had enough tickets to travel that path
-
         }
 
         if (detectives.size() > 1) return calcDistanceScore(distancePath);
@@ -140,7 +135,6 @@ public class MrXEvaluator extends Evaluator{
         int distance = cumulativeDistance(board, getMrX(board), getDetectives(board));
 
         int countMoves = moves.size();//board.getAvailableMoves().stream().filter(x -> x.commencedBy().equals(Piece.MrX.MRX)).toList().size();
-        double ticketScore = ticketHeuristic(board);
 
         //or just deduct points for using double and secret tickets
         double score = (weights.get(0) * distance) + (weights.get(1) * countMoves);

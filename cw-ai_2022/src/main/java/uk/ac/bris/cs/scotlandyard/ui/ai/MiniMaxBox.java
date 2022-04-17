@@ -23,7 +23,7 @@ public class MiniMaxBox {
     // unit test minimax tree
     private final DoubleTree tree;
 
-    private MiniMaxBox(Evaluator eMrX, Evaluator eDetectives, DoubleTree[] possibleTestTree){
+    private MiniMaxBox(Evaluator eMrX, Evaluator eDetectives, DoubleTree... possibleTestTree){
         this.mrXEvaluator = eMrX;
         this.detectiveEvaluator = eDetectives;
         this.tree = possibleTestTree.length > 0 ? possibleTestTree[0] : null;
