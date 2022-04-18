@@ -104,8 +104,6 @@ public class Dijkstra{ //something we can give minimaxbox to score a game state
         List<Integer> path = new ArrayList<Integer>();
         path.add(0, currentNode);
         while (!Objects.equals(currentNode, source)) {
-
-
             currentNode = nodeDict.get(currentNode).get(1);
 
             path.add(0, currentNode);

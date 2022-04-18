@@ -44,43 +44,44 @@ public class MiniMaxBox {
 
     //  returns a list of moves which are best for player(s) in the starting round
     private Pair<Double, List<Move>> minimax(List<Turn> order, int depth, double alpha, double beta,
-                                             List<Move> previousPiecesMoves, Board.GameState board,
+                                             List<Move> previousAvailableMoves, Board.GameState board,
                                              int branchID){ //branchID is only for tree building and therefore testing
+        //System.out.println("MrX is at node: " + BoardHelper.getMrX(board).location() + ", having just taken one of these moves: " + previousAvailableMoves);
         int recursions = order.size() - depth;
-        Turn thisTurn = order.get(Math.min(recursions, order.size() - 1)); //this turn is last turn on depth = 0
+        Turn thisTurn = order.get(Math.min(recursions, order.size() - 1)); //this turn is last recursion's turn on depth = 0
         Piece inPlay = thisTurn.playedBy(); //0th, 1st, 2nd... turn in the tree-level order
         //stream decides which moves were done by the player moving this round
-        List<Move> moves = board.getAvailableMoves().stream().filter(x -> x.commencedBy().equals(inPlay)).toList();
+        List<Move> currentlyAvailableMoves = board.getAvailableMoves().stream().filter(x -> x.commencedBy().equals(inPlay)).toList();
         //we've reached ample recursion depth
         if(depth == 0) {
-            return evaluate(previousPiecesMoves, board);
+            return evaluate(previousAvailableMoves, board);
         }
         //we pass in previous pieces moves, because its the previous piece's moves that are being evaluated
 
-        if(moves.size() == 0) { //this player cant move?
+        if(currentlyAvailableMoves.size() == 0) { //this player cant move?
             if (inPlay.isDetective()) { //are we in a detective round?
                 if (board.getAvailableMoves().stream().noneMatch(x -> x.commencedBy().isDetective())){ //are all detective stuck?
-                    return evaluate(moves, board);
+                    return evaluate(currentlyAvailableMoves, board);
                 }
                 //if theyre not and one can move,
-                return minimax(order, depth - 1, alpha, beta, moves, board, branchID); //if we can move some detectives then the game isnt over
+                return minimax(order, depth - 1, alpha, beta, currentlyAvailableMoves, board, branchID); //if we can move some detectives then the game isnt over
             }
-            if (inPlay.isMrX()) return evaluate(moves, board);
+            if (inPlay.isMrX()) return evaluate(currentlyAvailableMoves, board);
         }
 
-        List<Move> newPath = new ArrayList<Move>(); //keeps compiler smiling (choice is always initialised)
+        List<Move> newPath = new ArrayList<Move>();
         double evaluation;
 
         //maximising player which sets alpha
         if(inPlay.isMrX()) {
             evaluation = -Double.MAX_VALUE;
-            for(int i = 0; i < moves.size(); i++){ //for all mrx's moves
-                Move move = moves.get(i);
+            for(int i = 0; i < currentlyAvailableMoves.size(); i++){ //for all mrx's moves
+                Move move = currentlyAvailableMoves.get(i);
                 // Tree testing (not part of minimax functionality)
                 if(tree != null) { tree.prepareChild(recursions, branchID, evaluation); }
                 //
                 //alpha and beta just get passed down the tree at first
-                Pair<Double, List<Move>> child = minimax(order, depth - 1, alpha, beta, moves, board.advance(move), i);
+                Pair<Double, List<Move>> child = minimax(order, depth - 1, alpha, beta, currentlyAvailableMoves, board.advance(move), i);
                 double moveValue = child.left();
                 // Tree testing (not part of minimax functionality)
                 if(tree != null) { tree.specifyAndSetChild(tree.getLocation(recursions, branchID), i, moveValue); }
@@ -93,7 +94,7 @@ public class MiniMaxBox {
                     newPath.add(0, move); //prepend this move to the path
                 }
                 if(beta <= alpha) { //the right of the subtree will be lower than what we've got
-                    i = moves.size(); //break out of the loop
+                    i = currentlyAvailableMoves.size(); //break out of the loop
                 }
             }
             // tree test
@@ -104,12 +105,12 @@ public class MiniMaxBox {
         //minimising player
         else /*if(toMove.isDetective())*/ {
             evaluation = Double.MAX_VALUE;
-            for(int i = 0; i < moves.size(); i++){ //for all mrx's moves
-                Move move = moves.get(i);
+            for(int i = 0; i < currentlyAvailableMoves.size(); i++){ //for all mrx's moves
+                Move move = currentlyAvailableMoves.get(i);
                 // Tree testing (not part of minimax functionality)
                 if(tree != null) { tree.prepareChild(recursions, branchID, evaluation); }
                 //
-                Pair<Double, List<Move>> child = minimax(order, depth - 1, alpha, beta, moves, board.advance(move), i);
+                Pair<Double, List<Move>> child = minimax(order, depth - 1, alpha, beta, currentlyAvailableMoves, board.advance(move), i);
                 double moveValue = child.left();
                 // Tree testing (not part of minimax functionality)
                 if(tree != null) { tree.specifyAndSetChild(tree.getLocation(recursions, branchID), i, moveValue); }
@@ -121,7 +122,7 @@ public class MiniMaxBox {
                     newPath.add(0, move); //prepend this move to the path
                 }
                 if(beta <= alpha) { //the right of the subtree will be higher than what we've got
-                    i = moves.size();
+                    i = currentlyAvailableMoves.size();
                 }//break out of the loop
             }
             // Tree testing (not part of minimax functionality)
@@ -133,12 +134,7 @@ public class MiniMaxBox {
 
     //i'll find you all the pieces currently yet to play in a round! (for the minimax method)
     private ArrayList<Piece> getBoardRemaining(Board.GameState board){
-        List<Move> moves = board.getAvailableMoves().stream().toList();
-        Set<Piece> pieces = new HashSet<Piece>(); //element-distinct set of people in remaining
-        for(Move move : moves){
-            pieces.add(move.commencedBy());
-        }
-        return new ArrayList<Piece>(pieces);
+        return new ArrayList<Piece>(BoardHelper.getRemaining(board));
     }
 
     private Piece getNextGo(List<Piece> remaining){
@@ -147,6 +143,7 @@ public class MiniMaxBox {
     }
 
     private Turn getTurn(List<Piece> remaining, Board.GameState board){
+        //System.out.println(remaining);
         Piece inPlay = getNextGo(remaining);
         if(remaining.equals(List.of(Piece.MrX.MRX))) {
             remaining = new ArrayList<Piece>(board.getPlayers()); //now its all players
@@ -156,7 +153,7 @@ public class MiniMaxBox {
             if(remaining.isEmpty()) { remaining.add(Piece.MrX.MRX); } //mrx's round
         }
 
-        return new Turn(inPlay, remaining);
+        return new Turn(inPlay, new ArrayList<Piece>(remaining));
     }
 
     private List<Turn> makeTurnSequence(int depth, Board.GameState board){
@@ -164,10 +161,9 @@ public class MiniMaxBox {
         List<Piece> remaining = getBoardRemaining(board); //starts from where the game currently is
         for(int i = 0; i < depth; i++){ //as many as we require (may exceed game length)
             Turn nextTurn = getTurn(remaining, board);
-
-            //System.out.println("Turn: " + nextTurn.playedBy());
             sequence.add(nextTurn);
-            remaining = nextTurn.remaining(); //getter method
+            remaining = new ArrayList<Piece>(nextTurn.remaining()); //getter method
+            // (needs to copy the property to not edit it)
         }
 
 //        System.out.println("");
@@ -196,4 +192,5 @@ public class MiniMaxBox {
     public List<Turn> getTurns(int depth, Board.GameState board){ return makeTurnSequence(depth, board); }
     public Evaluator getMrXEvaluator(){ return mrXEvaluator; }
     public Evaluator getDetectiveEvaluator() { return detectiveEvaluator; }
+    public Evaluator getThisTurnStrategy(){ return thisTurnStrategy; }
 }
