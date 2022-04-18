@@ -98,7 +98,6 @@ public class DetectiveEvaluator extends Evaluator{
         isRevealed(board);
         if (getMrXBoundary().isEmpty()) throw new IllegalArgumentException("Boundary should not be empty!");
         int distance = getDistanceToMrX(inPlay, board); /*some distance function*/
-
         //default is a detective
         Piece piece = GREEN;
 

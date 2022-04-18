@@ -3,9 +3,7 @@ package uk.ac.bris.cs.scotlandyard.ui.ai;
 import com.google.common.collect.ImmutableSet;
 import uk.ac.bris.cs.scotlandyard.model.*;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.stream.StreamSupport;
 
 import static java.util.Collections.min;
@@ -18,7 +16,21 @@ public class MrXEvaluator extends Evaluator{
     private final List<Double> weights;
 
     public MrXEvaluator(List<Double> weights){
+
         this.weights = flatten(weights);
+//        this.possibleMrXLocations = setMrXBoundary();
+    }
+
+    public Set<Integer> setMrXBoundary(int location, Board.GameState board) {
+        Set<Integer> boundary = new HashSet<Integer>(board.getSetup().graph.successors(location));
+
+        //may remove but this currently filters the boundary to tickets mr X has
+        Set<Integer> boundaryCpy = Set.copyOf(boundary);
+        for (Integer node : boundaryCpy) {
+            boundary.addAll(board.getSetup().graph.successors(node));
+        }
+
+        return null;
     }
 
     public List<Double> getWeights() {
@@ -72,7 +84,7 @@ public class MrXEvaluator extends Evaluator{
 
     private int cumulativeDistance(Board.GameState board, Player mrX, List<Player> detectives) {
         int mrXLocation = mrX.location();
-        System.out.println("X" + mrXLocation);
+//        System.out.println("X" + mrXLocation);
         List<Integer> distancePath = new ArrayList<>();
         for (Player detective : detectives) {
             var path = d.shortestPathFromSourceToDestination(mrXLocation, detective, board);
@@ -121,8 +133,9 @@ public class MrXEvaluator extends Evaluator{
         //distance from detectives (tickets away)
         //available moves
         //System.out.println("MrXEvaluator thinks MrX looks like " + BoardHelper.getMrX(board));
-
-        int distance = cumulativeDistance(board, getMrX(board), getDetectives(board));
+        int mrXLocation = 35;
+        if (moves.size() > 0) mrXLocation = moves.get(0).source();
+        int distance = cumulativeDistance(board, getMrX(board, mrXLocation), getDetectives(board));
 
         int countMoves = moves.size();//board.getAvailableMoves().stream().filter(x -> x.commencedBy().equals(Piece.MrX.MRX)).toList().size();
 

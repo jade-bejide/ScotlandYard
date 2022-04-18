@@ -134,7 +134,7 @@ public class MiniMaxBoxTest {
         Evaluator simpleMrXEvaluator = new Evaluator() {
             @Override
             public double score(Piece inPlay, List<Move> moves, Board.GameState board) {
-                return BoardHelper.getMrX(board).location();
+                return BoardHelper.getMrX(board, moves.get(0).source()).location();
             }
         };
         MiniMaxBox minimax = MiniMaxBox.getInstance(

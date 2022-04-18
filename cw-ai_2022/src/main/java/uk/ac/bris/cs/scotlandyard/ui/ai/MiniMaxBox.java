@@ -19,7 +19,8 @@ public class MiniMaxBox {
     private final Evaluator detectiveEvaluator;
     private Turn thisTurn; //// the turn that pickMove takes ////
     private Evaluator thisTurnStrategy; //// which evaluator to use for this turn ////
-
+    private List<Move> mrXMoves;
+    private List<Move> currentDetectiveMoves;
     // unit test minimax tree
     private final DoubleTree tree;
 
@@ -54,10 +55,12 @@ public class MiniMaxBox {
         List<Move> currentlyAvailableMoves = board.getAvailableMoves().stream().filter(x -> x.commencedBy().equals(inPlay)).toList();
         //we've reached ample recursion depth
         if(depth == 0) {
-            return evaluate(previousAvailableMoves, board);
+            if (inPlay.isDetective()) return evaluate(currentDetectiveMoves, board);
+            else return evaluate(mrXMoves, board);
         }
-        //we pass in previous pieces moves, because its the previous piece's moves that are being evaluated
 
+
+        //we pass in previous pieces moves, because its the previous piece's moves that are being evaluated
         if(currentlyAvailableMoves.size() == 0) { //this player cant move?
             if (inPlay.isDetective()) { //are we in a detective round?
                 if (board.getAvailableMoves().stream().noneMatch(x -> x.commencedBy().isDetective())){ //are all detective stuck?
@@ -66,7 +69,9 @@ public class MiniMaxBox {
                 //if theyre not and one can move,
                 return minimax(order, depth - 1, alpha, beta, currentlyAvailableMoves, board, branchID); //if we can move some detectives then the game isnt over
             }
-            if (inPlay.isMrX()) return evaluate(currentlyAvailableMoves, board);
+            if (inPlay.isMrX()) {
+                return evaluate(currentlyAvailableMoves, board);
+            }
         }
 
         List<Move> newPath = new ArrayList<Move>();
@@ -77,6 +82,7 @@ public class MiniMaxBox {
             evaluation = -Double.MAX_VALUE;
             for(int i = 0; i < currentlyAvailableMoves.size(); i++){ //for all mrx's moves
                 Move move = currentlyAvailableMoves.get(i);
+                if (move.commencedBy().isDetective()) throw new IllegalArgumentException("Not on a detective level");
                 // Tree testing (not part of minimax functionality)
                 if(tree != null) { tree.prepareChild(recursions, branchID, evaluation); }
                 //
@@ -107,6 +113,7 @@ public class MiniMaxBox {
             evaluation = Double.MAX_VALUE;
             for(int i = 0; i < currentlyAvailableMoves.size(); i++){ //for all mrx's moves
                 Move move = currentlyAvailableMoves.get(i);
+                if (move.commencedBy().isMrX()) throw new IllegalArgumentException("Not on a mr X level");
                 // Tree testing (not part of minimax functionality)
                 if(tree != null) { tree.prepareChild(recursions, branchID, evaluation); }
                 //
@@ -132,8 +139,19 @@ public class MiniMaxBox {
         }
     }
 
+    //get
+    private List<Move> getPlayerYMoves(Board.GameState board, Piece piece) {
+        Board.GameState boardCpy = board;
+        while (!boardCpy.getAvailableMoves().stream().anyMatch(x -> x.commencedBy().equals(piece))) {
+            boardCpy = boardCpy.advance(List.copyOf(boardCpy.getAvailableMoves()).get(0));
+        }
+
+        return boardCpy.getAvailableMoves().stream().filter(x -> x.commencedBy().equals(piece)).toList();
+    }
+
     //i'll find you all the pieces currently yet to play in a round! (for the minimax method)
     private ArrayList<Piece> getBoardRemaining(Board.GameState board){
+        //create a snapshot of the board
         return new ArrayList<Piece>(BoardHelper.getRemaining(board));
     }
 
@@ -143,7 +161,8 @@ public class MiniMaxBox {
     }
 
     private Turn getTurn(List<Piece> remaining, Board.GameState board){
-        //System.out.println(remaining);
+        if (remaining.equals(List.of(Piece.MrX.MRX))) mrXMoves = List.copyOf(board.getAvailableMoves());
+        else currentDetectiveMoves = List.copyOf(board.getAvailableMoves());
         Piece inPlay = getNextGo(remaining);
         if(remaining.equals(List.of(Piece.MrX.MRX))) {
             remaining = new ArrayList<Piece>(board.getPlayers()); //now its all players
