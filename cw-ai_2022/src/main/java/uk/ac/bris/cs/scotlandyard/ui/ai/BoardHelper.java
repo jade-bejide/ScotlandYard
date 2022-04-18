@@ -3,6 +3,7 @@ package uk.ac.bris.cs.scotlandyard.ui.ai;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import uk.ac.bris.cs.scotlandyard.model.*;
+import uk.ac.bris.cs.scotlandyard.ui.model.PlayerProperty;
 
 import javax.annotation.Nonnull;
 import java.util.*;
@@ -60,7 +61,7 @@ public class BoardHelper { //static methods/namespace which holds useful methods
             else {
                 ImmutableList<LogEntry> log = board.getMrXTravelLog();
                 int n = log.size();
-                boolean mrXRound = board.getAvailableMoves().stream().anyMatch(x -> x.commencedBy() == Piece.MrX.MRX);
+                boolean mrXRound = board.getAvailableMoves().stream().anyMatch(x -> x.commencedBy().equals(Piece.MrX.MRX));
                 //default location (no significance)
                 int location = 1;
                 if (n > 0) {
@@ -69,7 +70,8 @@ public class BoardHelper { //static methods/namespace which holds useful methods
                     if (hasLocation) {
                         location = lastLog.location().get();
                     }
-                } else if (mrXRound) {
+                }
+                if (mrXRound) {
                     Move grabMove = board.getAvailableMoves().asList().get(0);
                     location = grabMove.source();
                 }
@@ -121,7 +123,5 @@ public class BoardHelper { //static methods/namespace which holds useful methods
     }
 
     //returns mr X from the board as a player
-    public static Player getMrX(Board.GameState board) {
-        return getPlayers(board).get(0);
-    }
+    public static Player getMrX(Board.GameState board) { return getPlayers(board).get(0);}
 }
