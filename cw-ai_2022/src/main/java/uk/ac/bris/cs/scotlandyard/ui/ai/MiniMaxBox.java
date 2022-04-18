@@ -42,12 +42,17 @@ public class MiniMaxBox {
         return new Pair<Double, List<Move>>(evaluation, new ArrayList<Move>());
     }
 
+//    private List<Move> setMovesAvailable(List<Move> movesAvailable, Turn lastTurn){
+//
+//    }
+
     //  returns a list of moves which are best for player(s) in the starting round
     private Pair<Double, List<Move>> minimax(List<Turn> order, int depth, double alpha, double beta,
                                              List<Move> previousAvailableMoves, Board.GameState board,
                                              int branchID){ //branchID is only for tree building and therefore testing
-        //System.out.println("MrX is at node: " + BoardHelper.getMrX(board).location() + ", having just taken one of these moves: " + previousAvailableMoves);
+
         int recursions = order.size() - depth;
+        //Turn lastTurn = recursions == 0 ? null : order.get(recursions - 1);
         Turn thisTurn = order.get(Math.min(recursions, order.size() - 1)); //this turn is last recursion's turn on depth = 0
         Piece inPlay = thisTurn.playedBy(); //0th, 1st, 2nd... turn in the tree-level order
         //stream decides which moves were done by the player moving this round
@@ -59,14 +64,20 @@ public class MiniMaxBox {
         //we pass in previous pieces moves, because its the previous piece's moves that are being evaluated
 
         if(currentlyAvailableMoves.size() == 0) { //this player cant move?
+            //System.out.println("Got here! #1");
             if (inPlay.isDetective()) { //are we in a detective round?
+                //System.out.println("Got here! #2");
                 if (board.getAvailableMoves().stream().noneMatch(x -> x.commencedBy().isDetective())){ //are all detective stuck?
+                    //System.out.println("Got here! #3");
                     return evaluate(currentlyAvailableMoves, board);
                 }
                 //if theyre not and one can move,
+                //System.out.println("Got here! #4");
                 return minimax(order, depth - 1, alpha, beta, currentlyAvailableMoves, board, branchID); //if we can move some detectives then the game isnt over
             }
-            if (inPlay.isMrX()) return evaluate(currentlyAvailableMoves, board);
+            if (inPlay.isMrX()) {
+                return evaluate(currentlyAvailableMoves, board);
+            }
         }
 
         List<Move> newPath = new ArrayList<Move>();
