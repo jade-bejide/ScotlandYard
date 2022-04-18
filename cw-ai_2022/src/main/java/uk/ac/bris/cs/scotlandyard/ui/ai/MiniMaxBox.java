@@ -30,7 +30,7 @@ public class MiniMaxBox {
 }
 
     public static MiniMaxBox getInstance(Evaluator eMrX, Evaluator eDetectives, DoubleTree... possibleTestTree){ //singleton
-        if(possibleTestTree.length > 1) throw new AssertionError("You're passing in too many test trees to MiniMaxBox");
+        //if(possibleTestTree.length > 1) throw new AssertionError("You're passing in too many test trees to MiniMaxBox");
         //Evaluator evaluator = evaluators[0]; //if someone mistakenly passes lots of evaluators we only want the first
         //if(evaluators.length > 1) System.out.println("Warning: MiniMaxBox will take the first of " + evaluators.length + " evaluators.");
         if(instance == null) { instance = new MiniMaxBox(eMrX, eDetectives, possibleTestTree); }
