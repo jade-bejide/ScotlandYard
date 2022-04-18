@@ -122,6 +122,7 @@ public class MrXEvaluator extends Evaluator{
         //available moves
         //System.out.println("MrXEvaluator thinks MrX looks like " + BoardHelper.getMrX(board));
 
+
         int distance = cumulativeDistance(board, getMrX(board), getDetectives(board));
 
         int countMoves = moves.size();//board.getAvailableMoves().stream().filter(x -> x.commencedBy().equals(Piece.MrX.MRX)).toList().size();
