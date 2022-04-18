@@ -143,21 +143,23 @@ public class MiniMaxBoxTest {
                 new DoubleTree()
         );
         var mrX = new Player(MRX, ImmutableMap.of(ScotlandYard.Ticket.TAXI, 0,
-                ScotlandYard.Ticket.BUS, 0,
-                ScotlandYard.Ticket.UNDERGROUND, 1,
-                ScotlandYard.Ticket.SECRET, 0,
-                ScotlandYard.Ticket.DOUBLE, 0),
+                Ticket.BUS, 0,
+                Ticket.UNDERGROUND, 1,
+                Ticket.SECRET, 0,
+                Ticket.DOUBLE, 0),
                 1);
-        var green = new Player(GREEN, ImmutableMap.of(ScotlandYard.Ticket.TAXI, 1,
-                ScotlandYard.Ticket.BUS, 0,
-                ScotlandYard.Ticket.UNDERGROUND, 0,
-                ScotlandYard.Ticket.SECRET, 0,
-                ScotlandYard.Ticket.DOUBLE, 0)
+        var blue = new Player(BLUE, ImmutableMap.of(ScotlandYard.Ticket.TAXI, 1,
+                Ticket.BUS, 0,
+                Ticket.UNDERGROUND, 0,
+                Ticket.SECRET, 0,
+                Ticket.DOUBLE, 0)
                 , 8);
         Board.GameState board = new MyGameStateFactory().build(RenameMe.standard24MoveSetup(),
-                mrX, green); //two detectives limited moves
+                mrX, blue); //two detectives limited moves
 
-        board.advance(minimax.minimax(1, board).get(0));
+        board = board.advance(minimax.minimax(1, board).get(0));
+        mrX.give(Ticket.TAXI);
+        board.advance(minimax.minimax(2, board).get(0));
         minimax.getTree().show();
 //        DoubleTree expectedMiniMaxTree = new DoubleTree(new Node(1,
 //                Arrays.asList(new Node())));

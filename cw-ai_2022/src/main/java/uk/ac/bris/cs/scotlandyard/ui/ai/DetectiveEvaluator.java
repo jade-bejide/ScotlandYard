@@ -102,6 +102,9 @@ public class DetectiveEvaluator extends Evaluator{
         Piece piece = GREEN;
 
         if (moves.size() > 0) piece = moves.get(0).commencedBy();
+
+        //System.out.println(piece + " had moves " + moves);
+
         int countMoves = moves.size();
 
         if (piece.isDetective()) return (weights.get(0) * distance) - (weights.get(1) * countMoves);

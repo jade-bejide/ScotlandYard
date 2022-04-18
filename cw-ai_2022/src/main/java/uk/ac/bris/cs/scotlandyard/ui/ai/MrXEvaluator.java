@@ -84,7 +84,6 @@ public class MrXEvaluator extends Evaluator{
 
     private int cumulativeDistance(Board.GameState board, Player mrX, List<Player> detectives) {
         int mrXLocation = mrX.location();
-//        System.out.println("X" + mrXLocation);
         List<Integer> distancePath = new ArrayList<>();
         for (Player detective : detectives) {
             var path = d.shortestPathFromSourceToDestination(mrXLocation, detective, board);
