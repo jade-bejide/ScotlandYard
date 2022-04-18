@@ -237,7 +237,7 @@ public final class MyGameStateFactory implements Factory<GameState> {
 			return move.accept(new Visitor<GameState>(){ //our gamestate-making visitor
 				public GameState visit(SingleMove move){
                     if (!setup.graph.adjacentNodes(move.source()).contains(move.destination)) throw new IllegalArgumentException("Illegal move! " + move);
-					Ticket ticketUsed = ImmutableList.copyOf(move.tickets()).stream().limit(1).toList().get(0);
+					Ticket ticketUsed = ImmutableList.copyOf(move.tickets()).get(0);
 					/* singlemove code */
 					if(player.piece() == MrX.MRX){ //if the player taking the move is a detective (black piece)
 						boolean hidden = !setup.moves.get(log.size()); //is this move hidden
