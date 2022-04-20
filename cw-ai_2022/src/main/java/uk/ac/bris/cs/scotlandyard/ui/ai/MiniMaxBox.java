@@ -39,6 +39,9 @@ public class MiniMaxBox {
     }
 
     private Pair<Double, List<Move>> evaluate(List<Move> moves, Board.GameState board){
+        if (thisTurn.playedBy().isDetective()) {
+            moves = currentDetectiveMoves.stream().filter(x -> x.commencedBy().equals(thisTurn.playedBy())).toList();
+        }
         double evaluation = thisTurnStrategy.score(thisTurn.playedBy(), moves, board);
         return new Pair<Double, List<Move>>(evaluation, new ArrayList<Move>());
     }
@@ -60,7 +63,9 @@ public class MiniMaxBox {
         List<Move> currentlyAvailableMoves = board.getAvailableMoves().stream().filter(x -> x.commencedBy().equals(inPlay)).toList();
         //we've reached ample recursion depth
         if(depth == 0) {
-            if (inPlay.isDetective()) return evaluate(currentDetectiveMoves, board);
+            if (inPlay.isDetective()) {
+                return evaluate(currentDetectiveMoves, board);
+            }
             else return evaluate(mrXMoves, board);
         }
 
@@ -148,16 +153,6 @@ public class MiniMaxBox {
         }
     }
 
-    //get
-    private List<Move> getPlayerYMoves(Board.GameState board, Piece piece) {
-        Board.GameState boardCpy = board;
-        while (!boardCpy.getAvailableMoves().stream().anyMatch(x -> x.commencedBy().equals(piece))) {
-            boardCpy = boardCpy.advance(List.copyOf(boardCpy.getAvailableMoves()).get(0));
-        }
-
-        return boardCpy.getAvailableMoves().stream().filter(x -> x.commencedBy().equals(piece)).toList();
-    }
-
     //i'll find you all the pieces currently yet to play in a round! (for the minimax method)
     private ArrayList<Piece> getBoardRemaining(Board.GameState board){
         //create a snapshot of the board
@@ -193,8 +188,6 @@ public class MiniMaxBox {
             remaining = new ArrayList<Piece>(nextTurn.remaining()); //getter method
             // (needs to copy the property to not edit it)
         }
-
-//        System.out.println("");
 
         return sequence;
     }

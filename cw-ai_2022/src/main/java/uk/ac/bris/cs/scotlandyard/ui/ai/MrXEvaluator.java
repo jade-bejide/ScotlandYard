@@ -16,21 +16,7 @@ public class MrXEvaluator extends Evaluator{
     private final List<Double> weights;
 
     public MrXEvaluator(List<Double> weights){
-
         this.weights = flatten(weights);
-//        this.possibleMrXLocations = setMrXBoundary();
-    }
-
-    public Set<Integer> setMrXBoundary(int location, Board.GameState board) {
-        Set<Integer> boundary = new HashSet<Integer>(board.getSetup().graph.successors(location));
-
-        //may remove but this currently filters the boundary to tickets mr X has
-        Set<Integer> boundaryCpy = Set.copyOf(boundary);
-        for (Integer node : boundaryCpy) {
-            boundary.addAll(board.getSetup().graph.successors(node));
-        }
-
-        return null;
     }
 
     public List<Double> getWeights() {
@@ -53,7 +39,6 @@ public class MrXEvaluator extends Evaluator{
             sumofSqr += (int)Math.pow((distance - mean), 2);
         }
 
-        //NOTE: Causes division by zero error when playing against 1 detective!
         try {
             int sd = Math.floorDiv(sumofSqr, (n-1)); //variance
             sd = (int)Math.floor(Math.sqrt(sd));
@@ -131,9 +116,18 @@ public class MrXEvaluator extends Evaluator{
         //after calling minimax, for static evaluation we need to score elements:
         //distance from detectives (tickets away)
         //available moves
-        //System.out.println("MrXEvaluator thinks MrX looks like " + BoardHelper.getMrX(board));
-        int mrXLocation = 35;
-        if (moves.size() > 0) mrXLocation = moves.get(0).source();
+        int mrXLocation = -1;
+        if (moves.size() > 0) {
+            if (!(moves.stream().allMatch(x -> x.commencedBy().isMrX()))) {
+                throw new IllegalArgumentException("All moves should be commenced by Mr X!");
+            }
+            mrXLocation = moves.get(0).source();
+        }
+
+        if (mrXLocation == -1) {
+            Random random = new Random();
+            mrXLocation = ScotlandYard.MRX_LOCATIONS.get(random.nextInt(ScotlandYard.MRX_LOCATIONS.size()));
+        }
         int distance = cumulativeDistance(board, getMrX(board, mrXLocation), getDetectives(board));
 
         int countMoves = moves.size();//board.getAvailableMoves().stream().filter(x -> x.commencedBy().equals(Piece.MrX.MRX)).toList().size();
