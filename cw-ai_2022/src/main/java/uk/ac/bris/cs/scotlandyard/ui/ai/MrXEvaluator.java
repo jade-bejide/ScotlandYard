@@ -1,5 +1,6 @@
 package uk.ac.bris.cs.scotlandyard.ui.ai;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import uk.ac.bris.cs.scotlandyard.model.*;
 
@@ -101,7 +102,8 @@ public class MrXEvaluator extends Evaluator{
             weights.add((double) secrets/total);
             weights.add((double) doubles/total);
 
-            ticketScore += (1-weights.get(0)) * mrXBoard.getCount(TAXI);
+            //ignore since tickets are likely to bus used alot anyway
+            //ticketScore += (1-weights.get(0)) * mrXBoard.getCount(TAXI);
             ticketScore += (1-weights.get(1)) * mrXBoard.getCount(BUS);
             ticketScore += (1-weights.get(2)) * mrXBoard.getCount(UNDERGROUND);
             ticketScore += (1-weights.get(3)) * mrXBoard.getCount(SECRET);
@@ -109,6 +111,28 @@ public class MrXEvaluator extends Evaluator{
             return ticketScore;
         }
         return 0.0;
+    }
+
+    private int getSafeMoves(List<Move> moves, Board.GameState board, Player mrX) {
+        class SafeMovesChecker implements Move.Visitor<Integer> {
+
+            @Override
+            public Integer visit(Move.SingleMove move) {
+                return move.destination;
+            }
+
+            //Note that this will never be called
+            @Override
+            public Integer visit(Move.DoubleMove move) {
+                return move.destination2;
+            }
+        }
+
+        SafeMovesChecker safeMoves = new SafeMovesChecker();
+        ImmutableList<Integer> detectivePossibleLocations = ImmutableList.copyOf(board.getAvailableMoves().stream().map(x -> x.accept(safeMoves)).toList());
+        ImmutableList<Integer> mrXPossibleLocations = ImmutableList.copyOf(board.getSetup().graph.adjacentNodes(mrX.location()));
+
+        return (int) mrXPossibleLocations.stream().filter(x -> !detectivePossibleLocations.contains(x)).count();
     }
 
     @Override
@@ -130,13 +154,10 @@ public class MrXEvaluator extends Evaluator{
         }
         int distance = cumulativeDistance(board, getMrX(board, mrXLocation), getDetectives(board));
 
-        int countMoves = moves.size();//board.getAvailableMoves().stream().filter(x -> x.commencedBy().equals(Piece.MrX.MRX)).toList().size();
+//        int countMoves = moves.size();
 
-        //or just deduct points for using double and secret tickets
-        double score = (weights.get(0) * distance) + (weights.get(1) * countMoves);
-        //double ticketScore = ticketHeuristic(board);
-
-        return score;//current score evaluation based on evaluation on distance and moves available
+        //current score evaluation based on evaluation on distance and moves available and tickets
+        return (weights.get(0) * distance) + (weights.get(1) * getSafeMoves(moves, board, getMrX(board, mrXLocation))) + (weights.get(2) * ticketHeuristic(board));
     }
 
 

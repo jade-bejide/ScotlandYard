@@ -108,7 +108,7 @@ public class MiniMaxBox {
                 //
                 // passing back up the tree occurs on the line below
                 alpha = Math.max(alpha, moveValue); //sets alpha progressively so that pruning can occur
-                if(evaluation < moveValue){ //max
+                if(evaluation <= moveValue){ //max
                     evaluation = moveValue;
                     newPath = child.right(); //sets the movement path in the gametree for a respective good route
                     newPath.add(0, move); //prepend this move to the path
@@ -137,7 +137,7 @@ public class MiniMaxBox {
                 if(tree != null) { tree.specifyAndSetChild(tree.getLocation(recursions, branchID), i, moveValue); }
                 //
                 beta = Math.min(beta, moveValue); //sets beta progressively so that pruning can occur
-                if(evaluation > moveValue){ //min
+                if(evaluation >= moveValue){ //min
                     evaluation = moveValue;
                     newPath = child.right(); //sets the movement path in the gametree for a respective good route
                     newPath.add(0, move); //prepend this move to the path

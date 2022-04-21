@@ -75,6 +75,7 @@ public class DetectiveEvaluator extends Evaluator{
         ImmutableList<LogEntry> log = board.getMrXTravelLog();
         int n = log.size();
         LogEntry currentLog = log.get(n-1);
+
         if (currentLog.location().isPresent()) {
             if (!log.get(n-1).location().isEmpty()) setMrXBoundary(currentLog.location().get(), board, false);
         }
@@ -94,6 +95,7 @@ public class DetectiveEvaluator extends Evaluator{
 
     @Override
     public double score(Piece inPlay, List<Move> moves, Board.GameState board) {
+
         if (inPlay.isMrX()) throw new IllegalArgumentException("Mr X shouldn't be minimising!");
         if (moves.size() > 0) {
             if (!(moves.stream().allMatch(x -> x.commencedBy().equals(inPlay)))) {
@@ -107,7 +109,7 @@ public class DetectiveEvaluator extends Evaluator{
         int distance = getDistanceToMrX(inPlay, board); /*some distance function*/
 
         int countMoves = moves.size();
-        return (weights.get(0) * distance) + (weights.get(1) * countMoves);
+        return (weights.get(0) * distance) - (weights.get(1) * countMoves);
     }
 
 

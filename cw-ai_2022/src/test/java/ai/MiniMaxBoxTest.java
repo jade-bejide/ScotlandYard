@@ -138,7 +138,7 @@ public class MiniMaxBoxTest {
             }
         };
         MiniMaxBox minimax = MiniMaxBox.getInstance(
-                new MrXEvaluator(Arrays.asList(0.7, 0.3)),
+                new MrXEvaluator(Arrays.asList(6.0, 3.0, 1.0)),
                 new DetectiveEvaluator(Arrays.asList(0.5, 0.5)),
                 new DoubleTree()
         );
