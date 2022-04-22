@@ -96,7 +96,7 @@ public class MiniMaxBox {
                 return minimax(order, depth - 1, alpha, beta, currentlyAvailableMoves, board, branchID); //if we can move some detectives then the game isnt over
             }
             if (inPlay.isMrX()) {
-                return evaluate(myMoves, myID, board);
+                return evaluate(myMoves, -1, board); //dont check any of mrX's moves because hes stuck and has none
             }
         }
 
