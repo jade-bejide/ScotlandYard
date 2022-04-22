@@ -89,7 +89,7 @@ public class MiniMaxBox {
                 //System.out.println("Got here! #2");
                 if (board.getAvailableMoves().stream().noneMatch(x -> x.commencedBy().isDetective())){ //are all detective stuck?
                     //System.out.println("Got here! #3");
-                    return evaluate(myMoves, myID, board);
+                    return evaluate(myMoves, -1, board);
                 }
                 //if theyre not and one can move,
                 //System.out.println("Got here! #4");

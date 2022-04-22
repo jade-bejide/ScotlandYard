@@ -136,10 +136,10 @@ public class MrXEvaluator extends Evaluator{
     private int getSafeMoves(List<Move> moves, Board.GameState board, Player mrX) {
 
         SafeMovesChecker safeMoves = new SafeMovesChecker();
-        System.out.println("Who's playing? Seems to BoardHelper like " + BoardHelper.getRemaining(board));
+        //System.out.println("Who's playing? Seems to BoardHelper like " + BoardHelper.getRemaining(board));
         ImmutableList<Integer> detectivePossibleLocations = ImmutableList.copyOf(board.getAvailableMoves().stream().map(x -> x.accept(safeMoves)).toList());
-        System.out.println("I think MRX is at node " + mrX.location() + " at this evaluation in MrXEvaluator.");
-        System.out.println("The detectives could be anywhere! It's possible they're at nodes " + detectivePossibleLocations);
+        //System.out.println("I think MRX is at node " + mrX.location() + " at this evaluation in MrXEvaluator.");
+        //System.out.println("The detectives could be anywhere! It's possible they're at nodes " + detectivePossibleLocations);
         ImmutableList<Integer> mrXPossibleLocations = ImmutableList.copyOf(board.getSetup().graph.adjacentNodes(mrX.location()));
 
         return (int) mrXPossibleLocations.stream().filter(x -> !detectivePossibleLocations.contains(x)).count();
