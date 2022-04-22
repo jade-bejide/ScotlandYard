@@ -20,5 +20,5 @@ public class Turn {
 
     public Piece playedBy(){ return playedBy; }
     public List<Piece> remaining(){ return remaining; }
-    public String toString(){ return "(" + playedBy() + ", " + remaining() + ")"; }
+    public String toString(){ return "(playedBy:" + playedBy() + ", remaining:" + remaining() + ")"; }
 }

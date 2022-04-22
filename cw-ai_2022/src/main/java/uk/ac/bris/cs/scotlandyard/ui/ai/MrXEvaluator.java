@@ -94,6 +94,10 @@ public class MrXEvaluator extends Evaluator{
             int doubles = mrXBoard.getCount(DOUBLE);
             int total = taxis + buses + unders + secrets + doubles;
 
+            //mrx may have no tickets in some minimax tests
+            //please message elliot about removing/working around this if needed
+            if(total == 0) { return 0; }
+
             List<Double> weights = new ArrayList<>();
 
             weights.add((double) taxis/total);
@@ -113,30 +117,43 @@ public class MrXEvaluator extends Evaluator{
         return 0.0;
     }
 
-    private int getSafeMoves(List<Move> moves, Board.GameState board, Player mrX) {
-        class SafeMovesChecker implements Move.Visitor<Integer> {
+    //I've moved this outside of safemoves to avoid duplication so getMrXLocation can use it, too
+    //I apologise if this is a drastic change, please do message or talk to me about it in person if there is any confusion
+    class SafeMovesChecker implements Move.Visitor<Integer> {
 
-            @Override
-            public Integer visit(Move.SingleMove move) {
-                return move.destination;
-            }
-
-            //Note that this will never be called
-            @Override
-            public Integer visit(Move.DoubleMove move) {
-                return move.destination2;
-            }
+        @Override
+        public Integer visit(Move.SingleMove move) {
+            return move.destination;
         }
 
+        //Note that this will never be called
+        @Override
+        public Integer visit(Move.DoubleMove move) {
+            return move.destination2;
+        }
+    }
+
+    private int getSafeMoves(List<Move> moves, Board.GameState board, Player mrX) {
+
         SafeMovesChecker safeMoves = new SafeMovesChecker();
+        System.out.println("Who's playing? Seems to BoardHelper like " + BoardHelper.getRemaining(board));
         ImmutableList<Integer> detectivePossibleLocations = ImmutableList.copyOf(board.getAvailableMoves().stream().map(x -> x.accept(safeMoves)).toList());
+        System.out.println("I think MRX is at node " + mrX.location() + " at this evaluation in MrXEvaluator.");
+        System.out.println("The detectives could be anywhere! It's possible they're at nodes " + detectivePossibleLocations);
         ImmutableList<Integer> mrXPossibleLocations = ImmutableList.copyOf(board.getSetup().graph.adjacentNodes(mrX.location()));
 
         return (int) mrXPossibleLocations.stream().filter(x -> !detectivePossibleLocations.contains(x)).count();
     }
 
+    private int getMrXLocation(List<Move> moves, int id){
+        SafeMovesChecker destinationVisitor = new SafeMovesChecker();
+        // returns mrx's location at parent/this node being evaluated (his actual location)
+        // ...depending on if it's his turn when evaluation is called
+        return moves.get(id).accept(destinationVisitor);
+    }
+
     @Override
-    public double score(Piece inPlay, List<Move> moves, Board.GameState board) {
+    public double score(Piece inPlay, List<Move> moves, int id, Board.GameState board) {
         //after calling minimax, for static evaluation we need to score elements:
         //distance from detectives (tickets away)
         //available moves
@@ -152,11 +169,16 @@ public class MrXEvaluator extends Evaluator{
             Random random = new Random();
             mrXLocation = ScotlandYard.MRX_LOCATIONS.get(random.nextInt(ScotlandYard.MRX_LOCATIONS.size()));
         }
+        if(id != -1) {
+            mrXLocation = getMrXLocation(moves, id);
+        }
+
         int distance = cumulativeDistance(board, getMrX(board, mrXLocation), getDetectives(board));
 //        int countMoves = moves.size();
 
         //current score evaluation based on evaluation on distance and moves available and tickets
-        return (weights.get(0) * distance) + (weights.get(1) * getSafeMoves(moves, board, getMrX(board, mrXLocation))) + (weights.get(2) * ticketHeuristic(board));
+        return (weights.get(0) * distance) + (weights.get(1) * getSafeMoves(moves, board, getMrX(board, mrXLocation))) +
+                (weights.size() == 3 ? (weights.get(2) * ticketHeuristic(board)) : 0); //incase we have only two weights like in jade's mrxEvaluator tests
     }
 
 

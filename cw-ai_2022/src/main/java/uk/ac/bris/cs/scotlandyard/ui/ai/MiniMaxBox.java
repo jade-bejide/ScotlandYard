@@ -21,6 +21,7 @@ public class MiniMaxBox {
     private Evaluator thisTurnStrategy; //// which evaluator to use for this turn ////
     private List<Move> mrXMoves;
     private List<Move> currentDetectiveMoves;
+    private int myID;
     // unit test minimax tree
     private final DoubleTree tree;
 
@@ -38,11 +39,11 @@ public class MiniMaxBox {
         return instance;
     }
 
-    private Pair<Double, List<Move>> evaluate(List<Move> moves, Board.GameState board){
+    private Pair<Double, List<Move>> evaluate(List<Move> moves, int id, Board.GameState board){
         if (thisTurn.playedBy().isDetective()) {
             moves = currentDetectiveMoves.stream().filter(x -> x.commencedBy().equals(thisTurn.playedBy())).toList();
         }
-        double evaluation = thisTurnStrategy.score(thisTurn.playedBy(), moves, board);
+        double evaluation = thisTurnStrategy.score(thisTurn.playedBy(), moves, id, board);
         return new Pair<Double, List<Move>>(evaluation, new ArrayList<Move>());
     }
 
@@ -56,20 +57,28 @@ public class MiniMaxBox {
                                              int branchID){ //branchID is only for tree building and therefore testing
         int recursions = order.size() - depth;
         Turn thisTurn = order.get(Math.min(recursions, order.size() - 1)); //this turn is last recursion's turn on depth = 0
+        Turn lastTurn = order.get(Math.max(recursions - 1, 0));
         Piece inPlay = thisTurn.playedBy(); //0th, 1st, 2nd... turn in the tree-level order
         //stream decides which moves were done by the player moving this round
         List<Move> currentlyAvailableMoves = board.getAvailableMoves().stream().filter(x -> x.commencedBy().equals(inPlay)).toList();
-        System.out.println(thisTurn.playedBy());
+        //System.out.println(thisTurn.playedBy());
         if(thisTurn.playedBy().equals(this.thisTurn.playedBy())) {
             myMoves = new ArrayList<Move>(currentlyAvailableMoves);
+        }
+        //if the level above decided which move the evaluation strategy should use as a destination
+        if(lastTurn.playedBy().equals(this.thisTurn.playedBy())) {
+            myID = branchID;
         }
 
         //we've reached ample recursion depth
         if(depth == 0) {
+            //System.out.println("Evaluate move id " + myID + ", evaluation by " + thisTurnStrategy);
             if (inPlay.isDetective()) {
-                return evaluate(currentDetectiveMoves, board);
+                return evaluate(currentDetectiveMoves, myID, board);
             }
-            else return evaluate(mrXMoves, board);
+            else {
+                return evaluate(mrXMoves, myID, board);
+            }
         }
 
 
@@ -80,14 +89,14 @@ public class MiniMaxBox {
                 //System.out.println("Got here! #2");
                 if (board.getAvailableMoves().stream().noneMatch(x -> x.commencedBy().isDetective())){ //are all detective stuck?
                     //System.out.println("Got here! #3");
-                    return evaluate(myMoves, board);
+                    return evaluate(myMoves, myID, board);
                 }
                 //if theyre not and one can move,
                 //System.out.println("Got here! #4");
                 return minimax(order, depth - 1, alpha, beta, currentlyAvailableMoves, board, branchID); //if we can move some detectives then the game isnt over
             }
             if (inPlay.isMrX()) {
-                return evaluate(myMoves, board);
+                return evaluate(myMoves, myID, board);
             }
         }
 

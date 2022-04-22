@@ -115,7 +115,7 @@ public class DetectivesEvaluatorTest extends RenameMe {
 
         //shouldn't update on second turn
         game = game.advance(new Move.SingleMove(MrX.MRX, mrX.location(), TAXI, 86));
-        dE.score(GREEN, List.copyOf(game.getAvailableMoves()), game);
+        dE.score(GREEN, List.copyOf(game.getAvailableMoves()), -1, game); //id -1 should flag evaluator not to effect your tests
         assert(dE.getMrXBoundary().stream().mapToInt(x -> x).sum() == 19900);
 
         //should update on round 3, for example
@@ -125,7 +125,7 @@ public class DetectivesEvaluatorTest extends RenameMe {
 
         game = game.advance(new Move.SingleMove(GREEN, 36, TAXI, 35));
         game = game.advance(new Move.SingleMove(MrX.MRX, 87, BUS, 105));
-        dE.score(GREEN, List.copyOf(game.getAvailableMoves()), game);
+        dE.score(GREEN, List.copyOf(game.getAvailableMoves()), -1, game);
         assert(dE.getMrXBoundary().stream().mapToInt(x -> x).sum() != 19900);
 
     }
