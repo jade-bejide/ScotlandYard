@@ -56,7 +56,7 @@ public class BoardHelperTest extends RenameMe {
 
         Board.GameState game = new MyGameStateFactory().build(standard24MoveSetup(), mrX, blue);
 
-        Player boardHelperMrX = getMrX(game);
+        Player boardHelperMrX = getMrX(game, 22);
         List<Player> detectives = getDetectives(game);
 
         assert(detectives.get(0).piece() == BLUE);
@@ -85,7 +85,7 @@ public class BoardHelperTest extends RenameMe {
 
         Board.GameState game = new MyGameStateFactory().build(standard24MoveSetup(), mrX, blue, green);
 
-        assert(getMrX(game).isMrX());
+        assert(getMrX(game, 22).isMrX());
     }
 
     @Test(expected = IllegalArgumentException.class)

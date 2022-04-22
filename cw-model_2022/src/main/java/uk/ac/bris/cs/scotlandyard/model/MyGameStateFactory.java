@@ -31,6 +31,8 @@ public final class MyGameStateFactory implements Factory<GameState> {
 		private ImmutableSet<Move> moves;
 		private final ImmutableSet<Piece> winner;
 
+
+
 		private MyGameState(final GameSetup gs, final ImmutableSet<Piece> remaining, final ImmutableList<LogEntry> log, final Player mrX, final List<Player> detectives) {
 			this.setup = gs;
 			this.remaining = remaining;
@@ -41,6 +43,7 @@ public final class MyGameStateFactory implements Factory<GameState> {
 			this.winner = ImmutableSet.copyOf(determineWinner().stream().map(Player::piece).collect(Collectors.toSet()));
 			constructorTests();
 
+			System.out.println(setup.moves);
 		}
 
 		private void constructorTests() {

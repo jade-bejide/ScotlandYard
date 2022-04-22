@@ -1,11 +1,10 @@
 package uk.ac.bris.cs.scotlandyard.ui.ai;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import uk.ac.bris.cs.scotlandyard.model.*;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.stream.StreamSupport;
 
 import static java.util.Collections.min;
@@ -41,7 +40,6 @@ public class MrXEvaluator extends Evaluator{
             sumofSqr += (int)Math.pow((distance - mean), 2);
         }
 
-        //NOTE: Causes division by zero error when playing against 1 detective!
         try {
             int sd = Math.floorDiv(sumofSqr, (n-1)); //variance
             sd = (int)Math.floor(Math.sqrt(sd));
@@ -72,7 +70,6 @@ public class MrXEvaluator extends Evaluator{
 
     private int cumulativeDistance(Board.GameState board, Player mrX, List<Player> detectives) {
         int mrXLocation = mrX.location();
-
         List<Integer> distancePath = new ArrayList<>();
         for (Player detective : detectives) {
             var path = d.shortestPathFromSourceToDestination(mrXLocation, detective, board);
@@ -105,7 +102,8 @@ public class MrXEvaluator extends Evaluator{
             weights.add((double) secrets/total);
             weights.add((double) doubles/total);
 
-            ticketScore += (1-weights.get(0)) * mrXBoard.getCount(TAXI);
+            //ignore since tickets are likely to bus used alot anyway
+            //ticketScore += (1-weights.get(0)) * mrXBoard.getCount(TAXI);
             ticketScore += (1-weights.get(1)) * mrXBoard.getCount(BUS);
             ticketScore += (1-weights.get(2)) * mrXBoard.getCount(UNDERGROUND);
             ticketScore += (1-weights.get(3)) * mrXBoard.getCount(SECRET);
@@ -115,24 +113,50 @@ public class MrXEvaluator extends Evaluator{
         return 0.0;
     }
 
+    private int getSafeMoves(List<Move> moves, Board.GameState board, Player mrX) {
+        class SafeMovesChecker implements Move.Visitor<Integer> {
+
+            @Override
+            public Integer visit(Move.SingleMove move) {
+                return move.destination;
+            }
+
+            //Note that this will never be called
+            @Override
+            public Integer visit(Move.DoubleMove move) {
+                return move.destination2;
+            }
+        }
+
+        SafeMovesChecker safeMoves = new SafeMovesChecker();
+        ImmutableList<Integer> detectivePossibleLocations = ImmutableList.copyOf(board.getAvailableMoves().stream().map(x -> x.accept(safeMoves)).toList());
+        ImmutableList<Integer> mrXPossibleLocations = ImmutableList.copyOf(board.getSetup().graph.adjacentNodes(mrX.location()));
+
+        return (int) mrXPossibleLocations.stream().filter(x -> !detectivePossibleLocations.contains(x)).count();
+    }
+
     @Override
     public double score(Piece inPlay, List<Move> moves, Board.GameState board) {
         //after calling minimax, for static evaluation we need to score elements:
         //distance from detectives (tickets away)
         //available moves
+        int mrXLocation = -1;
+        if (moves.size() > 0) {
+            if (!(moves.stream().allMatch(x -> x.commencedBy().isMrX()))) {
+                throw new IllegalArgumentException("All moves should be commenced by Mr X!");
+            }
+            mrXLocation = moves.get(0).source();
+        }
 
-        //System.out.println("MrX had moves " + moves);
-        System.out.println("MrX is at location: " + (moves.size() > 0 ? moves.get(0).source() : "default"));
+        if (mrXLocation == -1) {
+            Random random = new Random();
+            mrXLocation = ScotlandYard.MRX_LOCATIONS.get(random.nextInt(ScotlandYard.MRX_LOCATIONS.size()));
+        }
+        int distance = cumulativeDistance(board, getMrX(board, mrXLocation), getDetectives(board));
+//        int countMoves = moves.size();
 
-        int distance = cumulativeDistance(board, getMrX(board), getDetectives(board));
-
-        int countMoves = moves.size();//board.getAvailableMoves().stream().filter(x -> x.commencedBy().equals(Piece.MrX.MRX)).toList().size();
-
-        //or just deduct points for using double and secret tickets
-        double score = (weights.get(0) * distance) + (weights.get(1) * countMoves);
-        //double ticketScore = ticketHeuristic(board);
-
-        return score;//current score evaluation based on evaluation on distance and moves available
+        //current score evaluation based on evaluation on distance and moves available and tickets
+        return (weights.get(0) * distance) + (weights.get(1) * getSafeMoves(moves, board, getMrX(board, mrXLocation))) + (weights.get(2) * ticketHeuristic(board));
     }
 
 

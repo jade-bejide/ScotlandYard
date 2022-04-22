@@ -57,8 +57,7 @@ public class BoardHelper { //static methods/namespace which holds useful methods
                     players.add(newDetective);
                 }
 
-            }
-            else {
+            } else {
                 ImmutableList<LogEntry> log = board.getMrXTravelLog();
                 int n = log.size();
                 boolean mrXRound = board.getAvailableMoves().stream().anyMatch(x -> x.commencedBy().equals(Piece.MrX.MRX));
@@ -76,10 +75,8 @@ public class BoardHelper { //static methods/namespace which holds useful methods
                     location = grabMove.source();
                 }
 
-                Player newMrX = new Player(piece, getPlayerTickets(board, piece), location);
+                Player newMrX = new Player(Piece.MrX.MRX, getPlayerTickets(board, Piece.MrX.MRX), location);
                 players.add(newMrX);
-
-
             }
         }
 
@@ -123,5 +120,48 @@ public class BoardHelper { //static methods/namespace which holds useful methods
     }
 
     //returns mr X from the board as a player
-    public static Player getMrX(Board.GameState board) { return getPlayers(board).get(0);}
+    public static Player getMrX(Board.GameState board, int currentLocation) {
+        Player mrX = getPlayers(board).get(0);
+        mrX = mrX.at(currentLocation);
+        return mrX;
+    }
+
+//    public int getMrXLocation(Board.GameState board) {
+//        //take a snapshot
+//        ImmutableBoard savedBoard = new ImmutableBoard(board);
+//        Player fakeMrX = new Player(Piece.MrX.MRX, getPlayerTickets(board, Piece.MrX.MRX), 1);
+//        Board.GameState moveBoard = MyGameStateFactory.build(
+//                savedBoard.getSetup(),
+//        )
+//    }
+
+    public List<Integer> getPlayerPossibleLocations(Board.GameState board, Piece piece) {
+        Set<Integer> posNodes = new HashSet<>();
+
+        if (piece.isDetective()) {
+            Player detective = getDetectiveOnPiece(board, piece);
+            posNodes.addAll(board.getSetup().graph.adjacentNodes(detective.location()));
+            Set<Integer> posNodesCpy = new HashSet<Integer>();
+            if (board.getPlayerTickets(piece).isPresent()) {
+                Board.TicketBoard tickets = board.getPlayerTickets(piece).get();
+
+                for (Integer pos : posNodes) {
+                    if (board.getSetup().graph.edgeValue(detective.location(), pos).isPresent()) {
+                        List<ScotlandYard.Transport> neededTransport = List.copyOf(board.getSetup().graph.edgeValue(detective.location(), pos).get());
+
+                        boolean canTravel = neededTransport.stream().anyMatch(x -> tickets.getCount(x.requiredTicket()) > 0);
+
+                        if (canTravel) posNodesCpy.add(pos);
+                    }
+                }
+
+                return List.copyOf(posNodesCpy);
+            }
+
+        } else {
+            //get mr X adjacent nodes
+        }
+
+        return List.of();
+    }
 }

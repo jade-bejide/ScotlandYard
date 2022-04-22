@@ -19,7 +19,8 @@ public class MiniMaxBox {
     private final Evaluator detectiveEvaluator;
     private Turn thisTurn; //// the turn that pickMove takes ////
     private Evaluator thisTurnStrategy; //// which evaluator to use for this turn ////
-
+    private List<Move> mrXMoves;
+    private List<Move> currentDetectiveMoves;
     // unit test minimax tree
     private final DoubleTree tree;
 
@@ -38,6 +39,9 @@ public class MiniMaxBox {
     }
 
     private Pair<Double, List<Move>> evaluate(List<Move> moves, Board.GameState board){
+        if (thisTurn.playedBy().isDetective()) {
+            moves = currentDetectiveMoves.stream().filter(x -> x.commencedBy().equals(thisTurn.playedBy())).toList();
+        }
         double evaluation = thisTurnStrategy.score(thisTurn.playedBy(), moves, board);
         return new Pair<Double, List<Move>>(evaluation, new ArrayList<Move>());
     }
@@ -62,10 +66,14 @@ public class MiniMaxBox {
 
         //we've reached ample recursion depth
         if(depth == 0) {
-            return evaluate(myMoves, board);
+            if (inPlay.isDetective()) {
+                return evaluate(currentDetectiveMoves, board);
+            }
+            else return evaluate(mrXMoves, board);
         }
-        //we pass in previous pieces moves, because its the previous piece's moves that are being evaluated
 
+
+        //we pass in previous pieces moves, because its the previous piece's moves that are being evaluated
         if(currentlyAvailableMoves.size() == 0) { //this player cant move?
             //System.out.println("Got here! #1");
             if (inPlay.isDetective()) { //are we in a detective round?
@@ -91,6 +99,7 @@ public class MiniMaxBox {
             evaluation = -Double.MAX_VALUE;
             for(int i = 0; i < currentlyAvailableMoves.size(); i++){ //for all mrx's moves
                 Move move = currentlyAvailableMoves.get(i);
+                if (move.commencedBy().isDetective()) throw new IllegalArgumentException("Not on a detective level");
                 // Tree testing (not part of minimax functionality)
                 if(tree != null) { tree.prepareChild(recursions, branchID, evaluation); }
                 //
@@ -102,7 +111,7 @@ public class MiniMaxBox {
                 //
                 // passing back up the tree occurs on the line below
                 alpha = Math.max(alpha, moveValue); //sets alpha progressively so that pruning can occur
-                if(evaluation < moveValue){ //max
+                if(evaluation <= moveValue){ //max
                     evaluation = moveValue;
                     newPath = child.right(); //sets the movement path in the gametree for a respective good route
                     newPath.add(0, move); //prepend this move to the path
@@ -121,6 +130,7 @@ public class MiniMaxBox {
             evaluation = Double.MAX_VALUE;
             for(int i = 0; i < currentlyAvailableMoves.size(); i++){ //for all mrx's moves
                 Move move = currentlyAvailableMoves.get(i);
+                if (move.commencedBy().isMrX()) throw new IllegalArgumentException("Not on a mr X level");
                 // Tree testing (not part of minimax functionality)
                 if(tree != null) { tree.prepareChild(recursions, branchID, evaluation); }
                 //
@@ -130,7 +140,7 @@ public class MiniMaxBox {
                 if(tree != null) { tree.specifyAndSetChild(tree.getLocation(recursions, branchID), i, moveValue); }
                 //
                 beta = Math.min(beta, moveValue); //sets beta progressively so that pruning can occur
-                if(evaluation > moveValue){ //min
+                if(evaluation >= moveValue){ //min
                     evaluation = moveValue;
                     newPath = child.right(); //sets the movement path in the gametree for a respective good route
                     newPath.add(0, move); //prepend this move to the path
@@ -148,6 +158,7 @@ public class MiniMaxBox {
 
     //i'll find you all the pieces currently yet to play in a round! (for the minimax method)
     private ArrayList<Piece> getBoardRemaining(Board.GameState board){
+        //create a snapshot of the board
         return new ArrayList<Piece>(BoardHelper.getRemaining(board));
     }
 
@@ -157,7 +168,8 @@ public class MiniMaxBox {
     }
 
     private Turn getTurn(List<Piece> remaining, Board.GameState board){
-        //System.out.println(remaining);
+        if (remaining.equals(List.of(Piece.MrX.MRX))) mrXMoves = List.copyOf(board.getAvailableMoves());
+        else currentDetectiveMoves = List.copyOf(board.getAvailableMoves());
         Piece inPlay = getNextGo(remaining);
         if(remaining.equals(List.of(Piece.MrX.MRX))) {
             remaining = new ArrayList<Piece>(board.getPlayers()); //now its all players
@@ -179,8 +191,6 @@ public class MiniMaxBox {
             remaining = new ArrayList<Piece>(nextTurn.remaining()); //getter method
             // (needs to copy the property to not edit it)
         }
-
-//        System.out.println("");
 
         return sequence;
     }
