@@ -48,18 +48,21 @@ public class MiniMaxBox {
 
     //  returns a list of moves which are best for player(s) in the starting round
     private Pair<Double, List<Move>> minimax(List<Turn> order, int depth, double alpha, double beta,
-                                             List<Move> previousAvailableMoves, Board.GameState board,
+                                             List<Move> myMoves, Board.GameState board,
                                              int branchID){ //branchID is only for tree building and therefore testing
-
         int recursions = order.size() - depth;
-        //Turn lastTurn = recursions == 0 ? null : order.get(recursions - 1);
         Turn thisTurn = order.get(Math.min(recursions, order.size() - 1)); //this turn is last recursion's turn on depth = 0
         Piece inPlay = thisTurn.playedBy(); //0th, 1st, 2nd... turn in the tree-level order
         //stream decides which moves were done by the player moving this round
         List<Move> currentlyAvailableMoves = board.getAvailableMoves().stream().filter(x -> x.commencedBy().equals(inPlay)).toList();
+        System.out.println(thisTurn.playedBy());
+        if(thisTurn.playedBy().equals(this.thisTurn.playedBy())) {
+            myMoves = new ArrayList<Move>(currentlyAvailableMoves);
+        }
+
         //we've reached ample recursion depth
         if(depth == 0) {
-            return evaluate(previousAvailableMoves, board);
+            return evaluate(myMoves, board);
         }
         //we pass in previous pieces moves, because its the previous piece's moves that are being evaluated
 
@@ -69,14 +72,14 @@ public class MiniMaxBox {
                 //System.out.println("Got here! #2");
                 if (board.getAvailableMoves().stream().noneMatch(x -> x.commencedBy().isDetective())){ //are all detective stuck?
                     //System.out.println("Got here! #3");
-                    return evaluate(currentlyAvailableMoves, board);
+                    return evaluate(myMoves, board);
                 }
                 //if theyre not and one can move,
                 //System.out.println("Got here! #4");
                 return minimax(order, depth - 1, alpha, beta, currentlyAvailableMoves, board, branchID); //if we can move some detectives then the game isnt over
             }
             if (inPlay.isMrX()) {
-                return evaluate(currentlyAvailableMoves, board);
+                return evaluate(myMoves, board);
             }
         }
 
@@ -92,7 +95,7 @@ public class MiniMaxBox {
                 if(tree != null) { tree.prepareChild(recursions, branchID, evaluation); }
                 //
                 //alpha and beta just get passed down the tree at first
-                Pair<Double, List<Move>> child = minimax(order, depth - 1, alpha, beta, currentlyAvailableMoves, board.advance(move), i);
+                Pair<Double, List<Move>> child = minimax(order, depth - 1, alpha, beta, myMoves, board.advance(move), i);
                 double moveValue = child.left();
                 // Tree testing (not part of minimax functionality)
                 if(tree != null) { tree.specifyAndSetChild(tree.getLocation(recursions, branchID), i, moveValue); }
@@ -121,7 +124,7 @@ public class MiniMaxBox {
                 // Tree testing (not part of minimax functionality)
                 if(tree != null) { tree.prepareChild(recursions, branchID, evaluation); }
                 //
-                Pair<Double, List<Move>> child = minimax(order, depth - 1, alpha, beta, currentlyAvailableMoves, board.advance(move), i);
+                Pair<Double, List<Move>> child = minimax(order, depth - 1, alpha, beta, myMoves, board.advance(move), i);
                 double moveValue = child.left();
                 // Tree testing (not part of minimax functionality)
                 if(tree != null) { tree.specifyAndSetChild(tree.getLocation(recursions, branchID), i, moveValue); }

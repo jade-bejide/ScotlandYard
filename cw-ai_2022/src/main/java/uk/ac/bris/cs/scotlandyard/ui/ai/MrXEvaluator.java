@@ -122,6 +122,7 @@ public class MrXEvaluator extends Evaluator{
         //available moves
 
         //System.out.println("MrX had moves " + moves);
+        System.out.println("MrX is at location: " + (moves.size() > 0 ? moves.get(0).source() : "default"));
 
         int distance = cumulativeDistance(board, getMrX(board), getDetectives(board));
 
