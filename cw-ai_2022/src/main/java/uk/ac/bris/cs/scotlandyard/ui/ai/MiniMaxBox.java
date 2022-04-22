@@ -74,10 +74,10 @@ public class MiniMaxBox {
         if(depth == 0) {
             //System.out.println("Evaluate move id " + myID + ", evaluation by " + thisTurnStrategy);
             if (inPlay.isDetective()) {
-                return evaluate(currentDetectiveMoves, myID, board);
+                return evaluate(myMoves, myID, board); //no different for situations that dont loop over the strategising player more than once
             }
             else {
-                return evaluate(mrXMoves, myID, board);
+                return evaluate(myMoves, myID, board);
             }
         }
 
@@ -216,7 +216,7 @@ public class MiniMaxBox {
         //how we score THIS turn (makes sure detectives only see what they should on their turn)
         thisTurnStrategy = order.get(0).playedBy().isMrX() ? mrXEvaluator : detectiveEvaluator;
         return minimax(order, depth, Integer.MIN_VALUE,
-                Integer.MAX_VALUE, new ArrayList<Move>(), board, 0)
+                Integer.MAX_VALUE, thisTurnStrategy.equals(mrXEvaluator) ? mrXMoves : currentDetectiveMoves, board, 0)
                 .right();
     }
 
