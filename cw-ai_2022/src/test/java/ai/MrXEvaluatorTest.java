@@ -36,7 +36,7 @@ public class MrXEvaluatorTest extends RenameMe {
         //2sds so reduced shortest path is [1,5] mean is 3
 
         //init mr X evaluator
-        MrXEvaluator mrXE = new MrXEvaluator(Arrays.asList(1.0, 1.0));
+        MrXEvaluator mrXE = new MrXEvaluator(Arrays.asList(1.0, 1.0, 1.0));
         //weight of 1 which is flattened to 0.5
         assert(mrXE.score(BLUE, mrXMoves, game) == (3*0.5) + (mrXMovesSize* 0.5));
     }
@@ -47,7 +47,7 @@ public class MrXEvaluatorTest extends RenameMe {
         Board.GameState game = new MyGameStateFactory().build(standard24MoveSetup(), mrX, green);
 
         Dijkstra dijk = new Dijkstra();
-        MrXEvaluator mrXE = new MrXEvaluator(Arrays.asList(1.0, 1.0));
+        MrXEvaluator mrXE = new MrXEvaluator(Arrays.asList(1.0, 1.0, 1.0));
         Integer oneDetectiveShortestPath = dijk.shortestPathFromSourceToDestination(mrX.location(), green, game).getFirst();
         List<Move> mrXMoves = game.getAvailableMoves().stream().filter(x -> x.commencedBy()== Piece.MrX.MRX).toList();
         int mrXMovesSize = mrXMoves.size();
@@ -76,7 +76,7 @@ public class MrXEvaluatorTest extends RenameMe {
         int mrXMovesSize = mrXMoves.size();
 
         //init mr X evaluator
-        MrXEvaluator mrXE = new MrXEvaluator(Arrays.asList(1.0, 1.0));
+        MrXEvaluator mrXE = new MrXEvaluator(Arrays.asList(1.0, 1.0, 1.0));
         var score =  mrXE.score(GREEN, mrXMoves, game);
         score -= (mrXMovesSize*0.5);
         assert (score == (distanceMeans*0.5));
@@ -92,7 +92,7 @@ public class MrXEvaluatorTest extends RenameMe {
         List<Move> mrXMoves = game.getAvailableMoves().stream().filter(x -> x.commencedBy() == MrX.MRX).toList();
         int mrXMovesSize = mrXMoves.size();
 
-        MrXEvaluator mrXE = new MrXEvaluator(Arrays.asList(1.0, 1.0));
+        MrXEvaluator mrXE = new MrXEvaluator(Arrays.asList(1.0, 1.0, 1.0));
 
         double score = mrXE.score(MrX.MRX, mrXMoves, game);
 
@@ -118,13 +118,13 @@ public class MrXEvaluatorTest extends RenameMe {
     public void testNoNegativeWeights() {
         //erroneous
         //no negative weights for now
-        MrXEvaluator w5 = new MrXEvaluator(Arrays.asList(-1.0,2.0));
+        MrXEvaluator w5 = new MrXEvaluator(Arrays.asList(-1.0,2.0, 1.0));
 
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testNoZeroWeights() {
-        MrXEvaluator w6 = new MrXEvaluator(Arrays.asList(0.0,0.0));
+        MrXEvaluator w6 = new MrXEvaluator(Arrays.asList(0.0,0.0, 0.0));
     }
 
     @Test

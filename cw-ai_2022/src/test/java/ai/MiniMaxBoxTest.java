@@ -66,7 +66,7 @@ public class MiniMaxBoxTest {
     public void testEvaluatorsAssignCorrectly(){
         Board.GameState board = (Board.GameState) getSetup(); //mrX turn first
         MiniMaxBox minimax = MiniMaxBox.getInstance(
-                new MrXEvaluator(Arrays.asList(0.5, 0.5)),
+                new MrXEvaluator(Arrays.asList(0.5, 0.5, 1.0)),
                 new DetectiveEvaluator(Arrays.asList(0.5, 0.5)),
                 new DoubleTree()
         );
@@ -91,7 +91,7 @@ public class MiniMaxBoxTest {
     @Test (expected = AssertionError.class)
     public void testMiniMaxTooManyTreesShouldThrow(){
         MiniMaxBox minimax = MiniMaxBox.getInstance(
-                new MrXEvaluator(Arrays.asList(0.5, 0.5)),
+                new MrXEvaluator(Arrays.asList(0.5, 0.5, 1.0)),
                 new DetectiveEvaluator(Arrays.asList(0.5, 0.5)),
                 new DoubleTree(), new DoubleTree()
         );
@@ -114,7 +114,7 @@ public class MiniMaxBoxTest {
             }
         };
         MiniMaxBox minimax = MiniMaxBox.getInstance(
-                new MrXEvaluator(Arrays.asList(0.5, 0.5)),
+                new MrXEvaluator(Arrays.asList(0.5, 0.5, 0.5)),
                 simpleDetectiveEvaluator,
                 new DoubleTree()
         );
