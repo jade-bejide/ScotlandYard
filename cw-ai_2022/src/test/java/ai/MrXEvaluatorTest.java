@@ -38,7 +38,7 @@ public class MrXEvaluatorTest extends RenameMe {
         //init mr X evaluator
         MrXEvaluator mrXE = new MrXEvaluator(Arrays.asList(1.0, 1.0, 1.0));
         //weight of 1 which is flattened to 0.5
-        assert(mrXE.score(BLUE, mrXMoves, game) == (3*0.5) + (mrXMovesSize* 0.5));
+        assert(mrXE.score(BLUE, mrXMoves, -1, game) == (3*0.5) + (mrXMovesSize* 0.5)); //-1 should tell evaluator not to effect your test
     }
 
     @Test public void testCumulativeDistanceOnePlayer() {
@@ -51,7 +51,7 @@ public class MrXEvaluatorTest extends RenameMe {
         Integer oneDetectiveShortestPath = dijk.shortestPathFromSourceToDestination(mrX.location(), green, game).getFirst();
         List<Move> mrXMoves = game.getAvailableMoves().stream().filter(x -> x.commencedBy()== Piece.MrX.MRX).toList();
         int mrXMovesSize = mrXMoves.size();
-        assert (mrXE.score(GREEN, mrXMoves, game) == (oneDetectiveShortestPath*0.5) + (mrXMovesSize*0.5));
+        assert (mrXE.score(GREEN, mrXMoves, -1, game) == (oneDetectiveShortestPath*0.5) + (mrXMovesSize*0.5));
     }
 
     @Test public void testCumulativeDistanceNoOutliers() {
@@ -76,8 +76,8 @@ public class MrXEvaluatorTest extends RenameMe {
         int mrXMovesSize = mrXMoves.size();
 
         //init mr X evaluator
-        MrXEvaluator mrXE = new MrXEvaluator(Arrays.asList(1.0, 1.0, 1.0));
-        var score =  mrXE.score(GREEN, mrXMoves, game);
+        MrXEvaluator mrXE = new MrXEvaluator(Arrays.asList(1.0, 1.0));
+        var score =  mrXE.score(GREEN, mrXMoves, -1, game);
         score -= (mrXMovesSize*0.5);
         assert (score == (distanceMeans*0.5));
     }
@@ -94,7 +94,7 @@ public class MrXEvaluatorTest extends RenameMe {
 
         MrXEvaluator mrXE = new MrXEvaluator(Arrays.asList(1.0, 1.0, 1.0));
 
-        double score = mrXE.score(MrX.MRX, mrXMoves, game);
+        double score = mrXE.score(MrX.MRX, mrXMoves, -1, game);
 
         //Need to determine distances between mr X and the detectives to know what to divide by
         Dijkstra dijk = new Dijkstra();

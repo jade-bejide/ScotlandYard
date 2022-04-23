@@ -21,6 +21,7 @@ public class MiniMaxBox {
     private Evaluator thisTurnStrategy; //// which evaluator to use for this turn ////
     private List<Move> mrXMoves;
     private List<Move> currentDetectiveMoves;
+    private int myID;
     // unit test minimax tree
     private final DoubleTree tree;
 
@@ -38,11 +39,11 @@ public class MiniMaxBox {
         return instance;
     }
 
-    private Pair<Double, List<Move>> evaluate(List<Move> moves, Board.GameState board){
+    private Pair<Double, List<Move>> evaluate(List<Move> moves, int id, Board.GameState board){
         if (thisTurn.playedBy().isDetective()) {
             moves = currentDetectiveMoves.stream().filter(x -> x.commencedBy().equals(thisTurn.playedBy())).toList();
         }
-        double evaluation = thisTurnStrategy.score(thisTurn.playedBy(), moves, board);
+        double evaluation = thisTurnStrategy.score(thisTurn.playedBy(), moves, id, board);
         return new Pair<Double, List<Move>>(evaluation, new ArrayList<Move>());
     }
 
@@ -52,21 +53,32 @@ public class MiniMaxBox {
 
     //  returns a list of moves which are best for player(s) in the starting round
     private Pair<Double, List<Move>> minimax(List<Turn> order, int depth, double alpha, double beta,
-                                             List<Move> previousAvailableMoves, Board.GameState board,
+                                             List<Move> myMoves, Board.GameState board,
                                              int branchID){ //branchID is only for tree building and therefore testing
-
         int recursions = order.size() - depth;
-        //Turn lastTurn = recursions == 0 ? null : order.get(recursions - 1);
         Turn thisTurn = order.get(Math.min(recursions, order.size() - 1)); //this turn is last recursion's turn on depth = 0
+        Turn lastTurn = order.get(Math.max(recursions - 1, 0));
         Piece inPlay = thisTurn.playedBy(); //0th, 1st, 2nd... turn in the tree-level order
         //stream decides which moves were done by the player moving this round
         List<Move> currentlyAvailableMoves = board.getAvailableMoves().stream().filter(x -> x.commencedBy().equals(inPlay)).toList();
+        //System.out.println(thisTurn.playedBy());
+        if(thisTurn.playedBy().equals(this.thisTurn.playedBy())) {
+            myMoves = new ArrayList<Move>(currentlyAvailableMoves);
+        }
+        //if the level above decided which move the evaluation strategy should use as a destination
+        if(lastTurn.playedBy().equals(this.thisTurn.playedBy())) {
+            myID = branchID;
+        }
+
         //we've reached ample recursion depth
         if(depth == 0) {
+            //System.out.println("Evaluate move id " + myID + ", evaluation by " + thisTurnStrategy);
             if (inPlay.isDetective()) {
-                return evaluate(currentDetectiveMoves, board);
+                return evaluate(myMoves, myID, board); //no different for situations that dont loop over the strategising player more than once
             }
-            else return evaluate(mrXMoves, board);
+            else {
+                return evaluate(myMoves, myID, board);
+            }
         }
 
 
@@ -77,14 +89,14 @@ public class MiniMaxBox {
                 //System.out.println("Got here! #2");
                 if (board.getAvailableMoves().stream().noneMatch(x -> x.commencedBy().isDetective())){ //are all detective stuck?
                     //System.out.println("Got here! #3");
-                    return evaluate(currentlyAvailableMoves, board);
+                    return evaluate(myMoves, -1, board);
                 }
                 //if theyre not and one can move,
                 //System.out.println("Got here! #4");
                 return minimax(order, depth - 1, alpha, beta, currentlyAvailableMoves, board, branchID); //if we can move some detectives then the game isnt over
             }
             if (inPlay.isMrX()) {
-                return evaluate(currentlyAvailableMoves, board);
+                return evaluate(myMoves, -1, board); //dont check any of mrX's moves because hes stuck and has none
             }
         }
 
@@ -101,7 +113,7 @@ public class MiniMaxBox {
                 if(tree != null) { tree.prepareChild(recursions, branchID, evaluation); }
                 //
                 //alpha and beta just get passed down the tree at first
-                Pair<Double, List<Move>> child = minimax(order, depth - 1, alpha, beta, currentlyAvailableMoves, board.advance(move), i);
+                Pair<Double, List<Move>> child = minimax(order, depth - 1, alpha, beta, myMoves, board.advance(move), i);
                 double moveValue = child.left();
                 // Tree testing (not part of minimax functionality)
                 if(tree != null) { tree.specifyAndSetChild(tree.getLocation(recursions, branchID), i, moveValue); }
@@ -131,7 +143,7 @@ public class MiniMaxBox {
                 // Tree testing (not part of minimax functionality)
                 if(tree != null) { tree.prepareChild(recursions, branchID, evaluation); }
                 //
-                Pair<Double, List<Move>> child = minimax(order, depth - 1, alpha, beta, currentlyAvailableMoves, board.advance(move), i);
+                Pair<Double, List<Move>> child = minimax(order, depth - 1, alpha, beta, myMoves, board.advance(move), i);
                 double moveValue = child.left();
                 // Tree testing (not part of minimax functionality)
                 if(tree != null) { tree.specifyAndSetChild(tree.getLocation(recursions, branchID), i, moveValue); }
@@ -204,7 +216,7 @@ public class MiniMaxBox {
         //how we score THIS turn (makes sure detectives only see what they should on their turn)
         thisTurnStrategy = order.get(0).playedBy().isMrX() ? mrXEvaluator : detectiveEvaluator;
         return minimax(order, depth, Integer.MIN_VALUE,
-                Integer.MAX_VALUE, new ArrayList<Move>(), board, 0)
+                Integer.MAX_VALUE, thisTurnStrategy.equals(mrXEvaluator) ? mrXMoves : currentDetectiveMoves, board, 0)
                 .right();
     }
 

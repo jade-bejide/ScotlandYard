@@ -94,7 +94,7 @@ public class DetectiveEvaluator extends Evaluator{
     }
 
     @Override
-    public double score(Piece inPlay, List<Move> moves, Board.GameState board) {
+    public double score(Piece inPlay, List<Move> moves, int id, Board.GameState board) {
 
         if (inPlay.isMrX()) throw new IllegalArgumentException("Mr X shouldn't be minimising!");
         if (moves.size() > 0) {
