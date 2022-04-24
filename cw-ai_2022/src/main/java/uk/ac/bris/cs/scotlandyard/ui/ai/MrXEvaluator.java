@@ -138,17 +138,18 @@ public class MrXEvaluator extends Evaluator{
         SafeMovesChecker safeMoves = new SafeMovesChecker();
         //System.out.println("Who's playing? Seems to BoardHelper like " + BoardHelper.getRemaining(board));
         ImmutableList<Integer> detectivePossibleLocations = ImmutableList.copyOf(board.getAvailableMoves().stream().map(x -> x.accept(safeMoves)).toList());
+        //System.out.println(detectivePossibleLocations);
         //System.out.println("I think MRX is at node " + mrX.location() + " at this evaluation in MrXEvaluator.");
         //System.out.println("The detectives could be anywhere! It's possible they're at nodes " + detectivePossibleLocations);
         ImmutableList<Integer> mrXPossibleLocations = ImmutableList.copyOf(board.getSetup().graph.adjacentNodes(mrX.location()));
-
+        //System.out.println(mrXPossibleLocations);
         return (int) mrXPossibleLocations.stream().filter(x -> !detectivePossibleLocations.contains(x)).count();
     }
 
     private int getMrXLocation(List<Move> moves, int id){
         SafeMovesChecker destinationVisitor = new SafeMovesChecker();
         // returns mrx's location at parent/this node being evaluated (his actual location)
-        // ...depending on if it's his turn when evaluation is called
+        // ...i.e. if its not his turn when evaluator is called, it will retrieve where he was was
         return moves.get(id).accept(destinationVisitor);
     }
 
@@ -157,20 +158,21 @@ public class MrXEvaluator extends Evaluator{
         //after calling minimax, for static evaluation we need to score elements:
         //distance from detectives (tickets away)
         //available moves
+
         int mrXLocation = -1;
         if (moves.size() > 0) {
             if (!(moves.stream().allMatch(x -> x.commencedBy().isMrX()))) {
                 throw new IllegalArgumentException("All moves should be commenced by Mr X!");
             }
             mrXLocation = moves.get(0).source();
+            if(id != -1) {
+                mrXLocation = getMrXLocation(moves, id);
+            }
         }
 
         if (mrXLocation == -1) {
             Random random = new Random();
             mrXLocation = ScotlandYard.MRX_LOCATIONS.get(random.nextInt(ScotlandYard.MRX_LOCATIONS.size()));
-        }
-        if(id != -1) {
-            mrXLocation = getMrXLocation(moves, id);
         }
 
         int distance = cumulativeDistance(board, getMrX(board, mrXLocation), getDetectives(board));

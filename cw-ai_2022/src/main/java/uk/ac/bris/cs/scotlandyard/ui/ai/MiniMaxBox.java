@@ -52,6 +52,21 @@ public class MiniMaxBox {
 //    }
 
     //  returns a list of moves which are best for player(s) in the starting round
+    private List<Move> chooseMyLatestMoves(List<Move> currentlyAvailableMoves,
+                                     List<Move> myMoves,
+                                     Turn thisTurn,
+                                     Turn lastTurn,
+                                     int branchID){
+        if(thisTurn.playedBy().equals(this.thisTurn.playedBy()) && currentlyAvailableMoves.size() > 0) {
+            if(lastTurn.playedBy().equals(this.thisTurn.playedBy())) {
+                myID = branchID;
+            }
+            return new ArrayList<Move>(currentlyAvailableMoves);
+        }
+        return myMoves;
+    }
+
+
     private Pair<Double, List<Move>> minimax(List<Turn> order, int depth, double alpha, double beta,
                                              List<Move> myMoves, Board.GameState board,
                                              int branchID){ //branchID is only for tree building and therefore testing
@@ -62,13 +77,14 @@ public class MiniMaxBox {
         //stream decides which moves were done by the player moving this round
         List<Move> currentlyAvailableMoves = board.getAvailableMoves().stream().filter(x -> x.commencedBy().equals(inPlay)).toList();
         //System.out.println(thisTurn.playedBy());
-        if(thisTurn.playedBy().equals(this.thisTurn.playedBy())) {
-            myMoves = new ArrayList<Move>(currentlyAvailableMoves);
-        }
+        myMoves = chooseMyLatestMoves(currentlyAvailableMoves, myMoves, thisTurn, lastTurn, branchID);
+//        if(thisTurn.playedBy().equals(this.thisTurn.playedBy()) && currentlyAvailableMoves.size() > 0) {
+//            myMoves = new ArrayList<Move>(currentlyAvailableMoves);
+//            if(lastTurn.playedBy().equals(this.thisTurn.playedBy())) {
+//                myID = branchID;
+//            }
+//        }
         //if the level above decided which move the evaluation strategy should use as a destination
-        if(lastTurn.playedBy().equals(this.thisTurn.playedBy())) {
-            myID = branchID;
-        }
 
         //we've reached ample recursion depth
         if(depth == 0) {
@@ -89,14 +105,14 @@ public class MiniMaxBox {
                 //System.out.println("Got here! #2");
                 if (board.getAvailableMoves().stream().noneMatch(x -> x.commencedBy().isDetective())){ //are all detective stuck?
                     //System.out.println("Got here! #3");
-                    return evaluate(myMoves, -1, board);
+                    return evaluate(myMoves, myID, board);
                 }
                 //if theyre not and one can move,
                 //System.out.println("Got here! #4");
                 return minimax(order, depth - 1, alpha, beta, currentlyAvailableMoves, board, branchID); //if we can move some detectives then the game isnt over
             }
             if (inPlay.isMrX()) {
-                return evaluate(myMoves, -1, board); //dont check any of mrX's moves because hes stuck and has none
+                return evaluate(myMoves, myID, board); //dont check any of mrX's moves because hes stuck and has none
             }
         }
 
