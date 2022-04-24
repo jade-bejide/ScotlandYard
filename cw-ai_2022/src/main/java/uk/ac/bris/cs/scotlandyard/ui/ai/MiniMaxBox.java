@@ -77,13 +77,13 @@ public class MiniMaxBox {
         //stream decides which moves were done by the player moving this round
         List<Move> currentlyAvailableMoves = board.getAvailableMoves().stream().filter(x -> x.commencedBy().equals(inPlay)).toList();
         //System.out.println(thisTurn.playedBy());
-        myMoves = chooseMyLatestMoves(currentlyAvailableMoves, myMoves, thisTurn, lastTurn, branchID);
-//        if(thisTurn.playedBy().equals(this.thisTurn.playedBy()) && currentlyAvailableMoves.size() > 0) {
-//            myMoves = new ArrayList<Move>(currentlyAvailableMoves);
-//            if(lastTurn.playedBy().equals(this.thisTurn.playedBy())) {
-//                myID = branchID;
-//            }
-//        }
+        //myMoves = chooseMyLatestMoves(currentlyAvailableMoves, myMoves, thisTurn, lastTurn, branchID);
+        if(thisTurn.playedBy().equals(this.thisTurn.playedBy())) {
+            myMoves = new ArrayList<Move>(currentlyAvailableMoves);
+        }
+        if(lastTurn.playedBy().equals(this.thisTurn.playedBy())) {
+            myID = branchID;
+        }
         //if the level above decided which move the evaluation strategy should use as a destination
 
         //we've reached ample recursion depth

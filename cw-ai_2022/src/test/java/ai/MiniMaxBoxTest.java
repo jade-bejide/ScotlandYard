@@ -169,7 +169,7 @@ public class MiniMaxBoxTest {
         Board.GameState board = new MyGameStateFactory().build(RenameMe.standard24MoveSetup(),
                 mrX, blue); //two detectives limited moves
 
-        board = board.advance(minimax.minimax(1, board).get(0));
+        board = board.advance(minimax.minimax(2, board).get(0));
         minimax.getTree().show();
     }
 
