@@ -15,6 +15,11 @@ public class Dijkstra{ //something we can give minimaxbox to score a game state
 
     //build the datastructures holding the nodes, their distance from source and their preceding node
     private void populate(ImmutableValueGraph<Integer, ImmutableSet<ScotlandYard.Transport>> graph, Integer source){
+        //when a game is reset, this should refresh the hashtable (bug checking)
+        if (!nodeDict.isEmpty()) {
+            //System.out.println("New Game!");
+            nodeDict = new Hashtable<Integer, ArrayList<Integer>>(0);
+        }
         nodeDict.put(source, new ArrayList<Integer>(Arrays.asList(0, null)));
         for(Integer n : graph.nodes()){
             if( !n.equals(source)) {
