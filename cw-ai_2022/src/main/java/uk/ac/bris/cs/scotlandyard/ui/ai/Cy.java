@@ -16,7 +16,8 @@ public class Cy implements Ai {
 			@Nonnull Board board,
 			Pair<Long, TimeUnit> timeoutPair) {
 		// returns a random move, replace with your own implementation
-
+		long start = System.currentTimeMillis();
+		long end = start + (timeoutPair.left()-1) * 1000;
 //		var moves = board.getAvailableMoves().asList();
 //		return moves.get(new Random().nextInt(moves.size()));
 		Evaluator mrXBrain = new MrXEvaluator(Arrays.asList(4.0, 4.0, 2.0));
@@ -24,7 +25,18 @@ public class Cy implements Ai {
 		//Evaluator findMrXforDetectives =
 		MiniMaxBox miniMaxBox = MiniMaxBox.getInstance(mrXBrain, detectiveBrain);
 	    //first move in optimal moves as goes continue (move taken this turn by this player)
-		return miniMaxBox.minimax(4, (Board.GameState) board).get(0);
+		Move chosenMove = null;
+
+		while (System.currentTimeMillis() < end && chosenMove == null) {
+			System.out.println("h");
+			chosenMove = miniMaxBox.minimax(4, (Board.GameState) board).get(0);
+		}
+		if (chosenMove != null) return chosenMove;
+		else {
+			System.out.println("Oh no");
+			var moves = board.getAvailableMoves().asList();
+			return moves.get(new Random().nextInt(moves.size()));
+		}
 
 	}
 }

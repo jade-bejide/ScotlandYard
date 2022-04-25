@@ -109,7 +109,7 @@ public class DetectiveEvaluator extends Evaluator{
         int distance = getDistanceToMrX(inPlay, board); /*some distance function*/
 
         int countMoves = moves.size();
-        return (weights.get(0) * distance) - (weights.get(1) * countMoves);
+        return (weights.get(0) * distance) + (weights.get(1) * countMoves);
     }
 
 
