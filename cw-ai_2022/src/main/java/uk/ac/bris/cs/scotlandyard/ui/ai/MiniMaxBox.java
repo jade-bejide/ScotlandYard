@@ -32,9 +32,7 @@ public class MiniMaxBox {
 }
 
     public static MiniMaxBox getInstance(Evaluator eMrX, Evaluator eDetectives, DoubleTree... possibleTestTree){ //singleton
-        //if(possibleTestTree.length > 1) throw new AssertionError("You're passing in too many test trees to MiniMaxBox");
-        //Evaluator evaluator = evaluators[0]; //if someone mistakenly passes lots of evaluators we only want the first
-        //if(evaluators.length > 1) System.out.println("Warning: MiniMaxBox will take the first of " + evaluators.length + " evaluators.");
+        if(possibleTestTree.length > 1) throw new AssertionError("You're passing in too many test trees to MiniMaxBox");
         if(instance == null) { instance = new MiniMaxBox(eMrX, eDetectives, possibleTestTree); }
         return instance;
     }
@@ -234,6 +232,13 @@ public class MiniMaxBox {
         return minimax(order, depth, Integer.MIN_VALUE,
                 Integer.MAX_VALUE, thisTurnStrategy.equals(mrXEvaluator) ? mrXMoves : currentDetectiveMoves, board, 0)
                 .right();
+    }
+
+    // // // // TEST METHODS (apologies for the low cohesion & high coupling here) // // // //
+    // this method is used to separate behaviours of each minimax box test by resetting the instance (impure, mutates instance)
+    public static MiniMaxBox renewInstance(Evaluator eMrX, Evaluator eDetectives, DoubleTree... possibleTestTree){
+        instance = null;
+        return MiniMaxBox.getInstance(eMrX, eDetectives, possibleTestTree);
     }
 
     //pure and safe test methods

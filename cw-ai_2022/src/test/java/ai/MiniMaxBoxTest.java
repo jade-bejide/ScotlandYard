@@ -11,7 +11,9 @@ import uk.ac.bris.cs.scotlandyard.ui.ai.*;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -31,18 +33,41 @@ public class MiniMaxBoxTest {
         var white = new Player(WHITE, defaultDetectiveTickets(), 50);
         var yellow = new Player(YELLOW, defaultDetectiveTickets(), 138);
         var mrX = new Player(MRX, defaultMrXTickets(), 106);
-        Board.GameState state = new MyGameStateFactory().build(RenameMe.standard24MoveSetup(),
+        return new MyGameStateFactory().build(RenameMe.standard24MoveSetup(),
                 mrX, red, green, blue, white, yellow);
-        return state;
     }
 
     private Board getSmallSetup(){
-        var red = new Player(RED, defaultDetectiveTickets(), 91);
-        var mrX = new Player(MRX, defaultMrXTickets(), 2);
-        var green = new Player(GREEN, defaultDetectiveTickets(), 93);
-        Board.GameState state = new MyGameStateFactory().build(RenameMe.standard24MoveSetup(),
-                mrX, red, green);
-        return state;
+        var mrX = new Player(MRX, ImmutableMap.of(ScotlandYard.Ticket.TAXI, 0,
+                Ticket.BUS, 2,
+                Ticket.UNDERGROUND, 0,
+                Ticket.SECRET, 0,
+                Ticket.DOUBLE, 0),
+                1);
+        var blue = new Player(BLUE, ImmutableMap.of(ScotlandYard.Ticket.TAXI, 2,
+                Ticket.BUS, 0,
+                Ticket.UNDERGROUND, 0,
+                Ticket.SECRET, 0,
+                Ticket.DOUBLE, 0)
+                , 44); //will block some of mrx's move safety
+        return new MyGameStateFactory().build(RenameMe.standard24MoveSetup(),
+                mrX, blue);
+    }
+
+    private MiniMaxBox foldUpMiniMaxBox(Evaluator mrxBrain, Evaluator detectiveBrain){
+        return MiniMaxBox.getInstance(
+                mrxBrain,
+                detectiveBrain,
+                new DoubleTree()
+        );
+    }
+
+    private Node getExtremalBranch(DoubleTree tree, Comparator<Node> cmprt){
+        return tree.getNodeOnLocation().getBranches().stream()
+                .max(cmprt)
+                .stream()
+                .toList()
+                .get(0);
     }
 
     @Test
@@ -65,7 +90,7 @@ public class MiniMaxBoxTest {
     @Test
     public void testEvaluatorsAssignCorrectly(){
         Board.GameState board = (Board.GameState) getSetup(); //mrX turn first
-        MiniMaxBox minimax = MiniMaxBox.getInstance(
+        MiniMaxBox minimax = MiniMaxBox.renewInstance(
                 new MrXEvaluator(Arrays.asList(0.5, 0.5, 1.0)),
                 new DetectiveEvaluator(Arrays.asList(0.5, 0.5)),
                 new DoubleTree()
@@ -75,12 +100,10 @@ public class MiniMaxBoxTest {
             board = board.advance(minimax.minimax(4, board).get(0));
             Evaluator evaluator = minimax.getThisTurnStrategy();
             try {
-                //instead of an intrusive test visitor,
-                // we can use this try catch using casting to decide underlying type
                 if (who.isMrX()) {
                     MrXEvaluator x = (MrXEvaluator) evaluator;
                 } else {
-                    DetectiveEvaluator x = (DetectiveEvaluator) evaluator;
+                    DetectiveEvaluator y = (DetectiveEvaluator) evaluator;
                 }
             } catch (ClassCastException e) {
                 throw new AssertionError("Assigned the wrong evaluator on this turn \n" + e);
@@ -90,7 +113,7 @@ public class MiniMaxBoxTest {
 
     @Test (expected = AssertionError.class)
     public void testMiniMaxTooManyTreesShouldThrow(){
-        MiniMaxBox minimax = MiniMaxBox.getInstance(
+        MiniMaxBox minimax = MiniMaxBox.renewInstance(
                 new MrXEvaluator(Arrays.asList(0.5, 0.5, 1.0)),
                 new DetectiveEvaluator(Arrays.asList(0.5, 0.5)),
                 new DoubleTree(), new DoubleTree()
@@ -127,48 +150,63 @@ public class MiniMaxBoxTest {
         assertFalse(tree.equals(new DoubleTree())); //check that it has changed
     }
 
+    @Test
+    public void testMrXMaximises(){
+        Board.GameState board = (Board.GameState) getSetup();
+        MiniMaxBox miniMaxBox = foldUpMiniMaxBox(new MrXEvaluator(Arrays.asList(1.0, 1.0, 1.0)), new DetectiveEvaluator(Arrays.asList(1.0, 1.0)));
+        board.advance(miniMaxBox.minimax(4, board).get(0));
+
+        DoubleTree tree = miniMaxBox.getTree();
+        for(Node node : tree.getNodeOnLocation().getBranches()){ node.pruneAllChildren(); }
+        Node largestBranch = getExtremalBranch(tree, Comparator.comparingDouble(Node::getValue));
+        Node miniMaxTreeRoot = miniMaxBox.getTree().getNodeOnLocation();
+        miniMaxTreeRoot.pruneAllChildren();
+        DoubleTree root = new DoubleTree(miniMaxTreeRoot);
+        DoubleTree chosen = new DoubleTree(largestBranch);
+
+        assert(root.equals(chosen));
+    }
+
+    @Test
+    public void testDetectiveMinimises(){
+        Board.GameState board = (Board.GameState) getSmallSetup();
+        MiniMaxBox miniMaxBox = foldUpMiniMaxBox(new MrXEvaluator(Arrays.asList(1.0, 1.0, 1.0)), new DetectiveEvaluator(Arrays.asList(1.0, 1.0)));
+        board = board.advance(miniMaxBox.minimax(4, board).get(0));
+        miniMaxBox.minimax(4, board);
+
+        DoubleTree tree = miniMaxBox.getTree();
+        for(Node node : tree.getNodeOnLocation().getBranches()){ node.pruneAllChildren(); }
+        Node smallestBranch = getExtremalBranch(tree, Comparator.comparingDouble(x -> -x.getValue()));
+        Node miniMaxTreeRoot = miniMaxBox.getTree().getNodeOnLocation();
+        miniMaxTreeRoot.pruneAllChildren();
+        DoubleTree root = new DoubleTree(miniMaxTreeRoot);
+        DoubleTree chosen = new DoubleTree(smallestBranch);
+
+        assert(root.equals(chosen));
+    }
+
+    @Test
+    public void testPruning(){
+
+    }
+
     //testing specific setups
     @Test
     public void testEndOfGameDecisionTree(){
-//        // anonymous evaluators here allows complete control over the generated evaluations
-//        Evaluator simpleMrXEvaluator = new Evaluator() {
-//            @Override
-//            public double score(Piece inPlay, List<Move> moves, Board.GameState board) {
-//                Move.Visitor<Integer> destinationVisitor = new Move.Visitor<Integer>() {
-//                    @Override
-//                    public Integer visit(Move.SingleMove move) {
-//                        return move.destination;
-//                    }
-//
-//                    @Override
-//                    public Integer visit(Move.DoubleMove move) {
-//                        return move.destination2;
-//                    }
-//                };
-//                return moves.get(0).accept(destinationVisitor);
-//            }
-//        };
+        Board.GameState board = (Board.GameState) getSmallSetup();
+        // anonymous evaluators here allows complete control over the generated evaluations
+        Evaluator simpleMrXEvaluator = new Evaluator() {
+            @Override
+            public double score(Piece inPlay, List<Move> moves, int id, Board.GameState board) {
+                return id;
+            }
+        };
         MiniMaxBox minimax = MiniMaxBox.getInstance(
-                new MrXEvaluator(Arrays.asList(0.0, 1.0, 0.0)), //test on movement freedom
-//                simpleMrXEvaluator,
+//                new MrXEvaluator(Arrays.asList(0.0, 1.0, 0.0)), //test on movement freedom
+                simpleMrXEvaluator,
                 new DetectiveEvaluator(Arrays.asList(0.5, 0.5)),
                 new DoubleTree()
         );
-        var mrX = new Player(MRX, ImmutableMap.of(ScotlandYard.Ticket.TAXI, 0,
-                Ticket.BUS, 2,
-                Ticket.UNDERGROUND, 0,
-                Ticket.SECRET, 0,
-                Ticket.DOUBLE, 0),
-                1);
-        var blue = new Player(BLUE, ImmutableMap.of(ScotlandYard.Ticket.TAXI, 2,
-                Ticket.BUS, 0,
-                Ticket.UNDERGROUND, 0,
-                Ticket.SECRET, 0,
-                Ticket.DOUBLE, 0)
-                , 44); //will block some of mrx's move safety
-        Board.GameState board = new MyGameStateFactory().build(RenameMe.standard24MoveSetup(),
-                mrX, blue); //two detectives limited moves
-
         board = board.advance(minimax.minimax(2, board).get(0));
         minimax.getTree().show();
     }

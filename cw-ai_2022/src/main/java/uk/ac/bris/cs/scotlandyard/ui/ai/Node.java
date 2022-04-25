@@ -44,6 +44,10 @@ public class Node {
         return true;
     }
 
+    public String toString(){
+        return "[" + value + "]";
+    }
+
     // pretty printer
     public void show() {
         this.show("", true);
