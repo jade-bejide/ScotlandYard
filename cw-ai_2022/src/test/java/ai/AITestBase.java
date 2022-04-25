@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.graph.ImmutableValueGraph;
 import com.google.common.io.Resources;
-import org.checkerframework.checker.index.qual.NonNegative;
 import org.junit.BeforeClass;
 import uk.ac.bris.cs.scotlandyard.model.GameSetup;
 
@@ -14,7 +13,7 @@ import java.nio.charset.StandardCharsets;
 import static uk.ac.bris.cs.scotlandyard.model.ScotlandYard.*;
 import static uk.ac.bris.cs.scotlandyard.model.ScotlandYard.Ticket.*;
 
-public class RenameMe {
+public class AITestBase {
     private static ImmutableValueGraph<Integer, ImmutableSet<Transport>> defaultGraph;
     @BeforeClass
     public static void setUp() {

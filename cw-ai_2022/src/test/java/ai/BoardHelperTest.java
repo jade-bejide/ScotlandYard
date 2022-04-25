@@ -6,14 +6,13 @@ import uk.ac.bris.cs.scotlandyard.model.*;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import static uk.ac.bris.cs.scotlandyard.model.Piece.Detective.*;
 import static uk.ac.bris.cs.scotlandyard.model.ScotlandYard.defaultDetectiveTickets;
 import static uk.ac.bris.cs.scotlandyard.model.ScotlandYard.defaultMrXTickets;
 import static uk.ac.bris.cs.scotlandyard.ui.ai.BoardHelper.*;
 
-public class BoardHelperTest extends RenameMe {
+public class BoardHelperTest extends AITestBase {
 
     //checks that the players are rebuilt correctly
     @Test

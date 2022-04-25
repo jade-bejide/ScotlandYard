@@ -11,8 +11,11 @@ import static uk.ac.bris.cs.scotlandyard.ui.ai.BoardHelper.getPlayerTickets;
 
 public class Dijkstra{ //something we can give minimaxbox to score a game state
 
-    Dictionary<Integer, ArrayList<Integer>> nodeDict = new Hashtable<Integer, ArrayList<Integer>>(0);
+    Dictionary<Integer, ArrayList<Integer>> nodeDict;
 
+    public Dijkstra() {
+        nodeDict = new Hashtable<Integer, ArrayList<Integer>>(0);
+    }
     //build the datastructures holding the nodes, their distance from source and their preceding node
     private void populate(ImmutableValueGraph<Integer, ImmutableSet<ScotlandYard.Transport>> graph, Integer source){
         //when a game is reset, this should refresh the hashtable (bug checking)
@@ -108,8 +111,8 @@ public class Dijkstra{ //something we can give minimaxbox to score a game state
         //builds the shortest path
         List<Integer> path = new ArrayList<Integer>();
         path.add(0, currentNode);
-        while (!Objects.equals(currentNode, source)) {
-            if (currentNode == null) System.out.println("Why?");
+        while (!currentNode.equals(source)) {
+            if (nodeDict.get(currentNode).get(1) == null) System.out.println("Source: " + source + " Destination: " + destination + " Current Node: " + currentNode);
             currentNode = nodeDict.get(currentNode).get(1);
 
             path.add(0, currentNode);

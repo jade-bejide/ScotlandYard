@@ -220,6 +220,7 @@ public class MiniMaxBox {
      //@Overloading
     public List<Move> minimax(int depth, Board.GameState board){
 
+        System.out.println("Depth is " + depth);
         // test tree
         if(tree != null) { tree.clear(); } //reset to default tree
         //

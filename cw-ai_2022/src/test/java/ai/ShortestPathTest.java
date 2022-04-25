@@ -1,28 +1,19 @@
 
 package ai;
 
-import com.google.common.collect.ImmutableSet;
-import com.google.common.graph.ImmutableValueGraph;
-import com.google.common.io.Resources;
-import io.atlassian.fugue.Pair;
 import org.junit.Test;
 import uk.ac.bris.cs.scotlandyard.model.*;
 import uk.ac.bris.cs.scotlandyard.ui.ai.*;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.*;
 import static uk.ac.bris.cs.scotlandyard.model.ScotlandYard.*;
 import static uk.ac.bris.cs.scotlandyard.model.ScotlandYard.Ticket.*;
 
 //Dijkstra Algorithm Related Tests
-public class ShortestPathTest extends RenameMe {
+public class ShortestPathTest extends AITestBase {
     @Test
     public void testDetectivePathContainsNoIllegalTickets() {
         Player mrX = new Player(Piece.MrX.MRX, defaultMrXTickets(), 198);

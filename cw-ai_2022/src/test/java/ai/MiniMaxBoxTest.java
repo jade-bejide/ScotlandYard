@@ -5,13 +5,9 @@ import org.junit.Test;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.graph.ImmutableValueGraph;
-import com.google.common.io.Resources;
 import uk.ac.bris.cs.scotlandyard.model.*;
 import uk.ac.bris.cs.scotlandyard.ui.ai.*;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -33,7 +29,7 @@ public class MiniMaxBoxTest {
         var white = new Player(WHITE, defaultDetectiveTickets(), 50);
         var yellow = new Player(YELLOW, defaultDetectiveTickets(), 138);
         var mrX = new Player(MRX, defaultMrXTickets(), 106);
-        return new MyGameStateFactory().build(RenameMe.standard24MoveSetup(),
+        return new MyGameStateFactory().build(AITestBase.standard24MoveSetup(),
                 mrX, red, green, blue, white, yellow);
     }
 
@@ -50,7 +46,7 @@ public class MiniMaxBoxTest {
                 Ticket.SECRET, 0,
                 Ticket.DOUBLE, 0)
                 , 44); //will block some of mrx's move safety
-        return new MyGameStateFactory().build(RenameMe.standard24MoveSetup(),
+        return new MyGameStateFactory().build(AITestBase.standard24MoveSetup(),
                 mrX, blue);
     }
 

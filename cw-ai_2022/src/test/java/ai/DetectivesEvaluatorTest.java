@@ -1,16 +1,13 @@
 package ai;
 
-import com.google.common.collect.ImmutableSet;
 import org.junit.Test;
 import uk.ac.bris.cs.scotlandyard.model.*;
 import uk.ac.bris.cs.scotlandyard.model.Board;
 import uk.ac.bris.cs.scotlandyard.model.MyGameStateFactory;
-import uk.ac.bris.cs.scotlandyard.model.Piece.*;
 import uk.ac.bris.cs.scotlandyard.model.Player;
 import uk.ac.bris.cs.scotlandyard.ui.ai.DetectiveEvaluator;
 
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -19,7 +16,7 @@ import static uk.ac.bris.cs.scotlandyard.model.ScotlandYard.*;
 import static uk.ac.bris.cs.scotlandyard.model.ScotlandYard.Ticket.*;
 
 
-public class DetectivesEvaluatorTest extends RenameMe {
+public class DetectivesEvaluatorTest extends AITestBase {
     @Test
     public void testStartBoundaryContainsWholeGraph(){
         Player mrX = new Player(MrX.MRX, defaultMrXTickets(), 54);

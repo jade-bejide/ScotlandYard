@@ -1,7 +1,6 @@
 package ai;
 
 import com.google.common.collect.ImmutableMap;
-import org.checkerframework.checker.units.qual.A;
 import org.junit.Test;
 import uk.ac.bris.cs.scotlandyard.model.*;
 import uk.ac.bris.cs.scotlandyard.ui.ai.Dijkstra;
@@ -15,10 +14,9 @@ import static uk.ac.bris.cs.scotlandyard.model.Piece.Detective.*;
 import static uk.ac.bris.cs.scotlandyard.model.ScotlandYard.Ticket.*;
 import static uk.ac.bris.cs.scotlandyard.model.ScotlandYard.defaultDetectiveTickets;
 import static uk.ac.bris.cs.scotlandyard.model.ScotlandYard.defaultMrXTickets;
-import static uk.ac.bris.cs.scotlandyard.ui.ai.BoardHelper.getDetectiveOnPiece;
 import static uk.ac.bris.cs.scotlandyard.ui.ai.BoardHelper.getDetectives;
 
-public class MrXEvaluatorTest extends RenameMe {
+public class MrXEvaluatorTest extends AITestBase {
     @Test
     public void testCumulativeDistanceOutliers() {
         Player mrX = new Player(Piece.MrX.MRX, defaultMrXTickets(), 198);
