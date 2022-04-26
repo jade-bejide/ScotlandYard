@@ -142,7 +142,7 @@ public class MiniMaxBoxTest {
         board = board.advance(moves.get(0));
         //minimax.minimax(1, board);
         DoubleTree tree = minimax.getTree();
-        tree.show();
+        //tree.show();
         assertFalse(tree.equals(new DoubleTree())); //check that it has changed
     }
 
@@ -217,7 +217,7 @@ public class MiniMaxBoxTest {
                 mrX, blue);
         MiniMaxBox miniMaxBox = foldUpMiniMaxBox(new MrXEvaluator(Arrays.asList(1.0, 0.0, 0.0)), new DetectiveEvaluator(Arrays.asList(1.0, 0.0)));
         miniMaxBox.minimax(2, board);
-        miniMaxBox.getTree().show();
+        //miniMaxBox.getTree().show();
     }
 
     //testing specific setups
@@ -238,7 +238,7 @@ public class MiniMaxBoxTest {
                 new DoubleTree()
         );
         board = board.advance(minimax.minimax(2, board).get(0));
-        minimax.getTree().show();
+        //minimax.getTree().show();
     }
 
 }

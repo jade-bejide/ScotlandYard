@@ -52,10 +52,10 @@ public class DetectiveEvaluator extends Evaluator{
 
     //refocuses mr X's boundary each time he reveals himself
     public void setMrXBoundary(Integer revealedLocation, Board.GameState board, boolean isFiltering) {
+        System.out.println(revealedLocation);
         if (revealedLocation < 1 || revealedLocation > 199) throw new IllegalArgumentException("Not a valid location");
         Set<Integer> boundary = new HashSet<Integer>(board.getSetup().graph.successors(revealedLocation));
 
-        //may remove but this currently filters the boundary to tickets mr X has
         if (isFiltering) boundary = filterBoundary(board, boundary, revealedLocation);
         Set<Integer> boundaryCpy = Set.copyOf(boundary);
         for (Integer node : boundaryCpy) {
