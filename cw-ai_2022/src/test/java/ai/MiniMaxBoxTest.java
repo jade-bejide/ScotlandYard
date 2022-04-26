@@ -160,7 +160,7 @@ public class MiniMaxBoxTest {
         board = board.advance(moves.get(0));
         //minimax.minimax(1, board);
         DoubleTree tree = minimax.getTree();
-        tree.show();
+        //tree.show();
         assertFalse(tree.equals(new DoubleTree())); //check that it has changed
     }
 
