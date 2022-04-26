@@ -213,7 +213,7 @@ public class MiniMaxBoxTest {
                 Ticket.SECRET, 0,
                 Ticket.DOUBLE, 0)
                 , 21); //will block some of mrx's move safety
-        Board.GameState board = new MyGameStateFactory().build(RenameMe.standard24MoveSetup(),
+        Board.GameState board = new MyGameStateFactory().build(AITestBase.standard24MoveSetup(),
                 mrX, blue);
         MiniMaxBox miniMaxBox = foldUpMiniMaxBox(new MrXEvaluator(Arrays.asList(1.0, 0.0, 0.0)), new DetectiveEvaluator(Arrays.asList(1.0, 0.0)));
         miniMaxBox.minimax(2, board);
