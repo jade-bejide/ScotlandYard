@@ -23,7 +23,7 @@ public class Cy implements Ai {
 		Evaluator mrXBrain = new MrXEvaluator(Arrays.asList(4.0, 4.0, 2.0));
 		Evaluator detectiveBrain = new DetectiveEvaluator(Arrays.asList(1.0, 1.0));
 		//Evaluator findMrXforDetectives =
-		MiniMaxBox miniMaxBox = MiniMaxBox.renewInstance(mrXBrain, detectiveBrain);
+		MiniMaxBox miniMaxBox = new MiniMaxBox(mrXBrain, detectiveBrain);
 	    //first move in optimal moves as goes continue (move taken this turn by this player)
 		Move chosenMove = null;
 

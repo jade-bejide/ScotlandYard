@@ -135,7 +135,7 @@ public class BoardHelper { //static methods/namespace which holds useful methods
 //        )
 //    }
 
-    static class DestinationChecker implements Move.Visitor<Integer> {
+    public static class DestinationChecker implements Move.Visitor<Integer> {
 
         @Override
         public Integer visit(Move.SingleMove move) {
