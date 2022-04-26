@@ -29,7 +29,7 @@ public class MiniMaxBox {
         this.mrXEvaluator = eMrX;
         this.detectiveEvaluator = eDetectives;
         this.tree = possibleTestTree.length > 0 ? possibleTestTree[0] : null;
-}
+    }
 
     public static MiniMaxBox getInstance(Evaluator eMrX, Evaluator eDetectives, DoubleTree... possibleTestTree){ //singleton
         if(possibleTestTree.length > 1) throw new AssertionError("You're passing in too many test trees to MiniMaxBox");
@@ -219,8 +219,6 @@ public class MiniMaxBox {
     }
      //@Overloading
     public List<Move> minimax(int depth, Board.GameState board){
-
-        System.out.println("Depth is " + depth);
         // test tree
         if(tree != null) { tree.clear(); } //reset to default tree
         //
