@@ -183,7 +183,41 @@ public class MiniMaxBoxTest {
 
     @Test
     public void testPruning(){
-
+//        Evaluator simpleMrXEvaluator = new Evaluator() {
+//            static class DestinationChecker implements Move.Visitor<Integer> {
+//                @Override
+//                public Integer visit(Move.SingleMove move) {
+//                    return move.destination;
+//                }
+//
+//                //Note that this will never be called
+//                @Override
+//                public Integer visit(Move.DoubleMove move) {
+//                    return move.destination2;
+//                }
+//            }
+//            @Override
+//            public double score(Piece inPlay, List<Move> moves, int id, Board.GameState board) {
+//                return moves.get(id).accept(new DestinationChecker());
+//            }
+//        };
+        var mrX = new Player(MRX, ImmutableMap.of(ScotlandYard.Ticket.TAXI, 1,
+                Ticket.BUS, 1,
+                Ticket.UNDERGROUND, 0,
+                Ticket.SECRET, 0,
+                Ticket.DOUBLE, 0),
+                2);
+        var blue = new Player(BLUE, ImmutableMap.of(ScotlandYard.Ticket.TAXI, 1,
+                Ticket.BUS, 0,
+                Ticket.UNDERGROUND, 0,
+                Ticket.SECRET, 0,
+                Ticket.DOUBLE, 0)
+                , 21); //will block some of mrx's move safety
+        Board.GameState board = new MyGameStateFactory().build(RenameMe.standard24MoveSetup(),
+                mrX, blue);
+        MiniMaxBox miniMaxBox = foldUpMiniMaxBox(new MrXEvaluator(Arrays.asList(1.0, 0.0, 0.0)), new DetectiveEvaluator(Arrays.asList(1.0, 0.0)));
+        miniMaxBox.minimax(2, board);
+        miniMaxBox.getTree().show();
     }
 
     //testing specific setups
