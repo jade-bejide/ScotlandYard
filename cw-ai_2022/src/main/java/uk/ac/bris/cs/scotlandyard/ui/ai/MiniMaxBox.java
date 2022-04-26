@@ -45,29 +45,9 @@ public class MiniMaxBox {
         return new Pair<Double, List<Move>>(evaluation, new ArrayList<Move>());
     }
 
-//    private List<Move> setMovesAvailable(List<Move> movesAvailable, Turn lastTurn){
-//
-//    }
-
-    //  returns a list of moves which are best for player(s) in the starting round
-    private List<Move> chooseMyLatestMoves(List<Move> currentlyAvailableMoves,
-                                     List<Move> myMoves,
-                                     Turn thisTurn,
-                                     Turn lastTurn,
-                                     int branchID){
-        if(thisTurn.playedBy().equals(this.thisTurn.playedBy()) && currentlyAvailableMoves.size() > 0) {
-            if(lastTurn.playedBy().equals(this.thisTurn.playedBy())) {
-                myID = branchID;
-            }
-            return new ArrayList<Move>(currentlyAvailableMoves);
-        }
-        return myMoves;
-    }
-
-
     private Pair<Double, List<Move>> minimax(List<Turn> order, int depth, double alpha, double beta,
                                              List<Move> myMoves, Board.GameState board,
-                                             int branchID){ //branchID is only for tree building and therefore testing
+                                             int branchID){
         int recursions = order.size() - depth;
         Turn thisTurn = order.get(Math.min(recursions, order.size() - 1)); //this turn is last recursion's turn on depth = 0
         Turn lastTurn = order.get(Math.max(recursions - 1, 0));
@@ -75,7 +55,6 @@ public class MiniMaxBox {
         //stream decides which moves were done by the player moving this round
         List<Move> currentlyAvailableMoves = board.getAvailableMoves().stream().filter(x -> x.commencedBy().equals(inPlay)).toList();
         //System.out.println(thisTurn.playedBy());
-        //myMoves = chooseMyLatestMoves(currentlyAvailableMoves, myMoves, thisTurn, lastTurn, branchID);
         if(thisTurn.playedBy().equals(this.thisTurn.playedBy())) {
             myMoves = new ArrayList<Move>(currentlyAvailableMoves);
         }
@@ -219,6 +198,8 @@ public class MiniMaxBox {
     }
      //@Overloading
     public List<Move> minimax(int depth, Board.GameState board){
+
+        //System.out.println("DEPTH IS " + depth);
 
         // test tree
         if(tree != null) { tree.clear(); } //reset to default tree
