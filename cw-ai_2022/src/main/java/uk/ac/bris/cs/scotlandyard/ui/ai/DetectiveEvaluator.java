@@ -1,5 +1,6 @@
 package uk.ac.bris.cs.scotlandyard.ui.ai;
 
+import com.esotericsoftware.minlog.Log;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import uk.ac.bris.cs.scotlandyard.model.*;
@@ -79,13 +80,14 @@ public class DetectiveEvaluator extends Evaluator{
     }
 
     public int getMrXLocation(Board.GameState board) {
-        ImmutableList<LogEntry> log = board.getMrXTravelLog();
-        int n = log.size();
-        LogEntry currentLog = log.get(n-1);
-
-        if (currentLog.location().isPresent()) return currentLog.location().get();
-        //should never reach here
-        return 1;
+//        ImmutableList<LogEntry> log = board.getMrXTravelLog();
+//        int n = log.size();
+//        LogEntry currentLog = log.get(n-1);
+//
+//        if (currentLog.location().isPresent()) return currentLog.location().get();
+//        //should never reach here
+        LogEntry currentLastReveal = BoardHelper.getLastRevealedLog(board);
+        return currentLastReveal.location().isPresent() ? currentLastReveal.location().get() : 1;
     }
 
     public boolean isRevealed(Board.GameState board) {
@@ -106,8 +108,8 @@ public class DetectiveEvaluator extends Evaluator{
         List<Integer> possibleMrXLocationsList = new ArrayList<Integer>(possibleMrXLocations);
         //here they all decide that mr X is potentially at different locations rather than having a common goal
         Integer targetNode = 1;
-        if (isRevealed(board)) targetNode = getMrXLocation(board);
-        else targetNode = possibleMrXLocationsList.get(rand.nextInt(possibleMrXLocationsList.size()));
+        /*if (isRevealed(board))*/ targetNode = getMrXLocation(board);
+        //else targetNode = possibleMrXLocationsList.get(rand.nextInt(possibleMrXLocationsList.size()));
         Player detective = BoardHelper.getDetectiveOnPiece(board, inPlay);
         return d.shortestPathFromSourceToDestination(targetNode, detective, board)
                 .getFirst(); //for refactoring in reference to passing board in

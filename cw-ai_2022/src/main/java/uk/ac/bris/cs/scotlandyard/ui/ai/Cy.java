@@ -28,7 +28,7 @@ public class Cy implements Ai {
 		Move chosenMove = null;
 
 		while (System.currentTimeMillis() < end && chosenMove == null) {
-			chosenMove = miniMaxBox.minimax(5, (Board.GameState) board).get(0);
+			chosenMove = miniMaxBox.minimax(4, (Board.GameState) board).get(0);
 		}
 		if (chosenMove != null) return chosenMove;
 		else {
