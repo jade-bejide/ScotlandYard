@@ -87,12 +87,23 @@ public class MrXEvaluator extends Evaluator{
         if (board.getPlayerTickets(Piece.MrX.MRX).isPresent()) {
             Board.TicketBoard mrXBoard = board.getPlayerTickets(Piece.MrX.MRX).get();
 
-            int taxis = mrXBoard.getCount(TAXI);
             int buses = mrXBoard.getCount(BUS);
             int unders = mrXBoard.getCount(UNDERGROUND);
             int secrets = mrXBoard.getCount(SECRET);
             int doubles = mrXBoard.getCount(DOUBLE);
-            int total = taxis + buses + unders + secrets + doubles;
+            List<Integer> values = Arrays.asList(buses, unders, secrets, doubles);
+            int total = buses + unders + secrets + doubles;
+
+            System.out.println(total);
+            for (Integer val : values) {
+                System.out.println(val);
+            }
+
+            //checking if there's one set of tickets left
+            int zeroTickets = (int)values.stream().filter(x -> x == 0).count();
+            if (values.size() - zeroTickets == 1) {
+                return values.stream().filter(x -> x != 0).toList().get(0);
+            }
 
             //mrx may have no tickets in some minimax tests
             //please message elliot about removing/working around this if needed
@@ -100,36 +111,22 @@ public class MrXEvaluator extends Evaluator{
 
             List<Double> weights = new ArrayList<>();
 
-            weights.add((double) taxis/total);
             weights.add((double) buses/total);
             weights.add((double) unders/total);
             weights.add((double) secrets/total);
             weights.add((double) doubles/total);
-
             //ignore since tickets are likely to bus used alot anyway
             //ticketScore += (1-weights.get(0)) * mrXBoard.getCount(TAXI);
-            ticketScore += (1-weights.get(1)) * mrXBoard.getCount(BUS);
-            ticketScore += (1-weights.get(2)) * mrXBoard.getCount(UNDERGROUND);
-            ticketScore += (1-weights.get(3)) * mrXBoard.getCount(SECRET);
-            ticketScore += (1-weights.get(4)) * mrXBoard.getCount(DOUBLE);
+            ticketScore += (1-weights.get(0)) * mrXBoard.getCount(BUS);
+            ticketScore += (1-weights.get(1)) * mrXBoard.getCount(UNDERGROUND);
+            ticketScore += (1-weights.get(2)) * mrXBoard.getCount(SECRET);
+            ticketScore += (1-weights.get(3)) * mrXBoard.getCount(DOUBLE);
             return ticketScore;
         }
         return 0.0;
     }
 
-    static class DestinationChecker implements Move.Visitor<Integer> {
 
-        @Override
-        public Integer visit(Move.SingleMove move) {
-            return move.destination;
-        }
-
-        //Note that this will never be called
-        @Override
-        public Integer visit(Move.DoubleMove move) {
-            return move.destination2;
-        }
-    }
 
     public int getSafeMoves(List<Move> moves, Board.GameState board, Player mrX) {
 

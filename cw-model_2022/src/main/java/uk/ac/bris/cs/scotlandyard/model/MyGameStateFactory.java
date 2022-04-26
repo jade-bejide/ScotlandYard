@@ -42,8 +42,6 @@ public final class MyGameStateFactory implements Factory<GameState> {
 			this.moves = getAvailableMoves();
 			this.winner = ImmutableSet.copyOf(determineWinner().stream().map(Player::piece).collect(Collectors.toSet()));
 			constructorTests();
-
-			System.out.println(setup.moves);
 		}
 
 		private void constructorTests() {

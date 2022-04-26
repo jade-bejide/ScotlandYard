@@ -135,6 +135,20 @@ public class BoardHelper { //static methods/namespace which holds useful methods
 //        )
 //    }
 
+    static class DestinationChecker implements Move.Visitor<Integer> {
+
+        @Override
+        public Integer visit(Move.SingleMove move) {
+            return move.destination;
+        }
+
+        //Note that this will never be called
+        @Override
+        public Integer visit(Move.DoubleMove move) {
+            return move.destination2;
+        }
+    }
+
     public List<Integer> getPlayerPossibleLocations(Board.GameState board, Piece piece) {
         Set<Integer> posNodes = new HashSet<>();
 

@@ -137,17 +137,68 @@ public class MrXEvaluatorTest extends AITestBase {
     //Weights tests, for the evaluator abstract class but using MrXEvaluator as the concrete
     //implementation, tests would be the same for Detective Evaluator
 
+    @Test
+    public void testTicketHeuristicDefaultMrXTickets() {
+        //4 taxis, 3 buses, 3 undergrounds, 2, doubles, 5 secrets
+        Player mrX = new Player(Piece.MrX.MRX, defaultMrXTickets(), 76);
+        Player green = new Player(GREEN, defaultDetectiveTickets(), 54);
+        Board.GameState game = new MyGameStateFactory().build(standard24MoveSetup(),
+                mrX, green);
+
+        MrXEvaluator mrXE = new MrXEvaluator(Arrays.asList(0.0, 0.0, 1.0));
+
+        double score = mrXE.score(mrX.piece(), List.copyOf(game.getAvailableMoves()), -1, game);
+
+        //using a calculator
+        //total tickets (excl. taxi) - 3 + 3 + 2 + 5 = 13
+        //taxis - buses 3/13; undergrounds 3/13; doubles 2/13; secrets 5/13
+        //buses - 30/13; undergrounds - 30/13; doubles - 22/13; secrets - 40/13
+        //ticket score should be 122/13
+        System.out.println(score + " " + 122d/13d);
+        double calcScore = 122/13;
+        assert(score - calcScore == 0.0);
+    }
+
+    @Test
+    public void testThat1TicketsReturnsTicketCountForThatTicket() {
+        Player mrX = new Player(Piece.MrX.MRX, ImmutableMap.of(
+                TAXI, 0,
+                ScotlandYard.Ticket.BUS, 1,
+                ScotlandYard.Ticket.UNDERGROUND, 0,
+                ScotlandYard.Ticket.SECRET, 0,
+                ScotlandYard.Ticket.DOUBLE, 0), 76);
+        Player green = new Player(GREEN, defaultDetectiveTickets(), 54);
+        Board.GameState game = new MyGameStateFactory().build(standard24MoveSetup(),
+                mrX, green);
+
+        MrXEvaluator mrXE = new MrXEvaluator(Arrays.asList(0.0, 0.0, 1.0));
+
+        double score = mrXE.score(Piece.MrX.MRX, List.copyOf(game.getAvailableMoves()), -1, game);
+        assert(score == mrX.tickets().get(BUS));
+    }
+
     @Test(expected = IllegalArgumentException.class)
     public void testNoNegativeWeights() {
         //erroneous
         //no negative weights for now
-        MrXEvaluator w5 = new MrXEvaluator(Arrays.asList(-1.0,2.0, 1.0));
+        MrXEvaluator w = new MrXEvaluator(Arrays.asList(-1.0,2.0, 1.0));
 
     }
 
+    //For the following two tests
+    //There should be at least one non-zero weight possible
     @Test(expected = IllegalArgumentException.class)
-    public void testNoZeroWeights() {
-        MrXEvaluator w6 = new MrXEvaluator(Arrays.asList(0.0,0.0, 0.0));
+    public void testAllZeroWeightsNotPossible() {
+        MrXEvaluator w = new MrXEvaluator(Arrays.asList(0.0,0.0, 0.0));
+    }
+
+    @Test
+    public void testSomeZeroWeightsPossible() {
+        MrXEvaluator w1 = new MrXEvaluator(Arrays.asList(0.0, 1.0, 1.0));
+        MrXEvaluator w2 = new MrXEvaluator(Arrays.asList(1.0, 0.0, 1.0));
+        MrXEvaluator w3 = new MrXEvaluator(Arrays.asList(1.0, 1.0, 0.0));
+        MrXEvaluator w4 = new MrXEvaluator(Arrays.asList(0.0, 0.0, 1.0));
+        MrXEvaluator w5 = new MrXEvaluator(Arrays.asList(1.0, 0.0, 0.0));
     }
 
     @Test
