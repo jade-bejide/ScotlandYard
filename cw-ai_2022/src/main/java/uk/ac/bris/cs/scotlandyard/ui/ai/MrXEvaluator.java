@@ -124,7 +124,7 @@ public class MrXEvaluator extends Evaluator{
 
 
 
-    public int getSafeMoves(List<Move> moves, Board.GameState board, Player mrX) {
+    private int getSafeMoves(List<Move> moves, Board.GameState board, Player mrX) {
 
         DestinationChecker safeMoves = new DestinationChecker();
 
@@ -169,7 +169,7 @@ public class MrXEvaluator extends Evaluator{
 
         int distance = cumulativeDistance(board, getMrX(board, mrXLocation), getDetectives(board));
         //current score evaluation based on evaluation on distance and moves available and tickets
-        return (weights.get(0) * distance) + (weights.get(1) * getSafeMoves(moves, board, getMrX(board, mrXLocation))) +
+        return (weights.get(0) * distance) + (weights.get(1) * moves.size()) +
                 (weights.size() == 3 ? (weights.get(2) * ticketHeuristic(board)) : 0); //incase we have only two weights like in jade's mrxEvaluator tests
     }
 

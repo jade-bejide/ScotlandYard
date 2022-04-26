@@ -42,11 +42,10 @@ public class MrXEvaluatorTest extends AITestBase {
         //2sds so reduced shortest path is [1,5] mean is 3
 
         //init mr X evaluator
-        MrXEvaluator mrXE = new MrXEvaluator(Arrays.asList(1.0, 1.0));
+        MrXEvaluator mrXE = new MrXEvaluator(Arrays.asList(1.0, 0.0));
         mrX.use(TAXI);
         List<Move> mrXMoves = game.getAvailableMoves().stream().filter(x -> x.commencedBy()== Piece.MrX.MRX).toList();
-        //weight of 1 which is flattened to 0.5
-        assert(mrXE.score(BLUE, mrXMoves, -1, game) == (3*0.5)+(mrXE.getSafeMoves(mrXMoves, game, mrX)*0.5)); //-1 should tell evaluator not to effect your test
+        assert(mrXE.score(BLUE, mrXMoves, -1, game) == 3); //-1 should tell evaluator not to effect your test
     }
 
     @Test public void testCumulativeDistanceOnePlayer() {
@@ -59,7 +58,7 @@ public class MrXEvaluatorTest extends AITestBase {
         Board.GameState game = new MyGameStateFactory().build(standard24MoveSetup(), mrX, green);
 
         Dijkstra dijk = new Dijkstra();
-        MrXEvaluator mrXE = new MrXEvaluator(Arrays.asList(1.0, 1.0));
+        MrXEvaluator mrXE = new MrXEvaluator(Arrays.asList(1.0, 0.0));
         mrX.use(TAXI);
         double oneDetectiveShortestPath = (double)dijk.shortestPathFromSourceToDestination(mrX.location(), green, game).getFirst();
         List<Move> mrXMoves = game.getAvailableMoves().stream().filter(x -> x.commencedBy().equals(Piece.MrX.MRX)).toList();
@@ -94,12 +93,10 @@ public class MrXEvaluatorTest extends AITestBase {
         List<Move> mrXMoves = game.getAvailableMoves().stream().filter(x -> x.commencedBy().equals(Piece.MrX.MRX)).toList();
 
         //init mr X evaluator
-        MrXEvaluator mrXE = new MrXEvaluator(Arrays.asList(1.0, 1.0));
+        MrXEvaluator mrXE = new MrXEvaluator(Arrays.asList(1.0, 0.0));
         mrX.use(TAXI);
-        int mrXMovesSize = mrXE.getSafeMoves(mrXMoves, game, mrX);
         var score =  mrXE.score(GREEN, mrXMoves, -1, game);
-        score -= (mrXMovesSize*0.5);
-        assert (score == (distanceMeans*0.5));
+        assert (score == distanceMeans);
     }
 
 //    @Test public void testMovesCountSameAsMrXAvailableMoves() {
@@ -221,8 +218,10 @@ public class MrXEvaluatorTest extends AITestBase {
 
         double score = mrXE.score(Piece.MrX.MRX, List.copyOf(game.getAvailableMoves()), -1, game);
 
-        assert(score == (2*game.getAvailableMoves().size()));
+        assert(score == game.getAvailableMoves().size());
     }
+
+
 
     //For the following two tests
     //There should be at least one non-zero weight possible

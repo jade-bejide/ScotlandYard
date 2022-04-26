@@ -71,14 +71,33 @@ public class DetectiveEvaluator extends Evaluator{
     }
 
     //checks if Mr X's location has been revealed and update Mr X boundary as appropriate
-    private void isRevealed(Board.GameState board) {
+    private void whenRevealed(Board.GameState board) {
+
+        if (BoardHelper.getLastLog(board).location().isPresent()) {
+            if (!BoardHelper.getLastLog(board).location().isEmpty()) setMrXBoundary(BoardHelper.getLastLog(board).location().get(), board, false);
+        }
+    }
+
+    public int getMrXLocation(Board.GameState board) {
+        ImmutableList<LogEntry> log = board.getMrXTravelLog();
+        int n = log.size();
+        LogEntry currentLog = log.get(n-1);
+
+        if (currentLog.location().isPresent()) return currentLog.location().get();
+        //should never reach here
+        return 1;
+    }
+
+    public boolean isRevealed(Board.GameState board) {
         ImmutableList<LogEntry> log = board.getMrXTravelLog();
         int n = log.size();
         LogEntry currentLog = log.get(n-1);
 
         if (currentLog.location().isPresent()) {
-            if (!log.get(n-1).location().isEmpty()) setMrXBoundary(currentLog.location().get(), board, false);
+            return !log.get(n - 1).location().isEmpty();
         }
+
+        return false;
     }
 
     //for static evaluation, calculate distance to mr X
@@ -86,7 +105,9 @@ public class DetectiveEvaluator extends Evaluator{
         Random rand = new Random();
         List<Integer> possibleMrXLocationsList = new ArrayList<Integer>(possibleMrXLocations);
         //here they all decide that mr X is potentially at different locations rather than having a common goal
-        Integer targetNode = possibleMrXLocationsList.get(rand.nextInt(possibleMrXLocationsList.size()));
+        Integer targetNode = 1;
+        if (isRevealed(board)) targetNode = getMrXLocation(board);
+        else targetNode = possibleMrXLocationsList.get(rand.nextInt(possibleMrXLocationsList.size()));
         Player detective = BoardHelper.getDetectiveOnPiece(board, inPlay);
         return d.shortestPathFromSourceToDestination(targetNode, detective, board)
                 .getFirst(); //for refactoring in reference to passing board in
@@ -104,7 +125,7 @@ public class DetectiveEvaluator extends Evaluator{
 
 
         }
-        isRevealed(board);
+        whenRevealed(board);
         if (getMrXBoundary().isEmpty()) throw new IllegalArgumentException("Boundary should not be empty!");
         int distance = getDistanceToMrX(inPlay, board); /*some distance function*/
 

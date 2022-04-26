@@ -178,4 +178,11 @@ public class BoardHelper { //static methods/namespace which holds useful methods
 
         return List.of();
     }
+
+    public static LogEntry getLastLog(Board.GameState board) {
+        ImmutableList<LogEntry> log = board.getMrXTravelLog();
+        int n = log.size();
+
+        return log.get(n-1);
+    }
 }
