@@ -42,11 +42,10 @@ public class MrXEvaluatorTest extends AITestBase {
         //2sds so reduced shortest path is [1,5] mean is 3
 
         //init mr X evaluator
-        MrXEvaluator mrXE = new MrXEvaluator(Arrays.asList(1.0, 1.0));
+        MrXEvaluator mrXE = new MrXEvaluator(Arrays.asList(1.0, 0.0));
         mrX.use(TAXI);
         List<Move> mrXMoves = game.getAvailableMoves().stream().filter(x -> x.commencedBy()== Piece.MrX.MRX).toList();
-        //weight of 1 which is flattened to 0.5
-        assert(mrXE.score(BLUE, mrXMoves, -1, game) == (3*0.5)+(mrXE.getSafeMoves(mrXMoves, game, mrX)*0.5)); //-1 should tell evaluator not to effect your test
+        assert(mrXE.score(BLUE, mrXMoves, -1, game) == 3); //-1 should tell evaluator not to effect your test
     }
 
     @Test public void testCumulativeDistanceOnePlayer() {
@@ -59,7 +58,7 @@ public class MrXEvaluatorTest extends AITestBase {
         Board.GameState game = new MyGameStateFactory().build(standard24MoveSetup(), mrX, green);
 
         Dijkstra dijk = new Dijkstra();
-        MrXEvaluator mrXE = new MrXEvaluator(Arrays.asList(1.0, 1.0));
+        MrXEvaluator mrXE = new MrXEvaluator(Arrays.asList(1.0, 0.0));
         mrX.use(TAXI);
         double oneDetectiveShortestPath = (double)dijk.shortestPathFromSourceToDestination(mrX.location(), green, game).getFirst();
         List<Move> mrXMoves = game.getAvailableMoves().stream().filter(x -> x.commencedBy().equals(Piece.MrX.MRX)).toList();
@@ -94,12 +93,10 @@ public class MrXEvaluatorTest extends AITestBase {
         List<Move> mrXMoves = game.getAvailableMoves().stream().filter(x -> x.commencedBy().equals(Piece.MrX.MRX)).toList();
 
         //init mr X evaluator
-        MrXEvaluator mrXE = new MrXEvaluator(Arrays.asList(1.0, 1.0));
+        MrXEvaluator mrXE = new MrXEvaluator(Arrays.asList(1.0, 0.0));
         mrX.use(TAXI);
-        int mrXMovesSize = mrXE.getSafeMoves(mrXMoves, game, mrX);
         var score =  mrXE.score(GREEN, mrXMoves, -1, game);
-        score -= (mrXMovesSize*0.5);
-        assert (score == (distanceMeans*0.5));
+        assert (score == distanceMeans);
     }
 
 //    @Test public void testMovesCountSameAsMrXAvailableMoves() {
@@ -154,9 +151,33 @@ public class MrXEvaluatorTest extends AITestBase {
         //taxis - buses 3/13; undergrounds 3/13; doubles 2/13; secrets 5/13
         //buses - 30/13; undergrounds - 30/13; doubles - 22/13; secrets - 40/13
         //ticket score should be 122/13
-        System.out.println(score + " " + 122d/13d);
-        double calcScore = 122/13;
-        assert(score - calcScore == 0.0);
+        double calcScore = 122d/13;
+        assert(score - calcScore < 0.00000000000001);
+    }
+
+    @Test
+    public void testTicketHeuristicWithRandomSetOfTickets() {
+        Player mrX = new Player(Piece.MrX.MRX, ImmutableMap.of(
+                TAXI, 11,
+                ScotlandYard.Ticket.BUS, 5,
+                ScotlandYard.Ticket.UNDERGROUND, 4,
+                ScotlandYard.Ticket.SECRET, 3,
+                ScotlandYard.Ticket.DOUBLE, 1), 76);
+        Player green = new Player(GREEN, defaultDetectiveTickets(), 54);
+        Board.GameState game = new MyGameStateFactory().build(standard24MoveSetup(),
+                mrX, green);
+
+        MrXEvaluator mrXE = new MrXEvaluator(Arrays.asList(0.0, 0.0, 1.0));
+
+        double score = mrXE.score(Piece.MrX.MRX, List.copyOf(game.getAvailableMoves()), -1, game);
+
+        //again using a calculator...
+        //13 tickets
+        //bus 5/13; underground 4/13; secret 3/13; double 1/13
+        //bus 40/13; underground 36/13; secret 30/13; double 12/13
+        //ticket score should be 118/13
+
+        assert(score == 118d/13);
     }
 
     @Test
@@ -184,6 +205,23 @@ public class MrXEvaluatorTest extends AITestBase {
         MrXEvaluator w = new MrXEvaluator(Arrays.asList(-1.0,2.0, 1.0));
 
     }
+
+    //safe move tests
+    @Test
+    public void testSafeMovesEqualsAllMrXMovesWhenDetectivesFarAway() {
+        Player mrX = new Player(Piece.MrX.MRX, defaultMrXTickets(), 54);
+        Player green = new Player(GREEN, defaultDetectiveTickets(), 1);
+        Player red = new Player(RED, defaultDetectiveTickets(), 2);
+
+        Board.GameState game = new MyGameStateFactory().build(standard24MoveSetup(), mrX, green, red);
+        MrXEvaluator mrXE = new MrXEvaluator(Arrays.asList(0.0, 1.0, 0.0));
+
+        double score = mrXE.score(Piece.MrX.MRX, List.copyOf(game.getAvailableMoves()), -1, game);
+
+        assert(score == game.getAvailableMoves().size());
+    }
+
+
 
     //For the following two tests
     //There should be at least one non-zero weight possible
