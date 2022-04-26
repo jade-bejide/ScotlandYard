@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableSet;
 import uk.ac.bris.cs.scotlandyard.model.*;
 
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import static java.util.Collections.min;
@@ -94,11 +95,6 @@ public class MrXEvaluator extends Evaluator{
             List<Integer> values = Arrays.asList(buses, unders, secrets, doubles);
             int total = buses + unders + secrets + doubles;
 
-            System.out.println(total);
-            for (Integer val : values) {
-                System.out.println(val);
-            }
-
             //checking if there's one set of tickets left
             int zeroTickets = (int)values.stream().filter(x -> x == 0).count();
             if (values.size() - zeroTickets == 1) {
@@ -131,13 +127,15 @@ public class MrXEvaluator extends Evaluator{
     public int getSafeMoves(List<Move> moves, Board.GameState board, Player mrX) {
 
         DestinationChecker safeMoves = new DestinationChecker();
-        //System.out.println("Who's playing? Seems to BoardHelper like " + BoardHelper.getRemaining(board));
-        ImmutableList<Integer> detectivePossibleLocations = ImmutableList.copyOf(board.getAvailableMoves().stream().map(x -> x.accept(safeMoves)).toList());
-//        System.out.println("I think MRX is at node " + mrX.location() + " at this evaluation in MrXEvaluator.");
-//        System.out.println("The detectives could be anywhere! It's possible they're at nodes " + detectivePossibleLocations);
-        ImmutableList<Integer> mrXPossibleLocations = ImmutableList.copyOf(board.getSetup().graph.adjacentNodes(mrX.location()));
-//        System.out.println("MrX can go " + mrXPossibleLocations);
-        return (int) mrXPossibleLocations.stream().filter(x -> !detectivePossibleLocations.contains(x)).count();
+
+        Board.GameState nxtBoard = board.advance(moves.get(0));
+
+        List<Move> detectiveMoves = List.copyOf(nxtBoard.getAvailableMoves());
+
+        ImmutableList<Integer> detectivePossibleLocations = ImmutableList.copyOf(detectiveMoves.stream().map(x -> x.accept(safeMoves)).toList());
+        ImmutableList<Integer> mrXPossibleLocations = ImmutableList.copyOf(board.getAvailableMoves().stream().map(x -> x.accept(safeMoves)).toList());
+
+        return moves.size() + (int) mrXPossibleLocations.stream().filter(x -> !detectivePossibleLocations.contains(x)).count();
     }
 
     private int getMrXLocation(List<Move> moves, int id){
