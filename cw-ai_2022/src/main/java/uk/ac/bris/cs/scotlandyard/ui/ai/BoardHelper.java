@@ -188,13 +188,14 @@ public class BoardHelper { //static methods/namespace which holds useful methods
             System.out.println(logEntry.location());
         }
     }
-
+    //returns the most recent log entry
     public static LogEntry getLastLog(Board.GameState board) {
         ImmutableList<LogEntry> log = board.getMrXTravelLog();
         int n = log.size();
 
         return log.get(n-1);
     }
+
 
     public static LogEntry getLastRevealedLog(Board.GameState board){
         ImmutableList<LogEntry> log = board.getMrXTravelLog();
