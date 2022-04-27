@@ -43,7 +43,7 @@ public class DetectiveEvaluator extends Evaluator{
         }
 
         //if boundary is empty just fall back to the original boundary
-        if (boundary.size() > 0) return boundary;
+        if (boundary.size() > 0) { return boundary; System.out.println("got here"); }
         else return boundaryCpy;
     }
 
@@ -90,6 +90,7 @@ public class DetectiveEvaluator extends Evaluator{
         Integer targetNode = 1;
         if (isRevealed(board)) targetNode = getMrXLocation(board);
         else targetNode = possibleMrXLocationsList.get(rand.nextInt(possibleMrXLocationsList.size()));
+        //System.out.println(targetNode);
         Player detective = BoardHelper.getDetectiveOnPiece(board, inPlay);
         return d.shortestPathFromSourceToDestination(targetNode, detective, board)
                 .getFirst(); //for refactoring in reference to passing board in

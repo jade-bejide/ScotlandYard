@@ -52,7 +52,6 @@ public class DoubleTree {
       // // //  specific methods for the minimax tree // // //
     // // // // // // // // // // // // // // // // // // //
     public void setLocation(int depth, int branchNumber){ //switches branch number at depth
-        //System.out.println("Trying to set location to " + newLocation + " on depth " + depth + " and branch number " + branchNumber);
         setLocation(getLocation(depth, branchNumber));
     }
 
@@ -104,13 +103,13 @@ public class DoubleTree {
     }
 
     public void setValueOnLocation(double value){
-        //System.out.println("Set value of node at location " + this.location + " to " + value);
         atLocation.setValue(value);
     }
 
     public void show(){ root.show(); }
 
     public boolean equals(DoubleTree otherTree){
+        //printing is not superfluous and is in fact useful for holistic debugging
         show();
         otherTree.show();
         return root.equals(otherTree.getNodeOnLocation());

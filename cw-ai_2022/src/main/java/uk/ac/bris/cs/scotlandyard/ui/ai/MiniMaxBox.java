@@ -64,15 +64,10 @@ public class MiniMaxBox {
 
         //we pass in previous pieces moves, because its the previous piece's moves that are being evaluated
         if(currentlyAvailableMoves.size() == 0) { //this player cant move?
-            //System.out.println("Got here! #1");
             if (inPlay.isDetective()) { //are we in a detective round?
-                //System.out.println("Got here! #2");
                 if (board.getAvailableMoves().stream().noneMatch(x -> x.commencedBy().isDetective())){ //are all detective stuck?
-                    //System.out.println("Got here! #3");
                     return evaluate(myMoves, myID, board);
                 }
-                //if theyre not and one can move,
-                //System.out.println("Got here! #4");
                 return minimax(order, depth - 1, alpha, beta, myMoves, board, branchID); //if we can move some detectives then the game isnt over
             }
             if (inPlay.isMrX()) {
@@ -209,17 +204,8 @@ public class MiniMaxBox {
                 .right();
     }
 
-    // // // // TEST METHODS (apologies for the low cohesion & high coupling here) // // // //
-    // this method is used to separate behaviours of each minimax box test by resetting the instance (impure, mutates instance)
-//    public static MiniMaxBox renewInstance(Evaluator eMrX, Evaluator eDetectives, DoubleTree... possibleTestTree){
-//        instance = null;
-//        return MiniMaxBox.getInstance(eMrX, eDetectives, possibleTestTree);
-//    }
-
     //pure and safe test methods
     public DoubleTree getTree(){ return tree; }
     public List<Turn> getTurns(int depth, Board.GameState board){ return makeTurnSequence(depth, board); }
-    public Evaluator getMrXEvaluator(){ return mrXEvaluator; }
-    public Evaluator getDetectiveEvaluator() { return detectiveEvaluator; }
     public Evaluator getThisTurnStrategy(){ return thisTurnStrategy; }
 }
