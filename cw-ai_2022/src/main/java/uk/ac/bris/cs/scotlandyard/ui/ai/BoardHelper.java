@@ -199,12 +199,14 @@ public class BoardHelper { //static methods/namespace which holds useful methods
 
     public static LogEntry getLastRevealedLog(Board.GameState board){
         ImmutableList<LogEntry> log = board.getMrXTravelLog();
-        int n = log.size();
-        ImmutableSet<Integer> revealMoves = ScotlandYard.REVEAL_MOVES;
 
-        for(Integer m : revealMoves.stream().toList()){
-            if(m <= n) { n = m; }
+        int n = log.size();
+        List<Integer> revealMoves = new ArrayList<Integer>(ScotlandYard.REVEAL_MOVES);
+        for(int i = revealMoves.size() - 1; i >= 0; i--){
+            int move = revealMoves.get(i);
+            if(move <= n) { n = move; i = -1; } //break out
         }
+
         return log.get(n - 1);
     }
 }
