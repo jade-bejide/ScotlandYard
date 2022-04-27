@@ -27,14 +27,9 @@ public class Cy implements Ai {
 	    //first move in optimal moves as goes continue (move taken this turn by this player)
 		Move chosenMove = null;
 
-<<<<<<< HEAD
-		while (System.currentTimeMillis() < end && chosenMove == null) {
-			chosenMove = miniMaxBox.minimax(4, (Board.GameState) board).get(0);
-=======
 		while (System.currentTimeMillis() < end) {
 			chosenMove = miniMaxBox.minimax(5, (Board.GameState) board).get(0);
 			return chosenMove;
->>>>>>> origin/feature-jade
 		}
 
 		var moves = board.getAvailableMoves().asList();

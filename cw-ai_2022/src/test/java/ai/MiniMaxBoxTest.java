@@ -216,7 +216,8 @@ public class MiniMaxBoxTest {
         Board.GameState board = new MyGameStateFactory().build(AITestBase.standard24MoveSetup(),
                 mrX, blue);
         MiniMaxBox minimax = foldUpMiniMaxBox(new MrXEvaluator(Arrays.asList(1.0, 0.0, 0.0)), new DetectiveEvaluator(Arrays.asList(1.0, 0.0)));
-        minimax.minimax(2, board);
+        minimax.minimax(
+                2, board);
         DoubleTree prunedTree = new DoubleTree(
             new Node(1, Arrays.asList(
                 new Node(1, Arrays.asList(
