@@ -24,8 +24,8 @@ public class DetectiveEvaluator extends Evaluator{
     }
 
     //get and set boundaries
-
     private Set<Integer> filterBoundary(Board.GameState board, Set<Integer> boundary, Integer revealedLocation) {
+        Set<Integer> boundaryCpy = boundary;
         if (board.getPlayerTickets(Piece.MrX.MRX).isPresent()) {
             var mrXTickets = board.getPlayerTickets(Piece.MrX.MRX).get();
             boundary = boundary.stream().filter(x -> {
@@ -42,8 +42,9 @@ public class DetectiveEvaluator extends Evaluator{
             }).collect(Collectors.toSet());
         }
 
-
-        return boundary;
+        //if boundary is empty just fall back to the original boundary
+        if (boundary.size() > 0) return boundary;
+        else return boundaryCpy;
     }
 
     //refocuses mr X's boundary each time he reveals himself
@@ -72,9 +73,9 @@ public class DetectiveEvaluator extends Evaluator{
     }
 
     public int getMrXLocation(Board.GameState board) {
-        if (BoardHelper.getLastLog(board).location().isPresent()) return BoardHelper.getLastLog(board).location().get();
-        //should never reach here
-        return 1;
+        LogEntry currentLastReveal = BoardHelper.getLastRevealedLog(board);
+        return currentLastReveal.location().isPresent() ? currentLastReveal.location().get() : 1;
+
     }
 
     public boolean isRevealed(Board.GameState board) {
@@ -87,8 +88,8 @@ public class DetectiveEvaluator extends Evaluator{
         List<Integer> possibleMrXLocationsList = new ArrayList<Integer>(possibleMrXLocations);
         //here they all decide that mr X is potentially at different locations rather than having a common goal
         Integer targetNode = 1;
-        if (isRevealed(board)) targetNode = getMrXLocation(board);
-        else targetNode = possibleMrXLocationsList.get(rand.nextInt(possibleMrXLocationsList.size()));
+        /*if (isRevealed(board))*/ targetNode = getMrXLocation(board);
+        //else targetNode = possibleMrXLocationsList.get(rand.nextInt(possibleMrXLocationsList.size()));
         Player detective = BoardHelper.getDetectiveOnPiece(board, inPlay);
         return d.shortestPathFromSourceToDestination(targetNode, detective, board)
                 .getFirst(); //for refactoring in reference to passing board in

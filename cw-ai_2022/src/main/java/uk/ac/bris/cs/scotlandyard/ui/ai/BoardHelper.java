@@ -2,6 +2,7 @@ package uk.ac.bris.cs.scotlandyard.ui.ai;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import uk.ac.bris.cs.scotlandyard.model.*;
 import uk.ac.bris.cs.scotlandyard.ui.model.PlayerProperty;
 
@@ -135,7 +136,7 @@ public class BoardHelper { //static methods/namespace which holds useful methods
 //        )
 //    }
 
-    static class DestinationChecker implements Move.Visitor<Integer> {
+    public static class DestinationChecker implements Move.Visitor<Integer> {
 
         @Override
         public Integer visit(Move.SingleMove move) {
@@ -193,5 +194,16 @@ public class BoardHelper { //static methods/namespace which holds useful methods
         int n = log.size();
 
         return log.get(n-1);
+    }
+
+    public static LogEntry getLastRevealedLog(Board.GameState board){
+        ImmutableList<LogEntry> log = board.getMrXTravelLog();
+        int n = log.size();
+        ImmutableSet<Integer> revealMoves = ScotlandYard.REVEAL_MOVES;
+
+        for(Integer m : revealMoves.stream().toList()){
+            if(m <= n) { n = m; }
+        }
+        return log.get(n - 1);
     }
 }

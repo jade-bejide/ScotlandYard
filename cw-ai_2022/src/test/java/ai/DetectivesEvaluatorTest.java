@@ -72,8 +72,7 @@ public class DetectivesEvaluatorTest extends AITestBase {
 
         DetectiveEvaluator dE = new DetectiveEvaluator(Arrays.asList(1.0, 1.0));
         dE.setMrXBoundary(54, game, false);
-        System.out.println(dE.getMrXBoundary());
-        assert(dE.getMrXBoundary().containsAll(Set.of(41, 28, 29, 54, 53, 40, 69, 70, 71, 87, 15, 52, 55, 89)));
+        assert(dE.getMrXBoundary().containsAll(Set.of(41, 70, 55, 53)));
     }
 
     //will test that set boundary matches expected given needed filtering
@@ -91,9 +90,8 @@ public class DetectivesEvaluatorTest extends AITestBase {
         dEFiltering.setMrXBoundary(24, game, true);
         Set<Integer> filteredBoundary = dEFiltering.getMrXBoundary();
 
-        //this is valid, assume Mr X has used his last taxi ticket
-        //after the detectives move, he may later be able to move
-        assert(filteredBoundary.isEmpty());
+        //filtered boundary would be empty so fall back to unfiltered boundary
+        assert(filteredBoundary.containsAll(game.getSetup().graph.adjacentNodes(24)));
 
         //situation 2 - partial filtering
         dEFiltering.setMrXBoundary(22, game, true);

@@ -6,14 +6,6 @@ import uk.ac.bris.cs.scotlandyard.model.*;
 import java.util.*;
 
 public class MiniMaxBox {
-    /*minimax handler is a stateful singleton class
-    it defines a recursion depth for the algorithm,
-    it should remember when we've asked it to predict detective's moves,
-    the minimax algorithm can predict lists of optimal moves at once which optimises the process of moving multiple
-    detectives in the same turn. it will store these moves until it needs to calculate more (recursion depth correlates
-    to number of moves calculated.
-     */
-    static private MiniMaxBox instance = null;
 
     private final Evaluator mrXEvaluator;
     private final Evaluator detectiveEvaluator;
@@ -25,16 +17,11 @@ public class MiniMaxBox {
     // unit test minimax tree
     private final DoubleTree tree;
 
-    private MiniMaxBox(Evaluator eMrX, Evaluator eDetectives, DoubleTree... possibleTestTree){
+    public MiniMaxBox(Evaluator eMrX, Evaluator eDetectives, DoubleTree... possibleTestTree){
+        if(possibleTestTree.length > 1) throw new AssertionError("You're passing in too many test trees to MiniMaxBox");
         this.mrXEvaluator = eMrX;
         this.detectiveEvaluator = eDetectives;
         this.tree = possibleTestTree.length > 0 ? possibleTestTree[0] : null;
-    }
-
-    public static MiniMaxBox getInstance(Evaluator eMrX, Evaluator eDetectives, DoubleTree... possibleTestTree){ //singleton
-        if(possibleTestTree.length > 1) throw new AssertionError("You're passing in too many test trees to MiniMaxBox");
-        if(instance == null) { instance = new MiniMaxBox(eMrX, eDetectives, possibleTestTree); }
-        return instance;
     }
 
     private Pair<Double, List<Move>> evaluate(List<Move> moves, int id, Board.GameState board){
@@ -101,16 +88,19 @@ public class MiniMaxBox {
             evaluation = -Double.MAX_VALUE;
             for(int i = 0; i < currentlyAvailableMoves.size(); i++){ //for all mrx's moves
                 Move move = currentlyAvailableMoves.get(i);
-                if (move.commencedBy().isDetective()) throw new IllegalArgumentException("Not on a detective level");
+
                 // Tree testing (not part of minimax functionality)
                 if(tree != null) { tree.prepareChild(recursions, branchID, evaluation); }
-                //
+                // //
+
                 //alpha and beta just get passed down the tree at first
                 Pair<Double, List<Move>> child = minimax(order, depth - 1, alpha, beta, myMoves, board.advance(move), i);
                 double moveValue = child.left();
+
                 // Tree testing (not part of minimax functionality)
                 if(tree != null) { tree.specifyAndSetChild(tree.getLocation(recursions, branchID), i, moveValue); }
-                //
+                // //
+
                 // passing back up the tree occurs on the line below
                 alpha = Math.max(alpha, moveValue); //sets alpha progressively so that pruning can occur
                 if(evaluation <= moveValue){ //max
@@ -122,9 +112,11 @@ public class MiniMaxBox {
                     i = currentlyAvailableMoves.size(); //break out of the loop
                 }
             }
-            // tree test
+
+            // Tree testing (not part of minimax functionality)
             if(tree != null) { tree.specifyAndSetParent(recursions, branchID, evaluation); }
             // //
+
             return new Pair<Double, List<Move>>(evaluation, newPath);
         }
         //minimising player
@@ -132,15 +124,18 @@ public class MiniMaxBox {
             evaluation = Double.MAX_VALUE;
             for(int i = 0; i < currentlyAvailableMoves.size(); i++){ //for all mrx's moves
                 Move move = currentlyAvailableMoves.get(i);
-                if (move.commencedBy().isMrX()) throw new IllegalArgumentException("Not on a mr X level");
+
                 // Tree testing (not part of minimax functionality)
                 if(tree != null) { tree.prepareChild(recursions, branchID, evaluation); }
-                //
+                // //
+
                 Pair<Double, List<Move>> child = minimax(order, depth - 1, alpha, beta, myMoves, board.advance(move), i);
                 double moveValue = child.left();
+
                 // Tree testing (not part of minimax functionality)
                 if(tree != null) { tree.specifyAndSetChild(tree.getLocation(recursions, branchID), i, moveValue); }
-                //
+                // //
+
                 beta = Math.min(beta, moveValue); //sets beta progressively so that pruning can occur
                 if(evaluation >= moveValue){ //min
                     evaluation = moveValue;
@@ -151,9 +146,11 @@ public class MiniMaxBox {
                     i = currentlyAvailableMoves.size();
                 }//break out of the loop
             }
+
             // Tree testing (not part of minimax functionality)
             if(tree != null) { tree.specifyAndSetParent(recursions, branchID, evaluation); }
-            //
+            // //
+
             return new Pair<Double, List<Move>>(evaluation, newPath);
         }
     }
@@ -214,10 +211,10 @@ public class MiniMaxBox {
 
     // // // // TEST METHODS (apologies for the low cohesion & high coupling here) // // // //
     // this method is used to separate behaviours of each minimax box test by resetting the instance (impure, mutates instance)
-    public static MiniMaxBox renewInstance(Evaluator eMrX, Evaluator eDetectives, DoubleTree... possibleTestTree){
-        instance = null;
-        return MiniMaxBox.getInstance(eMrX, eDetectives, possibleTestTree);
-    }
+//    public static MiniMaxBox renewInstance(Evaluator eMrX, Evaluator eDetectives, DoubleTree... possibleTestTree){
+//        instance = null;
+//        return MiniMaxBox.getInstance(eMrX, eDetectives, possibleTestTree);
+//    }
 
     //pure and safe test methods
     public DoubleTree getTree(){ return tree; }
