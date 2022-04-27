@@ -43,7 +43,7 @@ public class DetectiveEvaluator extends Evaluator{
         }
 
         //if boundary is empty just fall back to the original boundary
-        if (boundary.size() > 0) { return boundary; System.out.println("got here"); }
+        if (boundary.size() > 0) return boundary;
         else return boundaryCpy;
     }
 
@@ -68,8 +68,7 @@ public class DetectiveEvaluator extends Evaluator{
 
     //checks if Mr X's location has been revealed and update Mr X boundary as appropriate
     private void whenRevealed(Board.GameState board) {
-
-        if (BoardHelper.getLastLog(board).location().isPresent()) setMrXBoundary(BoardHelper.getLastLog(board).location().get(), board, false);
+        if (BoardHelper.getLastRevealedLog(board).location().isPresent()) setMrXBoundary(BoardHelper.getLastRevealedLog(board).location().get(), board, false);
     }
 
     public int getMrXLocation(Board.GameState board) {
@@ -79,7 +78,7 @@ public class DetectiveEvaluator extends Evaluator{
     }
 
     public boolean isRevealed(Board.GameState board) {
-        return BoardHelper.getLastLog(board).location().isPresent();
+        return BoardHelper.getLastRevealedLog(board).location().isPresent();
     }
 
     //for static evaluation, calculate distance to mr X
@@ -90,7 +89,6 @@ public class DetectiveEvaluator extends Evaluator{
         Integer targetNode = 1;
         if (isRevealed(board)) targetNode = getMrXLocation(board);
         else targetNode = possibleMrXLocationsList.get(rand.nextInt(possibleMrXLocationsList.size()));
-        //System.out.println(targetNode);
         Player detective = BoardHelper.getDetectiveOnPiece(board, inPlay);
         return d.shortestPathFromSourceToDestination(targetNode, detective, board)
                 .getFirst(); //for refactoring in reference to passing board in
@@ -106,6 +104,7 @@ public class DetectiveEvaluator extends Evaluator{
             }
         }
         whenRevealed(board);
+
         if (getMrXBoundary().isEmpty()) throw new IllegalArgumentException("Boundary should not be empty!");
         int distance = getDistanceToMrX(inPlay, board); /*some distance function*/
 
