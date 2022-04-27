@@ -179,6 +179,15 @@ public class BoardHelper { //static methods/namespace which holds useful methods
         return List.of();
     }
 
+    public static void printLog(Board.GameState board) {
+        ImmutableList<LogEntry> log = board.getMrXTravelLog();
+        int n = log.size();
+
+        for (LogEntry logEntry : log) {
+            System.out.println(logEntry.location());
+        }
+    }
+
     public static LogEntry getLastLog(Board.GameState board) {
         ImmutableList<LogEntry> log = board.getMrXTravelLog();
         int n = log.size();

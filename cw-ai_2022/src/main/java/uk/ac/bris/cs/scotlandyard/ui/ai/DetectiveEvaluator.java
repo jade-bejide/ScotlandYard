@@ -52,15 +52,14 @@ public class DetectiveEvaluator extends Evaluator{
 
     //refocuses mr X's boundary each time he reveals himself
     public void setMrXBoundary(Integer revealedLocation, Board.GameState board, boolean isFiltering) {
-        System.out.println(revealedLocation);
         if (revealedLocation < 1 || revealedLocation > 199) throw new IllegalArgumentException("Not a valid location");
         Set<Integer> boundary = new HashSet<Integer>(board.getSetup().graph.successors(revealedLocation));
 
         if (isFiltering) boundary = filterBoundary(board, boundary, revealedLocation);
         Set<Integer> boundaryCpy = Set.copyOf(boundary);
-        for (Integer node : boundaryCpy) {
-            boundary.addAll(board.getSetup().graph.successors(node));
-        }
+//        for (Integer node : boundaryCpy) {
+//            boundary.addAll(board.getSetup().graph.successors(node));
+//        }
         if (isFiltering) boundary = filterBoundary(board, boundary, revealedLocation);
         possibleMrXLocations = boundary;
     }
@@ -73,31 +72,17 @@ public class DetectiveEvaluator extends Evaluator{
     //checks if Mr X's location has been revealed and update Mr X boundary as appropriate
     private void whenRevealed(Board.GameState board) {
 
-        if (BoardHelper.getLastLog(board).location().isPresent()) {
-            if (!BoardHelper.getLastLog(board).location().isEmpty()) setMrXBoundary(BoardHelper.getLastLog(board).location().get(), board, false);
-        }
+        if (BoardHelper.getLastLog(board).location().isPresent()) setMrXBoundary(BoardHelper.getLastLog(board).location().get(), board, false);
     }
 
     public int getMrXLocation(Board.GameState board) {
-        ImmutableList<LogEntry> log = board.getMrXTravelLog();
-        int n = log.size();
-        LogEntry currentLog = log.get(n-1);
-
-        if (currentLog.location().isPresent()) return currentLog.location().get();
+        if (BoardHelper.getLastLog(board).location().isPresent()) return BoardHelper.getLastLog(board).location().get();
         //should never reach here
         return 1;
     }
 
     public boolean isRevealed(Board.GameState board) {
-        ImmutableList<LogEntry> log = board.getMrXTravelLog();
-        int n = log.size();
-        LogEntry currentLog = log.get(n-1);
-
-        if (currentLog.location().isPresent()) {
-            return !log.get(n - 1).location().isEmpty();
-        }
-
-        return false;
+        return BoardHelper.getLastLog(board).location().isPresent();
     }
 
     //for static evaluation, calculate distance to mr X
@@ -116,14 +101,11 @@ public class DetectiveEvaluator extends Evaluator{
 
     @Override
     public double score(Piece inPlay, List<Move> moves, int id, Board.GameState board) {
-
         if (inPlay.isMrX()) throw new IllegalArgumentException("Mr X shouldn't be minimising!");
         if (moves.size() > 0) {
             if (!(moves.stream().allMatch(x -> x.commencedBy().equals(inPlay)))) {
                 throw new IllegalArgumentException("All moves should be commenced by " + inPlay);
             }
-
-
         }
         whenRevealed(board);
         if (getMrXBoundary().isEmpty()) throw new IllegalArgumentException("Boundary should not be empty!");
@@ -131,8 +113,8 @@ public class DetectiveEvaluator extends Evaluator{
 
         int countMoves = moves.size();
         //if (distance < 3) return distance;
-        return distance;
-        //return (weights.get(0) * distance) + (weights.get(1) * countMoves);
+//        return distance;
+        return (weights.get(0) * distance) - (weights.get(1) * countMoves);
     }
 
 
