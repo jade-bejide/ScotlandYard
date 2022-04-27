@@ -1,18 +1,13 @@
 package uk.ac.bris.cs.scotlandyard.ui.ai;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import uk.ac.bris.cs.scotlandyard.model.*;
-
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import uk.ac.bris.cs.scotlandyard.model.Piece;
-
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static uk.ac.bris.cs.scotlandyard.model.Piece.Detective.GREEN;
 import static uk.ac.bris.cs.scotlandyard.model.ScotlandYard.Transport.TAXI;
 
 public class DetectiveEvaluator extends Evaluator{
@@ -22,6 +17,7 @@ public class DetectiveEvaluator extends Evaluator{
 
     public DetectiveEvaluator(List<Double> weights){
         this.weights = flatten(weights);
+        //mr X boundary is initialised to the entire graph
         for(int i = 1; i < 200; i++) {
             this.possibleMrXLocations.add(i);
         }
@@ -112,8 +108,6 @@ public class DetectiveEvaluator extends Evaluator{
         int distance = getDistanceToMrX(inPlay, board); /*some distance function*/
 
         int countMoves = moves.size();
-        //if (distance < 3) return distance;
-//        return distance;
         return (weights.get(0) * distance) - (weights.get(1) * countMoves);
     }
 
