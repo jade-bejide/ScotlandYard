@@ -73,7 +73,7 @@ public class MiniMaxBox {
                 }
                 //if theyre not and one can move,
                 //System.out.println("Got here! #4");
-                return minimax(order, depth - 1, alpha, beta, currentlyAvailableMoves, board, branchID); //if we can move some detectives then the game isnt over
+                return minimax(order, depth - 1, alpha, beta, myMoves, board, branchID); //if we can move some detectives then the game isnt over
             }
             if (inPlay.isMrX()) {
                 return evaluate(myMoves, myID, board); //dont check any of mrX's moves because hes stuck and has none
