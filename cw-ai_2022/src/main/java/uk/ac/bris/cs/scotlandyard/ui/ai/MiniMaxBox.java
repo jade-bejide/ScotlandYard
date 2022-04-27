@@ -53,12 +53,8 @@ public class MiniMaxBox {
         //we've reached ample recursion depth
         if(depth == 0) {
             //System.out.println("Evaluate move id " + myID + ", evaluation by " + thisTurnStrategy);
-            if (inPlay.isDetective()) {
-                return evaluate(myMoves, myID, board); //no different for situations that dont loop over the strategising player more than once
-            }
-            else {
-                return evaluate(myMoves, myID, board);
-            }
+            //no different for situations that dont loop over the strategising player more than once
+            return evaluate(myMoves, myID, board);
         }
 
 
@@ -109,10 +105,8 @@ public class MiniMaxBox {
             }
 
             // Tree testing (not part of minimax functionality)
-            if(tree != null) { tree.specifyAndSetParent(recursions, branchID, evaluation); }
             // //
 
-            return new Pair<Double, List<Move>>(evaluation, newPath);
         }
         //minimising player
         else /*if(toMove.isDetective())*/ {
@@ -143,14 +137,14 @@ public class MiniMaxBox {
             }
 
             // Tree testing (not part of minimax functionality)
-            if(tree != null) { tree.specifyAndSetParent(recursions, branchID, evaluation); }
             // //
 
-            return new Pair<Double, List<Move>>(evaluation, newPath);
         }
+        if(tree != null) { tree.specifyAndSetParent(recursions, branchID, evaluation); }
+        return new Pair<Double, List<Move>>(evaluation, newPath);
     }
 
-    //i'll find you all the pieces currently yet to play in a round! (for the minimax method)
+    //I'll find you all the pieces currently yet to play in a round! (for the minimax method)
     private ArrayList<Piece> getBoardRemaining(Board.GameState board){
         //create a snapshot of the board
         return new ArrayList<Piece>(BoardHelper.getRemaining(board));
@@ -166,11 +160,11 @@ public class MiniMaxBox {
         else currentDetectiveMoves = List.copyOf(board.getAvailableMoves());
         Piece inPlay = getNextGo(remaining);
         if(remaining.equals(List.of(Piece.MrX.MRX))) {
-            remaining = new ArrayList<Piece>(board.getPlayers()); //now its all players
-            remaining.remove(Piece.MrX.MRX); //remove whos currently played from whos left to play
+            remaining = new ArrayList<Piece>(board.getPlayers()); //now it's all players
+            remaining.remove(Piece.MrX.MRX); //remove whose currently played from whose left to play
         }else /*if detective*/{
             remaining.remove(inPlay);
-            if(remaining.isEmpty()) { remaining.add(Piece.MrX.MRX); } //mrx's round
+            if(remaining.isEmpty()) { remaining.add(Piece.MrX.MRX); } //mr x's round
         }
 
         return new Turn(inPlay, new ArrayList<Piece>(remaining));

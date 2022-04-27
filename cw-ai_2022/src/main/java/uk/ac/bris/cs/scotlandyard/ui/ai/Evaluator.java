@@ -1,10 +1,7 @@
 package uk.ac.bris.cs.scotlandyard.ui.ai;
 
-import com.google.common.collect.ImmutableSet;
-import com.google.common.graph.ImmutableValueGraph;
 import uk.ac.bris.cs.scotlandyard.model.*;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 

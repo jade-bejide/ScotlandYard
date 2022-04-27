@@ -5,8 +5,10 @@ import uk.ac.bris.cs.scotlandyard.model.*;
 import uk.ac.bris.cs.scotlandyard.model.Board;
 import uk.ac.bris.cs.scotlandyard.model.MyGameStateFactory;
 import uk.ac.bris.cs.scotlandyard.model.Player;
+import uk.ac.bris.cs.scotlandyard.ui.ai.BoardHelper;
 import uk.ac.bris.cs.scotlandyard.ui.ai.DetectiveEvaluator;
 
+import javax.print.attribute.standard.Destination;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -126,6 +128,70 @@ public class DetectivesEvaluatorTest extends AITestBase {
         assert(game.getMrXTravelLog().size() == 3);
         assert(dE.getMrXBoundary().stream().mapToInt(x -> x).sum() != 19900);
 
+    }
+
+    @Test
+    public void testRevealIsLawful() {
+        Player mrX = new Player(Piece.MrX.MRX, defaultMrXTickets(), 69);
+        Player green = new Player(GREEN, defaultDetectiveTickets(), 49);
+
+        Board.GameState game = new MyGameStateFactory().build(standard24MoveSetup(), mrX, green);
+
+        DetectiveEvaluator dE = new DetectiveEvaluator(Arrays.asList(1.0, 1.0));
+
+        //Before Mr X goes
+        assert(!dE.isRevealed(game));
+
+        //Round 1
+        game = game.advance(game.getAvailableMoves().asList().get(0));
+        game = game.advance(game.getAvailableMoves().asList().get(0));
+
+        assert(!dE.isRevealed(game));
+
+        //Round 2
+        game = game.advance(game.getAvailableMoves().asList().get(0));
+        game = game.advance(game.getAvailableMoves().asList().get(0));
+
+        assert(!dE.isRevealed(game));
+
+        //Round 3
+        game = game.advance(game.getAvailableMoves().asList().get(0));
+        game = game.advance(game.getAvailableMoves().asList().get(0));
+
+        assert(dE.isRevealed(game));
+
+    }
+
+    //check that detectives can see the correct location for mr X on a reveal move
+    @Test
+    public void testThatMrXLocationIsRevealedCorrectly() {
+        Player mrX = new Player(Piece.MrX.MRX, defaultMrXTickets(), 69);
+        Player green = new Player(GREEN, defaultDetectiveTickets(), 49);
+
+        Board.GameState game = new MyGameStateFactory().build(standard24MoveSetup(), mrX, green);
+
+        DetectiveEvaluator dE = new DetectiveEvaluator(Arrays.asList(1.0, 1.0));
+
+        //Round 1
+        game = game.advance(game.getAvailableMoves().asList().get(0));
+        game = game.advance(game.getAvailableMoves().asList().get(0));
+
+        //Round 2
+        game = game.advance(game.getAvailableMoves().asList().get(0));
+        game = game.advance(game.getAvailableMoves().asList().get(0));
+
+        //this would not be could if the log is not on a reveal move, but still checking that
+        //the ternary is accurate
+        assert(dE.getMrXLocation(game) == 1);
+
+        //Round 3
+        Move chosenMrXMove = game.getAvailableMoves().asList().get(0);
+        game = game.advance(chosenMrXMove);
+        game = game.advance(game.getAvailableMoves().asList().get(0));
+
+        BoardHelper.DestinationChecker destCheck = new BoardHelper.DestinationChecker();
+
+        assert(dE.getMrXLocation(game) == destCheck.visit((Move.SingleMove) chosenMrXMove));
     }
 
 

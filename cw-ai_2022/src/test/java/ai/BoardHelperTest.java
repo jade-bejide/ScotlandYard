@@ -55,11 +55,11 @@ public class BoardHelperTest extends AITestBase {
 
         Board.GameState game = new MyGameStateFactory().build(standard24MoveSetup(), mrX, blue);
 
-        Player boardHelperMrX = getMrX(game, 22);
+        Player boardHelperMrX = getMrX(game, mrX.location());
         List<Player> detectives = getDetectives(game);
 
         assert(detectives.get(0).piece() == BLUE);
-        assert(boardHelperMrX != null);
+        assert(boardHelperMrX.equals(mrX));
 
         assert(getPlayers(game).containsAll(detectives) && getPlayers(game).contains(boardHelperMrX));
     }
@@ -96,5 +96,70 @@ public class BoardHelperTest extends AITestBase {
         Board.GameState game = new MyGameStateFactory().build(standard24MoveSetup(), mrX, blue, green);
 
         getDetectiveOnPiece(game, MrX.MRX);
+    }
+
+    @Test
+    public void testCorrectDetectiveIsReturnedFromPiece() {
+        Player mrX = new Player(Piece.MrX.MRX, defaultMrXTickets(), 22);
+        Player blue = new Player(BLUE, defaultDetectiveTickets(), 5);
+        Player green = new Player(GREEN, defaultDetectiveTickets(), 76);
+
+        Board.GameState game = new MyGameStateFactory().build(standard24MoveSetup(), mrX, blue, green);
+        assert(getDetectiveOnPiece(game, GREEN).equals(green));
+        assert(getDetectiveOnPiece(game, BLUE).equals(blue));
+    }
+
+    //get
+    @Test
+    public void testThatLastRevealedLogReturnsTheCorrectLog() {
+        Player mrX = new Player(Piece.MrX.MRX, defaultMrXTickets(), 22);
+        Player blue = new Player(BLUE, defaultDetectiveTickets(), 5);
+
+        Board.GameState game = new MyGameStateFactory().build(standard24MoveSetup(), mrX, blue);
+
+        //Round 1
+        game = game.advance(game.getAvailableMoves().asList().get(0));
+        game = game.advance(game.getAvailableMoves().asList().get(0));
+        assert(getLastRevealedLog(game) == game.getMrXTravelLog().get(0));
+
+        //Round 2
+        game = game.advance(game.getAvailableMoves().asList().get(0));
+        game = game.advance(game.getAvailableMoves().asList().get(0));
+        assert(getLastRevealedLog(game) == game.getMrXTravelLog().get(1));
+
+        //Round 3
+        game = game.advance(game.getAvailableMoves().asList().get(0));
+        game = game.advance(game.getAvailableMoves().asList().get(0));
+        assert(getLastRevealedLog(game) == game.getMrXTravelLog().get(2));
+
+        //Round 4
+        game = game.advance(game.getAvailableMoves().asList().get(0));
+        game = game.advance(game.getAvailableMoves().asList().get(0));
+        assert(getLastRevealedLog(game) == game.getMrXTravelLog().get(2));
+
+        //Round 5
+        game = game.advance(game.getAvailableMoves().asList().get(0));
+        game = game.advance(game.getAvailableMoves().asList().get(0));
+        assert(getLastRevealedLog(game) == game.getMrXTravelLog().get(2));
+
+        //Round 6
+        game = game.advance(game.getAvailableMoves().asList().get(0));
+        game = game.advance(game.getAvailableMoves().asList().get(0));
+        assert(getLastRevealedLog(game) == game.getMrXTravelLog().get(2));
+
+        //Round 7
+        game = game.advance(game.getAvailableMoves().asList().get(0));
+        game = game.advance(game.getAvailableMoves().asList().get(0));
+        assert(getLastRevealedLog(game) == game.getMrXTravelLog().get(2));
+
+        //Round 8
+        game = game.advance(game.getAvailableMoves().asList().get(0));
+        game = game.advance(game.getAvailableMoves().asList().get(0));
+        assert(getLastRevealedLog(game) == game.getMrXTravelLog().get(7));
+
+        //Round 9
+        game = game.advance(game.getAvailableMoves().asList().get(0));
+        game = game.advance(game.getAvailableMoves().asList().get(0));
+        assert(getLastRevealedLog(game) == game.getMrXTravelLog().get(7));
     }
 }

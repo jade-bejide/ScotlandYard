@@ -50,13 +50,11 @@ public class DetectiveEvaluator extends Evaluator{
     //refocuses mr X's boundary each time he reveals himself
     public void setMrXBoundary(Integer revealedLocation, Board.GameState board, boolean isFiltering) {
         if (revealedLocation < 1 || revealedLocation > 199) throw new IllegalArgumentException("Not a valid location");
+
+        //boundary is now one set of successors wide, to focus the move pool
         Set<Integer> boundary = new HashSet<Integer>(board.getSetup().graph.successors(revealedLocation));
 
         if (isFiltering) boundary = filterBoundary(board, boundary, revealedLocation);
-        Set<Integer> boundaryCpy = Set.copyOf(boundary);
-//        for (Integer node : boundaryCpy) {
-//            boundary.addAll(board.getSetup().graph.successors(node));
-//        }
         if (isFiltering) boundary = filterBoundary(board, boundary, revealedLocation);
         possibleMrXLocations = boundary;
     }
@@ -78,7 +76,9 @@ public class DetectiveEvaluator extends Evaluator{
     }
 
     public boolean isRevealed(Board.GameState board) {
-        return BoardHelper.getLastRevealedLog(board).location().isPresent();
+        int n = board.getMrXTravelLog().size();
+        if (n > 0) return BoardHelper.getLastRevealedLog(board).location().isPresent();
+        else return false;
     }
 
     //for static evaluation, calculate distance to mr X
@@ -86,7 +86,7 @@ public class DetectiveEvaluator extends Evaluator{
         Random rand = new Random();
         List<Integer> possibleMrXLocationsList = new ArrayList<Integer>(possibleMrXLocations);
         //here they all decide that mr X is potentially at different locations rather than having a common goal
-        Integer targetNode = 1;
+        Integer targetNode;
         if (isRevealed(board)) targetNode = getMrXLocation(board);
         else targetNode = possibleMrXLocationsList.get(rand.nextInt(possibleMrXLocationsList.size()));
         Player detective = BoardHelper.getDetectiveOnPiece(board, inPlay);
@@ -106,7 +106,7 @@ public class DetectiveEvaluator extends Evaluator{
         whenRevealed(board);
 
         if (getMrXBoundary().isEmpty()) throw new IllegalArgumentException("Boundary should not be empty!");
-        int distance = getDistanceToMrX(inPlay, board); /*some distance function*/
+        int distance = getDistanceToMrX(inPlay, board); //distance heuristic
 
         int countMoves = moves.size();
         return (weights.get(0) * distance) - (weights.get(1) * countMoves);

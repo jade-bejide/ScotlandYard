@@ -1,13 +1,8 @@
 package uk.ac.bris.cs.scotlandyard.ui.ai;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
+
 import uk.ac.bris.cs.scotlandyard.model.*;
-
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
-
 import static java.util.Collections.min;
 import static uk.ac.bris.cs.scotlandyard.model.ScotlandYard.Ticket.*;
 import static uk.ac.bris.cs.scotlandyard.ui.ai.BoardHelper.*;
@@ -69,6 +64,7 @@ public class MrXEvaluator extends Evaluator{
         }
     }
 
+    //calculates the distance score
     private int cumulativeDistance(Board.GameState board, Player mrX, List<Player> detectives) {
         int mrXLocation = mrX.location();
         List<Integer> distancePath = new ArrayList<>();
@@ -82,6 +78,7 @@ public class MrXEvaluator extends Evaluator{
         else return distancePath.get(0);
     }
 
+    //calculates the ticket score
     private double ticketHeuristic(Board.GameState board) {
         double ticketScore = 0.0;
 
@@ -122,22 +119,6 @@ public class MrXEvaluator extends Evaluator{
         return 0.0;
     }
 
-
-
-    private int getSafeMoves(List<Move> moves, Board.GameState board, Player mrX) {
-
-        DestinationChecker safeMoves = new DestinationChecker();
-
-        Board.GameState nxtBoard = board.advance(moves.get(0));
-
-        List<Move> detectiveMoves = List.copyOf(nxtBoard.getAvailableMoves());
-
-        ImmutableList<Integer> detectivePossibleLocations = ImmutableList.copyOf(detectiveMoves.stream().map(x -> x.accept(safeMoves)).toList());
-        ImmutableList<Integer> mrXPossibleLocations = ImmutableList.copyOf(board.getAvailableMoves().stream().map(x -> x.accept(safeMoves)).toList());
-
-        return moves.size() + (int) mrXPossibleLocations.stream().filter(x -> !detectivePossibleLocations.contains(x)).count();
-    }
-
     private int getMrXLocation(List<Move> moves, int id){
         DestinationChecker destinationVisitor = new DestinationChecker();
         // returns mrx's location at parent/this node being evaluated (his actual location)
@@ -162,6 +143,7 @@ public class MrXEvaluator extends Evaluator{
             }
         }
 
+        //if mr x has no moves, just pick from one of his starter locations
         if (mrXLocation == -1) {
             Random random = new Random();
             mrXLocation = ScotlandYard.MRX_LOCATIONS.get(random.nextInt(ScotlandYard.MRX_LOCATIONS.size()));

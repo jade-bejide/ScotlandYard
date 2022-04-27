@@ -2,7 +2,6 @@ package uk.ac.bris.cs.scotlandyard.ui.ai;
 
 import uk.ac.bris.cs.scotlandyard.model.Piece;
 
-import java.util.Arrays;
 import java.util.List;
 
 // like a piece wrapper class but it needs remaining to generate successive turns,
