@@ -232,6 +232,17 @@ public class MiniMaxBoxTest {
         assert(minimax.getTree().equals(prunedTree)); //test that the generated tree is equal to the pruned tree
     }
 
+    DoubleTree prunedTree = new DoubleTree(
+            new Node(1, Arrays.asList(
+                    new Node(1, Arrays.asList(
+                            new Node(1),
+                            new Node(1)
+                    )),
+                    new Node(1, Arrays.asList(
+                            new Node(1)
+                    ))
+            )));
+
     //testing specific setups
     @Test
     public void testMrXChoosesTheRightMove(){
