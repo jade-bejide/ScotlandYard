@@ -19,8 +19,12 @@ public class TreeTest {
 
     @Test
     public void testTreesAreEqual(){
-        DoubleTree tree1 = new DoubleTree();
-        DoubleTree tree2 = new DoubleTree();
+        DoubleTree tree1 = new DoubleTree(new Node(1.0,
+                Arrays.asList(new Node(2.0), new Node(3.0)))
+        );
+        DoubleTree tree2 = new DoubleTree(new Node(1.0,
+                Arrays.asList(new Node(2.0), new Node(3.0)))
+        );
         assert(tree1.equals(tree2));
     }
 
@@ -55,9 +59,4 @@ public class TreeTest {
         )));
         assert(tree1.equals(tree2));
     }
-
-//    @Test public void testAddToTreeSanity(){
-//        DoubleTree tree = new DoubleTree(new Node(1));
-//        tree.show();
-//    }
 }
