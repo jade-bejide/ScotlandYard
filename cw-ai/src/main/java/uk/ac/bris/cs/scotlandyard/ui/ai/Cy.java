@@ -20,6 +20,6 @@ public class Cy implements Ai {
 		Evaluator detectiveBrain = new DetectiveEvaluator(Arrays.asList(3.0, 1.0));
 		MiniMaxBox miniMaxBox = new MiniMaxBox(mrXBrain, detectiveBrain);
 
-		return miniMaxBox.minimax(4, (Board.GameState) board).get(0);;
+		return miniMaxBox.minimax(4, (Board.GameState) board).get(0);
 	}
 }
