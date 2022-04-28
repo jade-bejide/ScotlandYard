@@ -381,11 +381,11 @@ public final class MyGameStateFactory implements Factory<GameState> {
 			Player player = getPlayerOnPiece(move.commencedBy());
 			Piece piece = player.piece();
 
+			//use of anonymous class as GameState visitor has one point of call
 			return move.accept(new Visitor<GameState>(){ //our gamestate-making visitor
 				public GameState visit(SingleMove move){
 					if (!setup.graph.adjacentNodes(move.source()).contains(move.destination)) throw new IllegalArgumentException("Illegal move! " + move);
 					Ticket ticketUsed = ImmutableList.copyOf(move.tickets()).get(0);
-					/* singlemove code */
 					if(player.piece() == MrX.MRX){ //if the player taking the move is a detective (black piece)
 						boolean hidden = !setup.moves.get(log.size()); //is this move hidden
 
@@ -416,6 +416,7 @@ public final class MyGameStateFactory implements Factory<GameState> {
 						return new MyGameState(setup, nextRemaining(remaining, piece), log, mrXMutable, ImmutableList.copyOf(detectivesMutable));
 					}
 				}
+
 				public GameState visit(DoubleMove move){
 					/* doublemove code */
 					GameState gs;

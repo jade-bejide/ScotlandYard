@@ -109,7 +109,7 @@ public class BoardHelperTest extends AITestBase {
         assert(getDetectiveOnPiece(game, BLUE).equals(blue));
     }
 
-    //get
+
     @Test
     public void testThatLastRevealedLogReturnsTheCorrectLog() {
         Player mrX = new Player(Piece.MrX.MRX, defaultMrXTickets(), 22);

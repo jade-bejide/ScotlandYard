@@ -17,6 +17,7 @@ public class MiniMaxBox {
     // unit test minimax tree
     private final DoubleTree tree;
 
+    //number of possibleTestTree s (if any) varies so make use of variadics
     public MiniMaxBox(Evaluator eMrX, Evaluator eDetectives, DoubleTree... possibleTestTree){
         if(possibleTestTree.length > 1) throw new AssertionError("You're passing in too many test trees to MiniMaxBox");
         this.mrXEvaluator = eMrX;
@@ -108,8 +109,8 @@ public class MiniMaxBox {
             // //
 
         }
-        //minimising player
-        else /*if(toMove.isDetective())*/ {
+        //minimising player (detectives)
+        else {
             evaluation = Double.MAX_VALUE;
             for(int i = 0; i < currentlyAvailableMoves.size(); i++){ //for all mrx's moves
                 Move move = currentlyAvailableMoves.get(i);
@@ -182,13 +183,12 @@ public class MiniMaxBox {
 
         return sequence;
     }
-     //@Overloading
+    //@Overloading
     public List<Move> minimax(int depth, Board.GameState board){
         // test tree
         if(tree != null) { tree.clear(); } //reset to default tree
         //
 
-        //tree.addNodeOnLocation(new Node(-Double.MAX_VALUE));
         List<Turn> order = makeTurnSequence(depth, board);
         thisTurn = order.get(0); // the turn taken by THIS call to pickMove
         //how we score THIS turn (makes sure detectives only see what they should on their turn)

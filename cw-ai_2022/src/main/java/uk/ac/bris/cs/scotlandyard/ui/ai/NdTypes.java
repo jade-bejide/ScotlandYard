@@ -1,6 +1,7 @@
 package uk.ac.bris.cs.scotlandyard.ui.ai;
 
 //Generic datastructures to allow storage of up to three different pieces of data
+//the main use of this class was to test the different components of the Dijkstra class's behaviour
 public class NdTypes {
     public static class Id<T> {
         private final T a;
@@ -19,6 +20,7 @@ public class NdTypes {
         private final U b;
 
         Tuple(T a, U b){
+            //define a via the superclass Id
             super(a);
             this.b = b;
         }

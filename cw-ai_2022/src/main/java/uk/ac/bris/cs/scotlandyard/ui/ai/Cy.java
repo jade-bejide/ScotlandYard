@@ -16,7 +16,6 @@ public class Cy implements Ai {
 	@Nonnull @Override public Move pickMove(
 			@Nonnull Board board,
 			Pair<Long, TimeUnit> timeoutPair) {
-
 		// returns a random move, replace with your own implementation
 		long start = System.currentTimeMillis();
 		long end = start + ((timeoutPair.left()/2) * 1000);

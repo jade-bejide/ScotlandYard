@@ -14,7 +14,6 @@ public class Turn {
     Turn(Piece playedBy, List<Piece> remaining/*, Evaluator evaluator*/){
         this.playedBy = playedBy;
         this.remaining = remaining;
-        //this.evaluator = evaluator;
     }
 
     public Piece playedBy(){ return playedBy; }

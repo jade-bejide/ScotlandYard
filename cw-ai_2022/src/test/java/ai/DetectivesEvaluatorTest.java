@@ -191,6 +191,8 @@ public class DetectivesEvaluatorTest extends AITestBase {
 
         BoardHelper.DestinationChecker destCheck = new BoardHelper.DestinationChecker();
 
+        //We know chosenMrXMove is a SingleMove so use down casting to be able
+        //to use the visitor pattern and abstract the given location
         assert(dE.getMrXLocation(game) == destCheck.visit((Move.SingleMove) chosenMrXMove));
     }
 

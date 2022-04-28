@@ -20,9 +20,9 @@ public final class MyModelFactory implements Factory<Model> {
 	@Nonnull @Override public Model build(GameSetup setup,
 	                                      Player mrX,
 	                                      ImmutableList<Player> detectives) {
-		// TODO
+		//use of the observer pattern to monitor the state of the game
 		return new Model() {
-			private final List<Observer> characters = new ArrayList<>();
+			private final List<Observer> observers = new ArrayList<>();
 			private Board.GameState gs = new MyGameStateFactory().build(setup, mrX, detectives);
 
 			@Nonnull
@@ -35,8 +35,8 @@ public final class MyModelFactory implements Factory<Model> {
 			@Override
 			public void registerObserver(@Nonnull Observer observer) {
 				if (observer == null) throw new NullPointerException("No null observers!");
-				if (characters.contains(observer)) throw new IllegalArgumentException("Can't have two of the same observer!");
-				characters.add(observer);
+				if (observers.contains(observer)) throw new IllegalArgumentException("Can't have two of the same observer!");
+				observers.add(observer);
 			}
 
 			//removes an observer from the list of observers, given that the observer is in
@@ -44,14 +44,14 @@ public final class MyModelFactory implements Factory<Model> {
 			@Override
 			public void unregisterObserver(@Nonnull Observer observer) {
 				if (observer == null) throw new NullPointerException("No null observers!");
-				if (!characters.contains(observer)) throw new IllegalArgumentException("Observer not present!");
-				characters.remove(observer);
+				if (!observers.contains(observer)) throw new IllegalArgumentException("Observer not present!");
+				observers.remove(observer);
 			}
 
 			@Nonnull
 			@Override
 			public ImmutableSet<Observer> getObservers() {
-				return ImmutableSet.copyOf(characters);
+				return ImmutableSet.copyOf(observers);
 			}
 
 			//progresses game if the game is not over or ends the game
@@ -60,9 +60,9 @@ public final class MyModelFactory implements Factory<Model> {
 				gs = gs.advance(move);
 				ImmutableSet<Piece> winners = gs.getWinner();
 				if(winners.size() > 0){
-					for(Observer observer : characters) observer.onModelChanged(gs, Observer.Event.GAME_OVER);
+					for(Observer observer : observers) observer.onModelChanged(gs, Observer.Event.GAME_OVER);
 				}else{
-					for(Observer observer : characters) observer.onModelChanged(gs, Observer.Event.MOVE_MADE);
+					for(Observer observer : observers) observer.onModelChanged(gs, Observer.Event.MOVE_MADE);
 				}
 			}
 		};

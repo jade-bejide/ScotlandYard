@@ -5,6 +5,9 @@ import uk.ac.bris.cs.scotlandyard.model.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
+//Here we are making use of an abstract class because the behaviour for flatten
+//is the same across all Evaluators whereas the score method differs across concrete
+//implementations of Evaluator
 public abstract class Evaluator { //for static evaluation anoymous classes and strategy pattern
     public List<Double> flatten(List<Double> weights) { //set weights to sum to 1
         if (weights.stream().allMatch(x -> x == 0.0)) throw new IllegalArgumentException("Weights cannot all be zero!");

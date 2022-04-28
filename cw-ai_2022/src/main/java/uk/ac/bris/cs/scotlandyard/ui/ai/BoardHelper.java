@@ -114,14 +114,15 @@ public class BoardHelper { //static methods/namespace which holds useful methods
         return mrX;
     }
 
+    //use of the visitor pattern to get the destination of a move from
+    //List<Move> as subtype polymorphism is used (Move has two children -
+    //double and single move
     public static class DestinationChecker implements Move.Visitor<Integer> {
-
         @Override
         public Integer visit(Move.SingleMove move) {
             return move.destination;
         }
 
-        //Note that this will never be called
         @Override
         public Integer visit(Move.DoubleMove move) {
             return move.destination2;
