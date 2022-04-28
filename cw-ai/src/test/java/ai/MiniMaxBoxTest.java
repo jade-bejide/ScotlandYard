@@ -136,12 +136,6 @@ public class MiniMaxBoxTest {
 
     @Test
     public void testMiniMaxRecursionToTree(){
-//        Evaluator simpleMrXEvaluator = new Evaluator() {
-//            @Override
-//            public double score(Piece inPlay, List<Move> moves, Board.GameState board) {
-//                return BoardHelper.getMrX(board);
-//            }
-//        };
         Evaluator simpleDetectiveEvaluator = new Evaluator() {
             @Override
             public double score(Piece inPlay, List<Move> moves, int id, Board.GameState board) {
